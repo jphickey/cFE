@@ -190,7 +190,6 @@ void UtTest_Setup(void)
     /* cfe_tbl_task.c functions */
     UT_ADD_TEST(Test_CFE_TBL_TaskInit);
     UT_ADD_TEST(Test_CFE_TBL_InitData);
-    UT_ADD_TEST(Test_CFE_TBL_SearchCmdHndlrTbl);
 
     /* cfe_tbl_task_cmds.c functions */
     /* This should be done first (it initializes working data structures) */
@@ -430,43 +429,6 @@ void Test_CFE_TBL_InitData(void)
     UT_InitData();
     CFE_TBL_InitData();
     UtAssert_STUB_COUNT(CFE_MSG_Init, 3);
-}
-
-/*
-** Test command handler table message ID (or command code) search function
-*/
-void Test_CFE_TBL_SearchCmdHndlrTbl(void)
-{
-    uint16         CmdCode;
-    CFE_SB_MsgId_t MsgID;
-
-    UtPrintf("Begin Test Search Command Handler Table");
-
-    /* Test successfully finding a matching message ID and command code */
-    UT_InitData();
-    MsgID   = CFE_SB_ValueToMsgId(CFE_TBL_CMD_MID);
-    CmdCode = CFE_TBL_NOOP_CC;
-    UtAssert_INT32_EQ(CFE_TBL_SearchCmdHndlrTbl(MsgID, CmdCode), 1);
-
-    /* Test using a message that is not a command message with specific
-     * command code
-     */
-    UT_InitData();
-    MsgID = CFE_SB_ValueToMsgId(CFE_TBL_SEND_HK_MID);
-    UtAssert_INT32_EQ(CFE_TBL_SearchCmdHndlrTbl(MsgID, CmdCode), 0);
-
-    /* Test with a message ID that matches but the command code does
-     * not match
-     */
-    UT_InitData();
-    MsgID   = CFE_SB_ValueToMsgId(CFE_TBL_CMD_MID);
-    CmdCode = 0xffff;
-    UtAssert_INT32_EQ(CFE_TBL_SearchCmdHndlrTbl(MsgID, CmdCode), CFE_TBL_BAD_CMD_CODE);
-
-    /* Test with a message ID that does not match */
-    UT_InitData();
-    MsgID = CFE_SB_INVALID_MSG_ID;
-    UtAssert_INT32_EQ(CFE_TBL_SearchCmdHndlrTbl(MsgID, CmdCode), CFE_TBL_BAD_MSG_ID);
 }
 
 /*
