@@ -4420,7 +4420,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_MSG_TOO_BIG_EID_BIT);
-    CFE_SB_TransmitBuffer(&Housekeeping.SBBuf, true);
+    CFE_SB_TransmitMsg(&Housekeeping.SBBuf.Msg, true);
     CFE_UtAssert_EVENTNOTSENT(CFE_SB_MSG_TOO_BIG_EID);
     UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
 
@@ -4429,7 +4429,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     MsgId                                              = CFE_SB_INVALID_MSG_ID;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_INV_MSGID_EID_BIT);
-    CFE_SB_TransmitBuffer(&Housekeeping.SBBuf, true);
+    CFE_SB_TransmitMsg(&Housekeeping.SBBuf.Msg, true);
     CFE_UtAssert_EVENTNOTSENT(CFE_SB_SEND_INV_MSGID_EID);
     UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
 
