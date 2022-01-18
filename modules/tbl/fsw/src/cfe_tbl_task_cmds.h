@@ -101,7 +101,7 @@ typedef struct
 **          None
 **
 */
-extern void CFE_TBL_GetHkData(void);
+void CFE_TBL_GetHkData(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -117,7 +117,7 @@ extern void CFE_TBL_GetHkData(void);
 **           the Table Registry.
 **
 */
-extern void CFE_TBL_GetTblRegData(void);
+void CFE_TBL_GetTblRegData(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**

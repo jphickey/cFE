@@ -186,7 +186,7 @@
           <Entry name="AtToneMET" type="SysTime" shortDescription="MET at time of tone" />
           <Entry name="AtToneSTCF" type="SysTime" shortDescription="STCF at time of tone" />
           <Entry name="AtToneLeapSeconds" type="BASE_TYPES/int16" shortDescription="Leap Seconds at time of tone" />
-          <Entry name="AtToneState" type="BASE_TYPES/int16" shortDescription="Clock state at time of tone" />
+          <Entry name="AtToneState" type="ClockState" shortDescription="Clock state at time of tone" />
         </EntryList>
       </ContainerDataType>
 

@@ -208,6 +208,16 @@
         </Range>
       </IntegerDataType>
 
+      <ContainerDataType name="MemAddOff" shortDescription="Memory Address and Memory Offset combination">
+        <LongDescription>
+          A combination of #CFE_ES_MemAddress_t and #CFE_ES_MemOffset_t, since they are often used together
+        </LongDescription>
+        <EntryList>
+          <Entry name="Address" type="MemAddress" />
+          <Entry name="Size" type="MemOffset" />
+        </EntryList>
+      </ContainerDataType>
+
       <StringDataType name="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" length="${CFE_MISSION/ES_CDS_MAX_FULL_NAME_LEN}" />
 
       <ArrayDataType name="boolean_x_CFE_ES_PERF_MAX_IDS" dataTypeRef="BASE_TYPES/StatusBit">
@@ -263,36 +273,11 @@
                \cfetlmmnemonic  \ES_ADDRVALID
             </LongDescription>
           </Entry>
-          <Entry name="CodeAddress" type="MemAddress" shortDescription="The Address of the Application Code Segment">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_CODEADDR
-            </LongDescription>
-          </Entry>
-          <Entry name="CodeSize" type="MemOffset" shortDescription="The Code Size of the Application">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_CODESIZE
-            </LongDescription>
-          </Entry>
-          <Entry name="DataAddress" type="MemAddress" shortDescription="The Address of the Application Data Segment">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_DATAADDR
-            </LongDescription>
-          </Entry>
-          <Entry name="DataSize" type="MemOffset" shortDescription="The Data Size of the Application">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_DATASIZE
-            </LongDescription>
-          </Entry>
-          <Entry name="BSSAddress" type="MemAddress" shortDescription="The Address of the Application BSS Segment">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_BSSADDR
-            </LongDescription>
-          </Entry>
-          <Entry name="BSSSize" type="MemOffset" shortDescription="The BSS Size of the Application">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_BSSSIZE
-            </LongDescription>
-          </Entry>
+
+          <Entry name="Code" type="MemAddOff" shortDescription="Address and size of the Code section" />
+          <Entry name="Data" type="MemAddOff" shortDescription="Address and size of the Data section" />
+          <Entry name="BSS" type="MemAddOff" shortDescription="Address and size of the BSS section" />
+          
           <Entry name="StartAddress" type="MemAddress" shortDescription="The Start Address of the Application">
             <LongDescription>
                \cfetlmmnemonic  \ES_STARTADDR
