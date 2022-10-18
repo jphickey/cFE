@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 ** File: cfe_tbl_internal.c
@@ -38,8 +36,6 @@
 #include <string.h>
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_EarlyInit
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -94,7 +90,7 @@ int32 CFE_TBL_EarlyInit(void)
     if (OsStatus != OS_SUCCESS)
     {
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
-    } /* end if */
+    }
 
     /*
     ** Create working buffer access mutex
@@ -103,7 +99,7 @@ int32 CFE_TBL_EarlyInit(void)
     if (OsStatus != OS_SUCCESS)
     {
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
-    } /* end if */
+    }
 
     /* Initialize memory partition and allocate shared table buffers. */
     Status = CFE_ES_PoolCreate(&CFE_TBL_Global.Buf.PoolHdl, CFE_TBL_Global.Buf.Partition.Data,
@@ -195,8 +191,6 @@ int32 CFE_TBL_EarlyInit(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_InitRegistryRecord
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -216,8 +210,6 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_ValidateHandle
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -242,8 +234,6 @@ int32 CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_ValidateAccess
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -276,8 +266,6 @@ int32 CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t *AppIdPt
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_CheckAccessRights
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -300,8 +288,6 @@ int32 CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisA
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_RemoveAccessLink
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -395,8 +381,6 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_GetAddressInternal
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -467,8 +451,6 @@ int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CFE_
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_GetNextNotification
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -494,8 +476,6 @@ int32 CFE_TBL_GetNextNotification(CFE_TBL_Handle_t TblHandle)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_FindTableInRegistry
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -528,8 +508,6 @@ int16 CFE_TBL_FindTableInRegistry(const char *TblName)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_FindFreeRegistryEntry
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -559,8 +537,6 @@ int16 CFE_TBL_FindFreeRegistryEntry(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_FindFreeHandle
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -587,8 +563,6 @@ CFE_TBL_Handle_t CFE_TBL_FindFreeHandle(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_FormTableName
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -604,13 +578,9 @@ void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_
 
     /* Complete formation of application specific table name */
     sprintf(FullTblName, "%s.%s", AppName, TblName);
-
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_LockRegistry
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -637,8 +607,6 @@ int32 CFE_TBL_LockRegistry(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_UnlockRegistry
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -663,8 +631,6 @@ int32 CFE_TBL_UnlockRegistry(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_GetWorkingBuffer
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -801,8 +767,6 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_LoadFromFile
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -814,8 +778,8 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     int32              OsStatus;
     CFE_FS_Header_t    StdFileHeader;
     CFE_TBL_File_Hdr_t TblFileHeader;
-    osal_id_t          FileDescriptor;
-    size_t             FilenameLen = strlen(Filename);
+    osal_id_t          FileDescriptor = OS_OBJECT_ID_UNDEFINED;
+    size_t             FilenameLen    = strlen(Filename);
     uint32             NumBytes;
     uint8              ExtraByte;
 
@@ -945,8 +909,6 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_UpdateInternal
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1049,8 +1011,6 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_NotifyTblUsersOfUpdate
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1076,8 +1036,6 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_ReadHeaders
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1226,8 +1184,6 @@ int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHead
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_ByteSwapTblHeader
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1240,8 +1196,6 @@ void CFE_TBL_ByteSwapTblHeader(CFE_TBL_File_Hdr_t *HdrPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_ByteSwapUint32
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1260,8 +1214,6 @@ void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_CleanUpApp
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1328,8 +1280,6 @@ int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_FindCriticalTblInfo
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1352,8 +1302,6 @@ void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CD
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_UpdateCriticalTblCDS
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1408,8 +1356,6 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_SendNotificationMsg
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

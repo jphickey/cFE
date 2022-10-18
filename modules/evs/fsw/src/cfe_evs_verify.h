@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -54,6 +52,14 @@
 
 #if CFE_PLATFORM_EVS_PORT_DEFAULT > 0x0F
 #error CFE_PLATFORM_EVS_PORT_DEFAULT cannot be greater than 0x0F!
+#endif
+
+#if CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST > INT32_MAX / 1000
+#error CFE_PLATFORM_EVS_MAX_APP_EVENTS_PER_SEC cannot be greater than INT32_MAX/1000
+#endif
+
+#if CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC > CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST
+#error CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC must be <= CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST
 #endif
 
 /*

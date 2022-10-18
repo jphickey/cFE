@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -46,6 +44,7 @@
 #include "cfe_platform_cfg.h"
 #include "cfe_mission_cfg.h"
 #include "osconfig.h"
+#include "cfe_time.h"
 #include "cfe_evs_api_typedefs.h"
 #include "cfe_evs_log_typedef.h"
 #include "cfe_sb_api_typedefs.h"
@@ -59,6 +58,7 @@
 #define CFE_EVS_PIPE_DEPTH           32
 #define CFE_EVS_MAX_EVENT_SEND_COUNT 65535
 #define CFE_EVS_MAX_FILTER_COUNT     65535
+#define CFE_EVS_MAX_SQUELCH_COUNT    255
 #define CFE_EVS_PIPE_NAME            "EVS_CMD_PIPE"
 #define CFE_EVS_MAX_PORT_MSG_LENGTH  (CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + OS_MAX_API_NAME + 30)
 
@@ -78,7 +78,6 @@ typedef struct
     uint16 Mask;    /* Binary filter mask */
     uint16 Count;   /* Binary filter counter */
     uint16 Padding; /* Structure padding */
-
 } EVS_BinFilter_t;
 
 typedef struct
@@ -88,20 +87,23 @@ typedef struct
 
     EVS_BinFilter_t BinFilters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS]; /* Array of binary filters */
 
-    uint8  ActiveFlag;           /* Application event service active flag */
-    uint8  EventTypesActiveFlag; /* Application event types active flag */
-    uint16 EventCount;           /* Application event counter */
-
+    uint8     ActiveFlag;                /* Application event service active flag */
+    uint8     EventTypesActiveFlag;      /* Application event types active flag */
+    uint16    EventCount;                /* Application event counter */
+    OS_time_t LastSquelchCreditableTime; /* Time of last squelch token return */
+    int32     SquelchTokens;             /* Application event squelch token counter */
+    uint8     SquelchedCount;            /* Application events squelched counter */
 } EVS_AppData_t;
 
 typedef struct
 {
-    char            AppName[OS_MAX_API_NAME];                    /* Application name */
-    uint8           ActiveFlag;                                  /* Application event service active flag */
-    uint8           EventTypesActiveFlag;                        /* Application event types active flag */
-    uint16          EventCount;                                  /* Application event counter */
+    char            AppName[OS_MAX_API_NAME]; /* Application name */
+    uint8           ActiveFlag;               /* Application event service active flag */
+    uint8           EventTypesActiveFlag;     /* Application event types active flag */
+    uint16          EventCount;               /* Application event counter */
+    uint8           SquelchedCount;           /* Application events squelched counter */
+    uint8           Spare[3];
     EVS_BinFilter_t Filters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS]; /* Application event filters */
-
 } CFE_EVS_AppDataFile_t;
 
 /* Global data structure */
@@ -119,7 +121,7 @@ typedef struct
     CFE_SB_PipeId_t           EVS_CommandPipe;
     osal_id_t                 EVS_SharedDataMutexID;
     CFE_ES_AppId_t            EVS_AppID;
-
+    uint32                    EVS_EventBurstMax;
 } CFE_EVS_Global_t;
 
 /*
@@ -139,7 +141,7 @@ extern CFE_EVS_Global_t CFE_EVS_Global;
  *
  * This function performs any necessary EVS task initialization.
  */
-extern int32 CFE_EVS_TaskInit(void);
+int32 CFE_EVS_TaskInit(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -147,7 +149,7 @@ extern int32 CFE_EVS_TaskInit(void);
  *
  * This function processes packets received on the EVS command pipe.
  */
-extern void CFE_EVS_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr);
+void CFE_EVS_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr);
 
 /*
  * EVS Message Handler Functions

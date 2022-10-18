@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -1338,6 +1336,30 @@
 **       verified.
 */
 #define CFE_PLATFORM_EVS_MAX_EVENT_FILTERS 8
+
+/**
+**  \cfeevscfg Maximum number of event before squelching
+**
+**  \par Description:
+**       Maximum number of events that may be emitted per app per second.
+**       Setting this to 0 will cause events to be unrestricted.
+**
+**  \par Limits
+**       This number must be less than or equal to INT_MAX/1000
+*/
+#define CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST 32
+
+/**
+**  \cfeevscfg Sustained number of event messages per second per app before squelching
+**
+**  \par Description:
+**       Sustained number of events that may be emitted per app per second.
+**
+**  \par Limits
+**       This number must be less than or equal to #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST.
+**       Values lower than 8 may cause functional and unit test failures.
+*/
+#define CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC 8
 
 /**
 **  \cfeevscfg Default Event Log Filename

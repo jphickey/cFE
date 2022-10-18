@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -39,10 +37,39 @@
 /* Include Files */
 #include "osapi.h"
 
-/*
- * Define a type for readability.
+/**
+ * \brief cFE Status type for readability and eventually type safety
  */
 typedef int32 CFE_Status_t;
+
+/**
+ * \brief cFE Status macro for literal
+ */
+#define CFE_STATUS_C(X) ((CFE_Status_t)(X))
+
+/**
+ * \brief cFE Status converted to string length limit
+ *
+ * Used for sizing CFE_StatusString_t intended for use in printing CFE_Status_t values
+ * Sized for 0x%08x and NULL
+ */
+#define CFE_STATUS_STRING_LENGTH 11
+
+/**
+ * @brief For the @ref CFE_ES_StatusToString() function, to ensure
+ * everyone is making an array of the same length.
+ */
+typedef char CFE_StatusString_t[CFE_STATUS_STRING_LENGTH];
+
+/**
+ * @brief Convert status to a string
+ *
+ * @param[in] status Status value to convert
+ * @param[out] status_string Buffer to store status converted to string
+ *
+ * @return Passed in string pointer
+ */
+char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_string);
 
 /*
 **  Status Codes are 32 bit values formatted as follows:
@@ -257,6 +284,14 @@ typedef int32 CFE_Status_t;
  *
  */
 #define CFE_EVS_INVALID_PARAMETER ((CFE_Status_t)0xc2000008)
+
+/**
+ * @brief Event squelched
+ *
+ *  Event squelched due to being sent at too high a rate
+ *
+ */
+#define CFE_EVS_APP_SQUELCHED ((CFE_Status_t)0xc2000009)
 
 /**
  * @brief Not Implemented

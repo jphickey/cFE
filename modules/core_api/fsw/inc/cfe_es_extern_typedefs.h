@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -46,7 +44,6 @@
  */
 enum CFE_ES_LogMode
 {
-
     /**
      * @brief Overwrite Log Mode
      */
@@ -70,7 +67,6 @@ typedef uint8 CFE_ES_LogMode_Enum_t;
  */
 enum CFE_ES_ExceptionAction
 {
-
     /**
      * @brief Restart application if exception occurs
      */
@@ -94,7 +90,6 @@ typedef uint8 CFE_ES_ExceptionAction_Enum_t;
  */
 enum CFE_ES_AppType
 {
-
     /**
      * @brief CFE core application
      */
@@ -177,7 +172,6 @@ enum CFE_ES_RunStatus
      * @brief Reserved value, marker for the maximum state
      */
     CFE_ES_RunStatus_MAX
-
 };
 
 /**
@@ -192,7 +186,6 @@ typedef uint32 CFE_ES_RunStatus_Enum_t;
  */
 enum CFE_ES_SystemState
 {
-
     /**
      * @brief reserved
      */
@@ -250,7 +243,6 @@ typedef uint32 CFE_ES_SystemState_Enum_t;
  */
 enum CFE_ES_LogEntryType
 {
-
     /**
      * @brief Log entry from a core subsystem
      */
@@ -274,7 +266,6 @@ typedef uint8 CFE_ES_LogEntryType_Enum_t;
  */
 enum CFE_ES_AppState
 {
-
     /**
      * @brief Initial state before app thread is started
      */
@@ -486,7 +477,6 @@ typedef struct CFE_ES_AppInfo
                                                         \brief The Application's Main Task ID */
     uint32 NumOfChildTasks;                        /**< \cfetlmmnemonic \ES_CHILDTASKS
                                                         \brief Number of Child tasks for an App */
-
 } CFE_ES_AppInfo_t;
 
 /**

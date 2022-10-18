@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 **  File:
@@ -45,8 +43,6 @@
 #include <stdarg.h>
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CDS_EarlyInit
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -151,8 +147,6 @@ int32 CFE_ES_CDS_EarlyInit(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CDSHandle_ToIndex
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -164,8 +158,6 @@ int32 CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CheckCDSHandleSlotUsed
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -184,8 +176,6 @@ bool CFE_ES_CheckCDSHandleSlotUsed(CFE_ResourceId_t CheckId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_LocateCDSBlockRecordByID
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -210,8 +200,6 @@ CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHandle_t BlockID)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CDS_CacheFetch
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -246,8 +234,6 @@ int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CDS_CacheFlush
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -278,8 +264,6 @@ int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CDS_CachePreload
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -314,8 +298,6 @@ int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Sourc
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_RegisterCDSEx
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -429,7 +411,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
             CFE_ES_CDSBlockRecordSetUsed(RegRecPtr, PendingBlockId);
         }
 
-        if (Status == CFE_SUCCESS && (IsNewOffset || IsNewEntry))
+        if (Status == CFE_SUCCESS && IsNewOffset)
         {
             /* If we succeeded at creating a CDS, save updated registry in the CDS */
             RegUpdateStatus = CFE_ES_UpdateCDSRegistry();
@@ -470,12 +452,10 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
 
     *HandlePtr = CFE_ES_CDSHANDLE_C(PendingBlockId);
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_ValidateCDS
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -526,8 +506,6 @@ int32 CFE_ES_ValidateCDS(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_ClearCDS
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -573,8 +551,6 @@ int32 CFE_ES_ClearCDS(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_InitCDSSignatures
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -614,8 +590,6 @@ int32 CFE_ES_InitCDSSignatures(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_InitCDSRegistry
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -648,8 +622,6 @@ int32 CFE_ES_InitCDSRegistry(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_UpdateCDSRegistry
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -673,8 +645,6 @@ int32 CFE_ES_UpdateCDSRegistry(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_FormCDSName
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -690,13 +660,9 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t T
 
     /* Complete formation of processor specific table name */
     sprintf(FullCDSName, "%s.%s", AppName, CDSName);
-
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_LockCDS
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -725,8 +691,6 @@ int32 CFE_ES_LockCDS(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_UnlockCDS
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -753,8 +717,6 @@ int32 CFE_ES_UnlockCDS(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_LocateCDSBlockRecordByName
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -794,8 +756,6 @@ CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_RebuildCDS
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -844,8 +804,6 @@ int32 CFE_ES_RebuildCDS(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_DeleteCDS
  *
  * Implemented per public API
  * See description in header file for argument/return detail

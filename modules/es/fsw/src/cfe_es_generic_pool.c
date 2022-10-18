@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 **  File:
@@ -47,8 +45,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GenPoolFindBucket
- *
  * Internal helper routine only, not part of API.
  *
  * Find the appropriate bucket given a requested block size
@@ -76,8 +72,6 @@ uint16 CFE_ES_GenPoolFindBucket(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t ReqSi
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GenPoolGetBucketState
- *
  * Internal helper routine only, not part of API.
  *
  * Obtain a pointer to the state structure associated with a given bucket ID
@@ -97,8 +91,6 @@ CFE_ES_GenPoolBucket_t *CFE_ES_GenPoolGetBucketState(CFE_ES_GenPoolRecord_t *Poo
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GenPoolRecyclePoolBlock
  *
  * Internal helper routine only, not part of API.
  *
@@ -159,8 +151,6 @@ int32 CFE_ES_GenPoolRecyclePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GenPoolCreatePoolBlock
  *
  * Internal helper routine only, not part of API.
  *
@@ -236,8 +226,6 @@ int32 CFE_ES_GenPoolCreatePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 B
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GenPoolInitialize
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -333,8 +321,6 @@ int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartO
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GenPoolCalcMinSize
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -365,8 +351,6 @@ size_t CFE_ES_GenPoolCalcMinSize(uint16 NumBlockSizes, const size_t *BlockSizeLi
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GenPoolGetBlock
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -382,7 +366,7 @@ int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOf
     {
         CFE_ES_WriteToSysLog("%s: Err:size(%lu) > max(%lu)\n", __func__, (unsigned long)ReqSize,
                              (unsigned long)PoolRecPtr->Buckets[PoolRecPtr->NumBuckets - 1].BlockSize);
-        return (CFE_ES_ERR_MEM_BLOCK_SIZE);
+        return CFE_ES_ERR_MEM_BLOCK_SIZE;
     }
 
     /* first attempt to recycle any buffers from the same bucket that were freed */
@@ -393,12 +377,10 @@ int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOf
         Status = CFE_ES_GenPoolCreatePoolBlock(PoolRecPtr, BucketId, ReqSize, BlockOffsetPtr);
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GenPoolGetBlockSize
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -442,8 +424,6 @@ int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *Blo
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GenPoolPutBlock
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -497,8 +477,6 @@ int32 CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSi
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GenPoolRebuild
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -610,8 +588,6 @@ int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GenPoolValidateState
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -623,8 +599,6 @@ bool CFE_ES_GenPoolValidateState(const CFE_ES_GenPoolRecord_t *PoolRecPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GenPoolGetUsage
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -644,8 +618,6 @@ void CFE_ES_GenPoolGetUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GenPoolGetCounts
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -669,8 +641,6 @@ void CFE_ES_GenPoolGetCounts(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 *NumBuck
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GenPoolGetBucketUsage
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

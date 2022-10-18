@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 **  File: cfe_evs_utils.c
@@ -30,6 +28,7 @@
 
 /* Include Files */
 #include "cfe_evs_module_all.h" /* All EVS internal definitions and API */
+#include "cfe_evs_utils.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -44,8 +43,6 @@ void EVS_OutputPort4(char *Message);
 /* Function Definitions */
 
 /*----------------------------------------------------------------
- *
- * Function: EVS_GetAppDataByID
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -65,12 +62,10 @@ EVS_AppData_t *EVS_GetAppDataByID(CFE_ES_AppId_t AppID)
         AppDataPtr = NULL;
     }
 
-    return (AppDataPtr);
+    return AppDataPtr;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: EVS_GetCurrentContext
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -113,8 +108,6 @@ int32 EVS_GetCurrentContext(EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_GetApplicationInfo
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -156,8 +149,6 @@ int32 EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_NotRegistered
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -187,12 +178,10 @@ int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
                              AppName);
     }
 
-    return (CFE_EVS_APP_NOT_REGISTERED);
+    return CFE_EVS_APP_NOT_REGISTERED;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: EVS_IsFiltered
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -287,12 +276,128 @@ bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
         }
     }
 
-    return (Filtered);
+    return Filtered;
 }
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_FindEventID
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
+{
+    bool      NotSquelched     = true;
+    bool      SendSquelchEvent = false;
+    OS_time_t CurrentTime      = {0};
+    int64     DeltaTimeMs;
+    int64     CreditCount;
+    char      AppName[OS_MAX_API_NAME];
+
+    /* Set maximum token credits to burst size */
+    const int32 UPPER_THRESHOLD = CFE_EVS_Global.EVS_EventBurstMax * 1000;
+    /*
+     * Set lower threshold to stop decrementing
+     * Make this -CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST to add some hysteresis
+     * Events will resume (CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST /
+     * CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC + 1 /
+     * CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC) seconds after flooding stops if
+     * saturated
+     */
+    const int32 LOWER_THRESHOLD = -CFE_EVS_Global.EVS_EventBurstMax * 1000;
+
+    /*
+     * Set this to 1000 to avoid integer division while computing CreditCount
+     */
+    const int32 EVENT_COST = 1000;
+
+    if (CFE_EVS_Global.EVS_EventBurstMax != 0)
+    {
+        /*
+         * We use a timer here since configurations are not guaranteed to send EVS HK wakeups at 1Hz
+         * Use a non-settable timer to prevent this from breaking w/ time changes
+         */
+        OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
+        CFE_PSP_GetTime(&CurrentTime);
+        DeltaTimeMs = OS_TimeGetTotalMilliseconds(OS_TimeSubtract(CurrentTime, AppDataPtr->LastSquelchCreditableTime));
+
+        /* Calculate how many tokens to credit in elapsed time since last creditable event */
+        CreditCount = DeltaTimeMs * CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC;
+
+        /*
+         * Don't immediately credit < 1 event worth of credits; defer until
+         * enough time that CreditCount > EVENT_COST
+         *
+         * This prevents condition where credits would creep down slowly
+         * through the range which squelch event messages are emitted causing
+         * those events to be spammed instead, defeating the suppression.
+         */
+        if (CreditCount >= EVENT_COST)
+        {
+            /* Update last squelch returned time if we credited any tokens */
+            AppDataPtr->LastSquelchCreditableTime = CurrentTime;
+
+            /*
+             * Add Credits, to a maximum of UPPER_THRESHOLD
+             * Shouldn't rollover, as calculations are done in int64 space due to
+             * promotion rules then bounded before demotion
+             */
+            if (AppDataPtr->SquelchTokens + CreditCount > UPPER_THRESHOLD)
+            {
+                AppDataPtr->SquelchTokens = UPPER_THRESHOLD;
+            }
+            else
+            {
+                AppDataPtr->SquelchTokens += (int32)CreditCount;
+            }
+        }
+
+        if (AppDataPtr->SquelchTokens <= 0)
+        {
+            if (AppDataPtr->SquelchedCount < CFE_EVS_MAX_SQUELCH_COUNT)
+            {
+                AppDataPtr->SquelchedCount++;
+            }
+            NotSquelched = false;
+
+            /*
+             * Send squelch event message if cross threshold. This has to be a
+             * range between -EVENT_COST and 0 due to non-whole event-cost credits being
+             * returned allowing 0 to be skipped over. This is solved by
+             * checking a range and ensuring EVENT_COST credits are returned at minimum.
+             */
+            if (AppDataPtr->SquelchTokens > -EVENT_COST && CreditCount < EVENT_COST)
+            {
+                /* Set flag and send event later, since we still own mutex */
+                SendSquelchEvent = true;
+            }
+        }
+
+        /*
+         * Subtract event cost
+         */
+        if (AppDataPtr->SquelchTokens - EVENT_COST < LOWER_THRESHOLD)
+        {
+            AppDataPtr->SquelchTokens = LOWER_THRESHOLD;
+        }
+        else
+        {
+            AppDataPtr->SquelchTokens -= EVENT_COST;
+        }
+
+        OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
+
+        if (SendSquelchEvent)
+        {
+            CFE_ES_GetAppName(AppName, EVS_AppDataGetID(AppDataPtr), sizeof(AppName));
+            EVS_SendEvent(CFE_EVS_SQUELCHED_ERR_EID, CFE_EVS_EventType_ERROR, "Events squelched, AppName = %s",
+                          AppName);
+        }
+    }
+    return NotSquelched;
+}
+
+/*----------------------------------------------------------------
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -306,16 +411,14 @@ EVS_BinFilter_t *EVS_FindEventID(uint16 EventID, EVS_BinFilter_t *FilterArray)
     {
         if (FilterArray[i].EventID == EventID)
         {
-            return (&FilterArray[i]);
+            return &FilterArray[i];
         }
     }
 
-    return ((EVS_BinFilter_t *)NULL);
+    return (EVS_BinFilter_t *)NULL;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: EVS_EnableTypes
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -331,8 +434,6 @@ void EVS_EnableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_DisableTypes
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -347,8 +448,6 @@ void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_GenerateEventTelemetry
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -359,6 +458,9 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     CFE_EVS_LongEventTlm_t  LongEventTlm;  /* The "long" flavor is always generated, as this is what is logged */
     CFE_EVS_ShortEventTlm_t ShortEventTlm; /* The "short" flavor is only generated if selected */
     int                     ExpandedLength;
+
+    memset(&LongEventTlm, 0, sizeof(LongEventTlm));
+    memset(&ShortEventTlm, 0, sizeof(ShortEventTlm));
 
     /* Initialize EVS event packets */
     CFE_MSG_Init(CFE_MSG_PTR(LongEventTlm.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_EVS_LONG_EVENT_MSG_MID),
@@ -431,8 +533,6 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_SendViaPorts
- *
  * Internal helper routine only, not part of API.
  *
  * This routine sends a string event message out all enabled
@@ -490,8 +590,6 @@ void EVS_SendViaPorts(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_OutputPort1
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
@@ -501,8 +599,6 @@ void EVS_OutputPort1(char *Message)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: EVS_OutputPort2
  *
  * Internal helper routine only, not part of API.
  *
@@ -514,8 +610,6 @@ void EVS_OutputPort2(char *Message)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_OutputPort3
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
@@ -526,8 +620,6 @@ void EVS_OutputPort3(char *Message)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_OutputPort4
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
@@ -537,8 +629,6 @@ void EVS_OutputPort4(char *Message)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: EVS_SendEvent
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -557,6 +647,8 @@ int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
     AppDataPtr = EVS_GetAppDataByID(CFE_EVS_Global.EVS_AppID);
 
     /* Unlikely, but possible that an EVS event filter was added by command */
+    /* Note that we do not squelch events coming from EVS to prevent event recursion,
+     * and EVS is assumed to be "well-behaved" */
     if (EVS_AppDataIsMatch(AppDataPtr, CFE_EVS_Global.EVS_AppID) &&
         EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
     {
@@ -569,5 +661,5 @@ int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
         va_end(Ptr);
     }
 
-    return (CFE_SUCCESS);
+    return CFE_SUCCESS;
 }

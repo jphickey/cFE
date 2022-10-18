@@ -1,29 +1,20 @@
-/*************************************************************************
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
-** File: cfe_assert.h
-**
-** Purpose:
-**   Specification for the CFE assert (UT assert wrapper) functions.
-**
-*************************************************************************/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -272,7 +263,7 @@ int32 CFE_Assert_LibInit(CFE_ES_LibId_t LibId);
 **  \par Assumptions, External Events, and Notes:
 **        Must be followed by a call to CFE_Assert_ExecuteTest()
 **
-**  \return None
+**  \return #CFE_SUCCESS if successful, or error code
 **
 *************************************************************************/
 int32 CFE_Assert_RegisterTest(const char *TestName);
@@ -284,9 +275,6 @@ int32 CFE_Assert_RegisterTest(const char *TestName);
 **
 **  \par Assumptions, External Events, and Notes:
 **        None
-**
-**  \return None
-**
 *************************************************************************/
 void CFE_Assert_ExecuteTest(void);
 
@@ -302,9 +290,6 @@ void CFE_Assert_ExecuteTest(void);
  *        None
  *
  * \param[in] Callback  Callback function to invoke after every test
- *
- * \return None
- *
  */
 void CFE_Assert_RegisterCallback(CFE_Assert_StatusCallback_t Callback);
 
@@ -338,9 +323,6 @@ int32 CFE_Assert_OpenLogFile(const char *Filename);
  *
  *  \par Assumptions, External Events, and Notes:
  *        This should be called once test cases have completed
- *
- * \return None
- *
  */
 void CFE_Assert_CloseLogFile(void);
 

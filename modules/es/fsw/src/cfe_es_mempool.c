@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 **  File:
@@ -75,8 +73,6 @@ const size_t CFE_ES_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] = {
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_MemPoolDirectRetrieve
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
@@ -93,8 +89,6 @@ int32 CFE_ES_MemPoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Of
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_MemPoolDirectCommit
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
@@ -104,8 +98,6 @@ int32 CFE_ES_MemPoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offs
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_MemPoolID_ToIndex
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -118,8 +110,6 @@ int32 CFE_ES_MemPoolID_ToIndex(CFE_ES_MemHandle_t PoolID, uint32 *Idx)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CheckMemPoolSlotUsed
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -138,8 +128,6 @@ bool CFE_ES_CheckMemPoolSlotUsed(CFE_ResourceId_t CheckId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_LocateMemPoolRecordByID
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -164,8 +152,6 @@ CFE_ES_MemPoolRecord_t *CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_PoolCreateNoSem
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -178,8 +164,6 @@ CFE_Status_t CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, void *MemPtr, si
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_PoolCreate
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -191,8 +175,6 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_PoolCreateEx
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -220,7 +202,7 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
     {
         CFE_ES_WriteToSysLog("%s: Num Block Sizes (%d) greater than max (%d)\n", __func__, (int)NumBlockSizes,
                              CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
-        return (CFE_ES_BAD_ARGUMENT);
+        return CFE_ES_BAD_ARGUMENT;
     }
 
     /*
@@ -357,12 +339,10 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
      */
     *PoolID = CFE_ES_MEMHANDLE_C(PendingID);
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_PoolDelete
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -417,8 +397,6 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GetPoolBuf
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -443,7 +421,7 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, 
         CFE_ES_GetAppID(&AppId);
         CFE_ES_WriteToSysLog("%s: Err:Bad handle(0x%08lX) AppId=%lu\n", __func__, CFE_RESOURCEID_TO_ULONG(Handle),
                              CFE_RESOURCEID_TO_ULONG(AppId));
-        return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
+        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
     /*
@@ -475,7 +453,7 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, 
     /* If not successful, return error now */
     if (Status != CFE_SUCCESS)
     {
-        return (Status);
+        return Status;
     }
 
     /* Compute the actual buffer address. */
@@ -485,8 +463,6 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, 
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetPoolBufInfo
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -509,7 +485,7 @@ CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_
     /* basic sanity check */
     if (!CFE_ES_MemPoolRecordIsMatch(PoolRecPtr, Handle))
     {
-        return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
+        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
     /*
@@ -548,8 +524,6 @@ CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_PutPoolBuf
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -573,7 +547,7 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
     {
         CFE_ES_WriteToSysLog("%s: Err:Invalid Memory Handle (0x%08lX).\n", __func__, CFE_RESOURCEID_TO_ULONG(Handle));
 
-        return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
+        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
     /*
@@ -629,8 +603,6 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GetMemPoolStats
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -655,7 +627,7 @@ CFE_Status_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHan
         CFE_ES_GetAppID(&AppId);
         CFE_ES_WriteToSysLog("%s: Err:Bad handle(0x%08lX) AppId=%lu\n", __func__, CFE_RESOURCEID_TO_ULONG(Handle),
                              CFE_RESOURCEID_TO_ULONG(AppId));
-        return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
+        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
     /*
@@ -700,8 +672,6 @@ CFE_Status_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHan
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_ValidateHandle
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

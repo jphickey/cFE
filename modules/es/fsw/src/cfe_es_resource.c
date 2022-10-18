@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 **  File:
@@ -41,8 +39,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_TaskId_ToOSAL
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -60,8 +56,6 @@ osal_id_t CFE_ES_TaskId_ToOSAL(CFE_ES_TaskId_t id)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_TaskId_FromOSAL
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -78,8 +72,6 @@ CFE_ES_TaskId_t CFE_ES_TaskId_FromOSAL(osal_id_t id)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_LocateAppRecordByName
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -116,8 +108,6 @@ CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByName(const char *Name)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_LocateLibRecordByName
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -152,8 +142,6 @@ CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByName(const char *Name)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_LocateCounterRecordByName
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -190,8 +178,6 @@ CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByName(const char *Name)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_LocateAppRecordByID
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -214,8 +200,6 @@ CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_LocateLibRecordByID
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -240,8 +224,6 @@ CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_LocateTaskRecordByID
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -265,8 +247,6 @@ CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_LocateCounterRecordByID
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -289,8 +269,6 @@ CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByID(CFE_ES_CounterId_t Cou
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetTaskRecordByContext
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -322,8 +300,6 @@ CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetAppRecordByContext
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -366,8 +342,6 @@ CFE_ES_AppRecord_t *CFE_ES_GetAppRecordByContext(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CheckCounterIdSlotUsed
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -386,8 +360,6 @@ bool CFE_ES_CheckCounterIdSlotUsed(CFE_ResourceId_t CheckId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CheckAppIdSlotUsed
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -405,8 +377,6 @@ bool CFE_ES_CheckAppIdSlotUsed(CFE_ResourceId_t CheckId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CheckLibIdSlotUsed
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

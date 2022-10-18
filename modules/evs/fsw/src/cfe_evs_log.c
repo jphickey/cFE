@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 **  File: cfe_evs_log.c
@@ -35,15 +33,12 @@
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_AddLog
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 {
-
     /* Serialize access to event log control variables */
     OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
 
@@ -86,13 +81,9 @@ void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
     }
 
     OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
-
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: EVS_ClearLog
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -100,7 +91,6 @@ void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
  *-----------------------------------------------------------------*/
 void EVS_ClearLog(void)
 {
-
     /* Serialize access to event log control variables */
     OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
 
@@ -113,13 +103,9 @@ void EVS_ClearLog(void)
     memset(CFE_EVS_Global.EVS_LogPtr->LogEntry, 0, sizeof(CFE_EVS_Global.EVS_LogPtr->LogEntry));
 
     OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
-
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_WriteLogDataFileCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -234,12 +220,10 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
         OS_close(LogFileHandle);
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_SetLogModeCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

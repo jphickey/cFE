@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -1159,15 +1157,14 @@ typedef CFE_EVS_AppNameEventIDMaskCmd_t CFE_EVS_SetFilterCmd_t;
 /**********************************/
 typedef struct CFE_EVS_AppTlmData
 {
-    CFE_ES_AppId_t AppID;         /**< \cfetlmmnemonic \EVS_APPID
-                                       \brief Numerical application identifier */
-    uint16 AppMessageSentCounter; /**< \cfetlmmnemonic \EVS_APPMSGSENTC
-                                       \brief Application message sent counter */
-    uint8 AppEnableStatus;        /**< \cfetlmmnemonic \EVS_APPENASTAT
-                                       \brief Application event service enable status */
-    uint8 Padding;                /**< \cfetlmmnemonic \EVS_SPARE2ALIGN3
-                                       \brief Padding for 32 bit boundary */
-
+    CFE_ES_AppId_t AppID;             /**< \cfetlmmnemonic \EVS_APPID
+                                           \brief Numerical application identifier */
+    uint16 AppMessageSentCounter;     /**< \cfetlmmnemonic \EVS_APPMSGSENTC
+                                           \brief Application message sent counter */
+    uint8 AppEnableStatus;            /**< \cfetlmmnemonic \EVS_APPENASTAT
+                                           \brief Application event service enable status */
+    uint8 AppMessageSquelchedCounter; /**< \cfetlmmnemonic \EVS_SQUELCHEDC
+                                       \brief Number of events squelched */
 } CFE_EVS_AppTlmData_t;
 
 /**
@@ -1209,7 +1206,6 @@ typedef struct CFE_EVS_HousekeepingTlm_Payload
 
     CFE_EVS_AppTlmData_t AppData[CFE_MISSION_ES_MAX_APPLICATIONS]; /**< \cfetlmmnemonic \EVS_APP
                                                                 \brief Array of registered application table data */
-
 } CFE_EVS_HousekeepingTlm_Payload_t;
 
 typedef struct CFE_EVS_HousekeepingTlm
@@ -1232,7 +1228,6 @@ typedef struct CFE_EVS_PacketID
                                                 \brief Spacecraft identifier */
     uint32 ProcessorID;                    /**< \cfetlmmnemonic \EVS_PROCESSORID
                                                 \brief Numerical processor identifier */
-
 } CFE_EVS_PacketID_t;
 
 /**
@@ -1255,21 +1250,18 @@ typedef struct CFE_EVS_LongEventTlm_Payload
 typedef struct CFE_EVS_ShortEventTlm_Payload
 {
     CFE_EVS_PacketID_t PacketID; /**< \brief Event packet information */
-
 } CFE_EVS_ShortEventTlm_Payload_t;
 
 typedef struct CFE_EVS_LongEventTlm
 {
     CFE_MSG_TelemetryHeader_t      TelemetryHeader; /**< \brief Telemetry header */
     CFE_EVS_LongEventTlm_Payload_t Payload;         /**< \brief Telemetry payload */
-
 } CFE_EVS_LongEventTlm_t;
 
 typedef struct CFE_EVS_ShortEventTlm
 {
     CFE_MSG_TelemetryHeader_t       TelemetryHeader; /**< \brief Telemetry header */
     CFE_EVS_ShortEventTlm_Payload_t Payload;         /**< \brief Telemetry payload */
-
 } CFE_EVS_ShortEventTlm_t;
 
 #endif /* CFE_EVS_MSG_H */

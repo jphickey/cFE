@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 **  File:
@@ -67,8 +65,6 @@ CFE_ES_Global_t CFE_ES_Global;
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_Main
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -113,7 +109,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
          * Normally CFE_PSP_Panic() will not return but it will under UT
          */
         return;
-    } /* end if */
+    }
 
     /*
     ** Initialize the Reset variables. This call is required
@@ -237,8 +233,6 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_SetupResetVariables
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -438,8 +432,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
                     CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_PROCESSOR, StartSubtype,
                                         "PROCESSOR RESET due to Watchdog (Watchdog).");
                 }
-
-            } /* end if */
+            }
         }
         /*
         ** If a processor reset is due to a command or exception, the reset has already been logged.
@@ -467,8 +460,6 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_InitializeFileSystems
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -477,10 +468,12 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
 {
     int32        OsStatus;
     int32        PspStatus;
-    cpuaddr      RamDiskMemoryAddress;
+    cpuaddr      RamDiskMemoryAddress = 0;
     uint32       RamDiskMemorySize;
     int32        PercentFree;
     OS_statvfs_t StatBuf;
+
+    memset(&StatBuf, 0, sizeof(StatBuf));
 
     /*
     ** Get the memory area for the RAM disk
@@ -603,14 +596,12 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                 OsStatus = OS_unmount(CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);
                 if (OsStatus == OS_SUCCESS)
                 {
-
                     /*
                     ** Remove the file system from the OSAL
                     */
                     OsStatus = OS_rmfs("/ramdev0");
                     if (OsStatus == OS_SUCCESS)
                     {
-
                         /*
                         ** Next, make a new file system on the disk
                         */
@@ -640,7 +631,6 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                         }
                         else
                         {
-
                             CFE_ES_WriteToSysLog("%s: Error Re-Formatting Volatile(RAM) Volume. EC = %ld\n", __func__,
                                                  (long)OsStatus);
                             /*
@@ -657,7 +647,6 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                     }
                     else /* could not Remove File system */
                     {
-
                         CFE_ES_WriteToSysLog("%s: Error Removing Volatile(RAM) Volume. EC = %ld\n", __func__,
                                              (long)OsStatus);
                         /*
@@ -710,8 +699,6 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CreateObjects
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -864,8 +851,7 @@ void CFE_ES_CreateObjects(void)
                         ** cFE Cannot continue to start up.
                         */
                         CFE_PSP_Panic(CFE_PSP_PANIC_CORE_APP);
-
-                    } /* end if */
+                    }
                 }
                 else
                 {
@@ -885,8 +871,6 @@ void CFE_ES_CreateObjects(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_MainTaskSyncDelay
  *
  * Internal helper routine only, not part of API.
  *

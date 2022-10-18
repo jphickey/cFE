@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -61,7 +59,6 @@ typedef struct CFE_TIME_SysTime
  */
 enum CFE_TIME_FlagBit
 {
-
     /**
      * @brief The spacecraft time has been set
      */
@@ -130,7 +127,6 @@ typedef uint8 CFE_TIME_FlagBit_Enum_t;
  */
 enum CFE_TIME_ClockState
 {
-
     /**
      *
      * The spacecraft time has not been set since the last clock
@@ -183,7 +179,6 @@ typedef int16 CFE_TIME_ClockState_Enum_t;
  */
 enum CFE_TIME_SourceSelect
 {
-
     /**
      * @brief Use Internal Source
      */
@@ -207,7 +202,6 @@ typedef uint8 CFE_TIME_SourceSelect_Enum_t;
  */
 enum CFE_TIME_ToneSignalSelect
 {
-
     /**
      * @brief Primary Source
      */
@@ -231,7 +225,6 @@ typedef uint8 CFE_TIME_ToneSignalSelect_Enum_t;
  */
 enum CFE_TIME_AdjustDirection
 {
-
     /**
      * @brief Add time adjustment
      */
@@ -255,7 +248,6 @@ typedef uint8 CFE_TIME_AdjustDirection_Enum_t;
  */
 enum CFE_TIME_FlywheelState
 {
-
     /**
      * @brief Not in flywheel state
      */
@@ -279,7 +271,6 @@ typedef uint8 CFE_TIME_FlywheelState_Enum_t;
  */
 enum CFE_TIME_SetState
 {
-
     /**
      * @brief Spacecraft time has not been set
      */
