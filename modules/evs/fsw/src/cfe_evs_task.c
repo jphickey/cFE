@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 **  File: cfe_evs_task.c
@@ -48,8 +46,6 @@ CFE_EVS_Global_t CFE_EVS_Global;
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_EarlyInit
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -73,6 +69,8 @@ int32 CFE_EVS_EarlyInit(void)
     CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_PLATFORM_EVS_DEFAULT_MSG_FORMAT_MODE;
     CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort        = CFE_PLATFORM_EVS_PORT_DEFAULT;
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogMode           = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
+
+    CFE_EVS_Global.EVS_EventBurstMax = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
 
     /* Get a pointer to the CFE reset area from the BSP */
     PspStatus = CFE_PSP_GetResetArea(&resetAreaAddr, &resetAreaSize);
@@ -158,12 +156,10 @@ int32 CFE_EVS_EarlyInit(void)
         }
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_CleanUpApp
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -185,12 +181,10 @@ int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppID)
         EVS_AppDataSetFree(AppDataPtr);
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_TaskMain
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -211,7 +205,7 @@ void CFE_EVS_TaskMain(void)
         CFE_ES_PerfLogExit(CFE_MISSION_EVS_MAIN_PERF_ID);
         /* Note: CFE_ES_ExitApp will not return */
         CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_INIT_ERROR);
-    } /* end if */
+    }
 
     /*
      * Wait for other apps to start.
@@ -242,7 +236,7 @@ void CFE_EVS_TaskMain(void)
         else
         {
             CFE_ES_WriteToSysLog("%s: Error reading cmd pipe,RC=0x%08X\n", __func__, (unsigned int)Status);
-        } /* end if */
+        }
 
     } /* end while */
 
@@ -251,8 +245,6 @@ void CFE_EVS_TaskMain(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_TaskInit
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -311,8 +303,6 @@ int32 CFE_EVS_TaskInit(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_NoopCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -325,8 +315,6 @@ int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_ClearLogCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -338,8 +326,6 @@ int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLogCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_ReportHousekeepingCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -363,9 +349,11 @@ int32 CFE_EVS_ReportHousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     {
         if (EVS_AppDataIsUsed(AppDataPtr))
         {
-            AppTlmDataPtr->AppID                 = EVS_AppDataGetID(AppDataPtr);
-            AppTlmDataPtr->AppEnableStatus       = AppDataPtr->ActiveFlag;
-            AppTlmDataPtr->AppMessageSentCounter = AppDataPtr->EventCount;
+            AppTlmDataPtr->AppID                      = EVS_AppDataGetID(AppDataPtr);
+            AppTlmDataPtr->AppEnableStatus            = AppDataPtr->ActiveFlag;
+            AppTlmDataPtr->AppMessageSentCounter      = AppDataPtr->EventCount;
+            AppTlmDataPtr->AppMessageSquelchedCounter = AppDataPtr->SquelchedCount;
+
             ++j;
             ++AppTlmDataPtr;
         }
@@ -375,9 +363,10 @@ int32 CFE_EVS_ReportHousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     /* Clear unused portion of event state data in telemetry packet */
     for (i = j; i < CFE_MISSION_ES_MAX_APPLICATIONS; i++)
     {
-        AppTlmDataPtr->AppID                 = CFE_ES_APPID_UNDEFINED;
-        AppTlmDataPtr->AppEnableStatus       = false;
-        AppTlmDataPtr->AppMessageSentCounter = 0;
+        AppTlmDataPtr->AppID                      = CFE_ES_APPID_UNDEFINED;
+        AppTlmDataPtr->AppEnableStatus            = false;
+        AppTlmDataPtr->AppMessageSentCounter      = 0;
+        AppTlmDataPtr->AppMessageSquelchedCounter = 0;
     }
 
     CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_EVS_Global.EVS_TlmPkt.TelemetryHeader));
@@ -388,8 +377,6 @@ int32 CFE_EVS_ReportHousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_ResetCountersCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -414,8 +401,6 @@ int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCountersCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_SetFilterCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -480,8 +465,6 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_EnablePortsCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -501,7 +484,6 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
     }
     else
     {
-
         /* Process command data */
         if (((CmdPtr->BitMask & CFE_EVS_PORT1_BIT) >> 0) == true)
         {
@@ -530,8 +512,6 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_DisablePortsCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -551,7 +531,6 @@ int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
     }
     else
     {
-
         /* Process command data */
         if (((CmdPtr->BitMask & CFE_EVS_PORT1_BIT) >> 0) == true)
         {
@@ -580,8 +559,6 @@ int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_EnableEventTypeCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -626,8 +603,6 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_DisableEventTypeCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -674,8 +649,6 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_SetEventFormatModeCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -706,8 +679,6 @@ int32 CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatModeCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_EnableAppEventTypeCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -727,7 +698,6 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
 
     if (Status == CFE_SUCCESS)
     {
-
         /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
         if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
         {
@@ -771,8 +741,6 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_DisableAppEventTypeCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -792,7 +760,6 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
 
     if (Status == CFE_SUCCESS)
     {
-
         /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
         if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
         {
@@ -835,8 +802,6 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_EnableAppEventsCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -885,8 +850,6 @@ int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_DisableAppEventsCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -934,8 +897,6 @@ int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_ResetAppCounterCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -955,7 +916,8 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
 
     if (Status == CFE_SUCCESS)
     {
-        AppDataPtr->EventCount = 0;
+        AppDataPtr->EventCount     = 0;
+        AppDataPtr->SquelchedCount = 0;
 
         EVS_SendEvent(CFE_EVS_RSTEVTCNT_EID, CFE_EVS_EventType_DEBUG,
                       "Reset Event Counter Command Received with AppName = %s", LocalName);
@@ -982,8 +944,6 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_ResetFilterCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1047,8 +1007,6 @@ int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_ResetAllFiltersCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1099,8 +1057,6 @@ int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_AddEventFilterCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1184,8 +1140,6 @@ int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_DeleteEventFilterCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1249,8 +1203,6 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_WriteAppDataFileCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1324,6 +1276,7 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
                     AppDataFile.ActiveFlag           = AppDataPtr->ActiveFlag;
                     AppDataFile.EventCount           = AppDataPtr->EventCount;
                     AppDataFile.EventTypesActiveFlag = AppDataPtr->EventTypesActiveFlag;
+                    AppDataFile.SquelchedCount       = AppDataPtr->SquelchedCount;
 
                     /* Copy application filter data to application file data record */
                     memcpy(AppDataFile.Filters, AppDataPtr->BinFilters,
@@ -1360,5 +1313,5 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
         OS_close(FileHandle);
     }
 
-    return (Result);
+    return Result;
 }

@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -106,7 +104,6 @@
 */
 typedef struct
 {
-
     CFE_TIME_SysTime_t AtToneMET;         /* MET at time of tone */
     CFE_TIME_SysTime_t AtToneSTCF;        /* STCF at time of tone */
     int16              AtToneLeapSeconds; /* Leap Seconds at time of tone */
@@ -118,7 +115,6 @@ typedef struct
     CFE_TIME_SysTime_t CurrentLatch;      /* Local clock latched just "now" */
     CFE_TIME_SysTime_t TimeSinceTone;     /* Time elapsed since the tone */
     CFE_TIME_SysTime_t CurrentMET;        /* MET at this instant */
-
 } CFE_TIME_Reference_t;
 
 /*
@@ -149,7 +145,6 @@ typedef struct
     CFE_TIME_SysTime_t AtToneSTCF;
     CFE_TIME_SysTime_t AtToneDelay;
     CFE_TIME_SysTime_t AtToneLatch;
-
 } CFE_TIME_ReferenceState_t;
 
 /*************************************************************************/
@@ -186,10 +181,10 @@ typedef struct
     /*
     ** Pending data values (from "time at tone" command data)...
     */
-    CFE_TIME_SysTime_t PendingMET;
-    CFE_TIME_SysTime_t PendingSTCF;
-    int16              PendingLeaps;
-    int16              PendingState;
+    CFE_TIME_SysTime_t         PendingMET;
+    CFE_TIME_SysTime_t         PendingSTCF;
+    int16                      PendingLeaps;
+    CFE_TIME_ClockState_Enum_t PendingState;
 
     /*
     ** STCF adjustment values...
@@ -317,7 +312,6 @@ typedef struct
     ** One callback per app is allowed
     */
     CFE_TIME_SynchCallbackRegEntry_t SynchCallback[CFE_PLATFORM_ES_MAX_APPLICATIONS];
-
 } CFE_TIME_Global_t;
 
 /*
@@ -395,13 +389,13 @@ CFE_TIME_SysTime_t CFE_TIME_CalculateUTC(const CFE_TIME_Reference_t *Reference);
 /**
  * @brief determine current time state (per API)
  */
-int16 CFE_TIME_CalculateState(const CFE_TIME_Reference_t *Reference);
+CFE_TIME_ClockState_Enum_t CFE_TIME_CalculateState(const CFE_TIME_Reference_t *Reference);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief set clock state
  */
-void CFE_TIME_SetState(int16 NewState);
+void CFE_TIME_SetState(CFE_TIME_ClockState_Enum_t NewState);
 
 #if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
 

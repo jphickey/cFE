@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 ** File: ut_es_stubs.c
@@ -115,6 +113,40 @@ static const cpuaddr UT_ESPOOL_ALIGN_MASK = ((cpuaddr) & ((struct UT_AlignTest *
 /*
 ** Functions
 */
+
+/*------------------------------------------------------------
+ *
+ * Default handler for CFE_ES_CreateChildTask coverage stub function
+ *
+ *------------------------------------------------------------*/
+void UT_DefaultHandler_CFE_ES_CreateChildTask(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    CFE_ES_TaskId_t *TaskIdPtr = UT_Hook_GetArgValueByName(Context, "TaskIdPtr", CFE_ES_TaskId_t *);
+    int32            status;
+    void *           IdBuff;
+    size_t           BuffSize;
+    size_t           Position;
+
+    UT_Stub_GetInt32StatusCode(Context, &status);
+
+    if (status >= 0)
+    {
+        UT_GetDataBuffer(UT_KEY(CFE_ES_GetAppID), &IdBuff, &BuffSize, &Position);
+        if (IdBuff != NULL && BuffSize == sizeof(*TaskIdPtr))
+        {
+            memcpy(TaskIdPtr, IdBuff, sizeof(*TaskIdPtr));
+        }
+        else
+        {
+            *TaskIdPtr = CFE_UT_ES_DEFAULT_TASKID;
+        }
+    }
+
+    if (status < 0)
+    {
+        *TaskIdPtr = CFE_ES_TASKID_UNDEFINED;
+    }
+}
 
 /*------------------------------------------------------------
  *

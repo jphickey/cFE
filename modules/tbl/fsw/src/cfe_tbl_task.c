@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 ** File: cfe_tbl_task.c
@@ -45,8 +43,6 @@ CFE_TBL_Global_t CFE_TBL_Global;
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_TaskMain
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -66,7 +62,7 @@ void CFE_TBL_TaskMain(void)
         CFE_ES_PerfLogExit(CFE_MISSION_TBL_MAIN_PERF_ID);
         /* Note: CFE_ES_ExitApp will not return */
         CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_INIT_ERROR);
-    } /* end if */
+    }
 
     /*
      * Wait for other apps to start.
@@ -97,7 +93,7 @@ void CFE_TBL_TaskMain(void)
         else
         {
             CFE_ES_WriteToSysLog("%s: Error reading cmd pipe,RC=0x%08X\n", __func__, (unsigned int)Status);
-        } /* end if */
+        }
 
     } /* end while */
 
@@ -106,8 +102,6 @@ void CFE_TBL_TaskMain(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_TaskInit
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -131,7 +125,7 @@ int32 CFE_TBL_TaskInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Call to CFE_EVS_Register Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     /*
     ** Create Software Bus message pipe
@@ -141,7 +135,7 @@ int32 CFE_TBL_TaskInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Error creating cmd pipe:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     /*
     ** Subscribe to Housekeeping request commands
@@ -152,7 +146,7 @@ int32 CFE_TBL_TaskInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Error subscribing to HK Request:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     /*
     ** Subscribe to Table task ground command packets
@@ -163,7 +157,7 @@ int32 CFE_TBL_TaskInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Error subscribing to gnd cmds:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     /*
     ** Task startup event message
@@ -175,14 +169,12 @@ int32 CFE_TBL_TaskInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_InitData
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -190,7 +182,6 @@ int32 CFE_TBL_TaskInit(void)
  *-----------------------------------------------------------------*/
 void CFE_TBL_InitData(void)
 {
-
     /* Get the assigned Application ID for the Table Services Task */
     CFE_ES_GetAppID(&CFE_TBL_Global.TableTaskAppId);
 
@@ -202,6 +193,6 @@ void CFE_TBL_InitData(void)
                  sizeof(CFE_TBL_Global.TblRegPacket));
 
     /* Message ID is set when sent, so OK as 0 here */
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), CFE_SB_ValueToMsgId(0),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), CFE_SB_INVALID_MSG_ID,
                  sizeof(CFE_TBL_Global.NotifyMsg));
 }

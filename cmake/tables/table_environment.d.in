@@ -1,0 +1,9 @@
+# Template for table configuration
+
+cfetables: ${TABLE_BINARY}
+
+${TABLE_BINARY}: CFE_TABLE_CPUNAME := ${TGT}
+${TABLE_BINARY}: CFE_TABLE_APPNAME := ${APP}
+
+${TBL_CSRC_RULE}
+${TBL_LUASRC_RULE}

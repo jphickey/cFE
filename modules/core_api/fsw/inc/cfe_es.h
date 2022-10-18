@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -1001,13 +999,13 @@ CFE_Status_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...) OS_PRINTF(1, 2
 **                          a single value.  Nominally, the user should set this value to zero.
 **
 ** \param[in]   TypeCRC     One of the following CRC algorithm selections:
-**                          \arg \c CFE_MISSION_ES_CRC_8 -  (Not currently implemented)
-**                          \arg \c CFE_MISSION_ES_CRC_16 - CRC-16/ARC <BR>
+**                          \arg \c CFE_ES_CrcType_CRC8 -  (Not currently implemented)
+**                          \arg \c CFE_ES_CrcType_CRC16 - CRC-16/ARC <BR>
 **                                  Polynomial: 0x8005 <BR>
 **                                  Initialization: 0x0000 <BR>
 **                                  Reflect Input/Output: true <BR>
 **                                  XorOut: 0x0000
-**                          \arg \c CFE_MISSION_ES_CRC_32 - (not currently implemented)
+**                          \arg \c CFE_ES_CrcType_CRC32 - (not currently implemented)
 **
 ** \return The result of the CRC calculation on the specified memory block.
 **         If the TypeCRC is unimplemented will return 0.

@@ -1,24 +1,20 @@
-/*************************************************************************
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
-*************************************************************************/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -65,8 +61,8 @@ static CFE_FT_TestBigMessage_t CFE_FT_BigMsg;
 
 void TestBasicTransmitRecv(void)
 {
-    CFE_SB_PipeId_t                PipeId1;
-    CFE_SB_PipeId_t                PipeId2;
+    CFE_SB_PipeId_t                PipeId1 = CFE_SB_INVALID_PIPE;
+    CFE_SB_PipeId_t                PipeId2 = CFE_SB_INVALID_PIPE;
     CFE_FT_TestCmdMessage_t        CmdMsg;
     CFE_FT_TestTlmMessage_t        TlmMsg;
     CFE_SB_MsgId_t                 MsgId;
@@ -74,6 +70,9 @@ void TestBasicTransmitRecv(void)
     CFE_SB_Buffer_t *              MsgBuf;
     const CFE_FT_TestCmdMessage_t *CmdPtr;
     const CFE_FT_TestTlmMessage_t *TlmPtr;
+
+    memset(&CmdMsg, 0, sizeof(CmdMsg));
+    memset(&TlmMsg, 0, sizeof(TlmMsg));
 
     UtPrintf("Testing: CFE_SB_TransmitMsg");
 
@@ -216,17 +215,19 @@ void TestBasicTransmitRecv(void)
  */
 void TestMsgBroadcast(void)
 {
-    CFE_SB_PipeId_t                PipeId1;
-    CFE_SB_PipeId_t                PipeId2;
-    CFE_SB_PipeId_t                PipeId3;
-    CFE_SB_PipeId_t                PipeId4;
+    CFE_SB_PipeId_t                PipeId1 = CFE_SB_INVALID_PIPE;
+    CFE_SB_PipeId_t                PipeId2 = CFE_SB_INVALID_PIPE;
+    CFE_SB_PipeId_t                PipeId3 = CFE_SB_INVALID_PIPE;
+    CFE_SB_PipeId_t                PipeId4 = CFE_SB_INVALID_PIPE;
     CFE_FT_TestCmdMessage_t        CmdMsg;
-    CFE_SB_MsgId_t                 MsgId;
+    CFE_SB_MsgId_t                 MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_SB_Buffer_t *              MsgBuf1;
     CFE_SB_Buffer_t *              MsgBuf2;
     CFE_SB_Buffer_t *              MsgBuf3;
     CFE_SB_Buffer_t *              MsgBuf4;
     const CFE_FT_TestCmdMessage_t *CmdPtr;
+
+    memset(&CmdMsg, 0, sizeof(CmdMsg));
 
     UtPrintf("Testing: MsgLimit enforcement");
 
@@ -371,12 +372,12 @@ void TestMsgBroadcast(void)
 /* This is a variant of the message transmit API that does not copy */
 void TestZeroCopyTransmitRecv(void)
 {
-    CFE_SB_PipeId_t         PipeId1;
-    CFE_SB_PipeId_t         PipeId2;
+    CFE_SB_PipeId_t         PipeId1 = CFE_SB_INVALID_PIPE;
+    CFE_SB_PipeId_t         PipeId2 = CFE_SB_INVALID_PIPE;
     CFE_SB_Buffer_t *       CmdBuf;
     CFE_SB_Buffer_t *       TlmBuf;
     CFE_SB_Buffer_t *       MsgBuf;
-    CFE_SB_MsgId_t          MsgId;
+    CFE_SB_MsgId_t          MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_SequenceCount_t SeqCmd1;
     CFE_MSG_SequenceCount_t SeqTlm1;
     CFE_MSG_SequenceCount_t SeqCmd2;

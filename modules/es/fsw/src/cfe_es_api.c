@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 **  File:
@@ -44,8 +42,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GetResetType
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -57,12 +53,10 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr)
         *ResetSubtypePtr = CFE_ES_Global.ResetDataPtr->ResetVars.ResetSubtype;
     }
 
-    return (CFE_ES_Global.ResetDataPtr->ResetVars.ResetType);
+    return CFE_ES_Global.ResetDataPtr->ResetVars.ResetType;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_ResetCFE
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -117,8 +111,7 @@ CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType)
             ** Call the BSP reset routine
             */
             CFE_PSP_Restart(CFE_PSP_RST_TYPE_PROCESSOR);
-
-        } /* end if */
+        }
 
         /*
         ** If the BSP routine is not implemented,
@@ -154,12 +147,10 @@ CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType)
         ReturnCode = CFE_ES_BAD_ARGUMENT;
     }
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_RestartApp
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -174,7 +165,6 @@ CFE_Status_t CFE_ES_RestartApp(CFE_ES_AppId_t AppID)
     AppRecPtr = CFE_ES_LocateAppRecordByID(AppID);
     if (AppRecPtr != NULL)
     {
-
         CFE_ES_LockSharedData(__func__, __LINE__);
 
         /*
@@ -220,15 +210,12 @@ CFE_Status_t CFE_ES_RestartApp(CFE_ES_AppId_t AppID)
 
         CFE_ES_WriteToSysLog("%s: Invalid Application ID received, AppID = %lu\n", __func__,
                              CFE_RESOURCEID_TO_ULONG(AppID));
+    }
 
-    } /* end if */
-
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_ReloadApp
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -242,7 +229,6 @@ CFE_Status_t CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName)
 
     if (AppRecPtr != NULL)
     {
-
         CFE_ES_LockSharedData(__func__, __LINE__);
 
         /*
@@ -292,12 +278,10 @@ CFE_Status_t CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName)
                              CFE_RESOURCEID_TO_ULONG(AppID));
     }
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_DeleteApp
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -310,7 +294,6 @@ CFE_Status_t CFE_ES_DeleteApp(CFE_ES_AppId_t AppID)
 
     if (AppRecPtr != NULL)
     {
-
         CFE_ES_LockSharedData(__func__, __LINE__);
 
         /*
@@ -345,12 +328,10 @@ CFE_Status_t CFE_ES_DeleteApp(CFE_ES_AppId_t AppID)
                              CFE_RESOURCEID_TO_ULONG(AppID));
     }
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_ExitApp
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -455,7 +436,6 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
         }
         else /* It is an external App */
         {
-
             CFE_ES_SysLogWrite_Unsync("%s: Application %s called CFE_ES_ExitApp\n", __func__,
                                       CFE_ES_AppRecordGetName(AppRecPtr));
 
@@ -474,8 +454,7 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
             {
                 OS_TaskDelay(500);
             }
-
-        } /* end if */
+        }
 
     } /* end if ReturnCode == CFE_SUCCESS */
 
@@ -483,8 +462,6 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_RunLoop
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -570,12 +547,10 @@ bool CFE_ES_RunLoop(uint32 *RunStatus)
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_WaitForSystemState
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -679,8 +654,6 @@ CFE_Status_t CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMill
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_WaitForStartupSync
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -691,8 +664,6 @@ void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetAppIDByName
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -728,12 +699,10 @@ CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetLibIDByName
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -769,12 +738,10 @@ CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetTaskIDByName
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -782,7 +749,7 @@ CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName)
 {
-    osal_id_t    OsalId;
+    osal_id_t    OsalId = OS_OBJECT_ID_UNDEFINED;
     int32        OsStatus;
     CFE_Status_t Result;
 
@@ -804,12 +771,10 @@ CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
         *TaskIdPtr = CFE_ES_TASKID_UNDEFINED;
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetAppID
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -842,12 +807,10 @@ CFE_Status_t CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr)
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetTaskID
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -880,8 +843,6 @@ CFE_Status_t CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetAppName
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -922,12 +883,10 @@ CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t Buffe
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetLibName
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -968,12 +927,10 @@ CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_LibId_t LibId, size_t Buffe
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetTaskName
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1000,17 +957,27 @@ CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t B
     OsalId   = CFE_ES_TaskId_ToOSAL(TaskId);
     OsStatus = OS_GetResourceName(OsalId, TaskName, BufferLength);
 
+    if (OsStatus == OS_ERR_INVALID_ID)
+    {
+        /* Supplied ID is not a CFE task */
+        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
+    }
+    if (OsStatus == OS_ERR_NAME_TOO_LONG)
+    {
+        /* Name is too long to fit in supplied buffer */
+        return CFE_ES_BAD_ARGUMENT;
+    }
     if (OsStatus != OS_SUCCESS)
     {
-        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
+        /* Some other uncaught error */
+        CFE_ES_WriteToSysLog("%s(): Unexpected error from OS_GetResourceName(): %ld", __func__, (long)OsStatus);
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
     return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetAppInfo
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1107,8 +1074,6 @@ CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GetLibInfo
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1171,8 +1136,6 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GetModuleInfo
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1199,12 +1162,10 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
             break;
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetTaskInfo
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1236,7 +1197,6 @@ CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t Tas
     }
     else
     {
-
         /*
         ** Get the Application ID and Task Name
         */
@@ -1275,12 +1235,10 @@ CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t Tas
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CreateChildTask
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1371,12 +1329,10 @@ CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
         ReturnCode = CFE_ES_StartAppTask(TaskIdPtr, TaskName, FunctionPtr, &Params, ParentAppId);
     }
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_IncrementTaskCounter
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1407,8 +1363,6 @@ void CFE_ES_IncrementTaskCounter(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_DeleteChildTask
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1454,10 +1408,10 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
                         */
                         TaskIsMain = true;
                         break;
-                    } /* end if */
-                }     /* end if */
+                    }
+                }
                 ++AppRecPtr;
-            } /* end for */
+            }
 
             if (TaskIsMain == false)
             {
@@ -1505,8 +1459,7 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
             CFE_ES_SysLogWrite_Unsync("%s: Error: Task ID is not active: %lu\n", __func__,
                                       CFE_RESOURCEID_TO_ULONG(TaskId));
             ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
-
-        } /* end if */
+        }
 
         CFE_ES_UnlockSharedData(__func__, __LINE__);
     }
@@ -1518,12 +1471,10 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
         CFE_ES_WriteToSysLog("%s: Error: Invalid Task ID: %lu\n", __func__, CFE_RESOURCEID_TO_ULONG(TaskId));
         ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_ExitChildTask
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1581,8 +1532,6 @@ void CFE_ES_ExitChildTask(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_WriteToSysLog
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1613,12 +1562,10 @@ CFE_Status_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
     /* Output the entry to the console */
     OS_printf("%s", TmpString);
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CalculateCRC
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1663,11 +1610,11 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputC
 
     switch (TypeCRC)
     {
-        case CFE_MISSION_ES_CRC_32:
+        case CFE_ES_CrcType_CRC32:
             CFE_ES_WriteToSysLog("%s: Calculate CRC32 not Implemented\n", __func__);
             break;
 
-        case CFE_MISSION_ES_CRC_16:
+        case CFE_ES_CrcType_CRC16:
             Crc    = (int16)(0xFFFF & InputCRC);
             BufPtr = (const uint8 *)DataPtr;
 
@@ -1684,19 +1631,17 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputC
             }
             break;
 
-        case CFE_MISSION_ES_CRC_8:
+        case CFE_ES_CrcType_CRC8:
             CFE_ES_WriteToSysLog("%s: Calculate CRC8 not Implemented\n", __func__);
             break;
 
         default:
             break;
     }
-    return (Crc);
+    return Crc;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_RegisterCDS
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1779,8 +1724,6 @@ CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSi
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GetCDSBlockIDByName
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1820,8 +1763,6 @@ CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_CDSHandle_t *BlockIdPtr, const ch
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetCDSBlockName
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1864,8 +1805,6 @@ CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_CDSHandle_t BlockId,
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CopyToCDS
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1882,8 +1821,6 @@ CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, const void *DataToCopy)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_RestoreFromCDS
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1899,8 +1836,6 @@ CFE_Status_t CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Han
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_RegisterGenCounter
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1965,8 +1900,6 @@ CFE_Status_t CFE_ES_RegisterGenCounter(CFE_ES_CounterId_t *CounterIdPtr, const c
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_DeleteGenCounter
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1994,8 +1927,6 @@ CFE_Status_t CFE_ES_DeleteGenCounter(CFE_ES_CounterId_t CounterId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_IncrementGenCounter
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -2015,8 +1946,6 @@ CFE_Status_t CFE_ES_IncrementGenCounter(CFE_ES_CounterId_t CounterId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_SetGenCount
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -2038,8 +1967,6 @@ CFE_Status_t CFE_ES_SetGenCount(CFE_ES_CounterId_t CounterId, uint32 Count)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GetGenCount
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -2059,8 +1986,6 @@ CFE_Status_t CFE_ES_GetGenCount(CFE_ES_CounterId_t CounterId, uint32 *Count)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetGenCounterIDByName
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -2099,12 +2024,10 @@ CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_CounterId_t *CounterIdPtr, cons
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetGenCounterName
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -2143,8 +2066,6 @@ CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_CounterId_t Coun
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_AppID_ToIndex
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -2157,8 +2078,6 @@ CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_AppId_t AppID, uint32 *Idx)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_LibID_ToIndex
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -2170,8 +2089,6 @@ int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibId, uint32 *Idx)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_TaskID_ToIndex
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -2179,7 +2096,7 @@ int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibId, uint32 *Idx)
 CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx)
 {
     osal_id_t    OsalID;
-    osal_index_t OsalIndex;
+    osal_index_t OsalIndex = OSAL_INDEX_C(0);
     int32        OsStatus;
 
     if (!CFE_RESOURCEID_TEST_DEFINED(TaskID))
@@ -2206,8 +2123,6 @@ CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CounterID_ToIndex
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -2223,8 +2138,6 @@ CFE_Status_t CFE_ES_CounterID_ToIndex(CFE_ES_CounterId_t CounterId, uint32 *Idx)
 */
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_LockSharedData
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -2243,15 +2156,10 @@ void CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber)
          */
         CFE_ES_SysLogWrite_Unsync("%s: SharedData Mutex Take Err Stat=%ld,Func=%s,Line=%d\n", __func__, (long)OsStatus,
                                   FunctionName, (int)LineNumber);
-
-    } /* end if */
-
-    return;
+    }
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_UnlockSharedData
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -2270,15 +2178,10 @@ void CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber)
          */
         CFE_ES_SysLogWrite_Unsync("%s: SharedData Mutex Give Err Stat=%ld,Func=%s,Line=%d\n", __func__, (long)OsStatus,
                                   FunctionName, (int)LineNumber);
-
-    } /* end if */
-
-    return;
+    }
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_ProcessAsyncEvent
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -2288,4 +2191,22 @@ void CFE_ES_ProcessAsyncEvent(void)
 {
     /* This just wakes up the background task to log/handle the event. */
     CFE_ES_BackgroundWakeup();
+}
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_string)
+{
+    char *string = NULL;
+
+    if (status_string != NULL)
+    {
+        snprintf(*status_string, sizeof(*status_string), "0x%08x", (unsigned int)status);
+        string = *status_string;
+    }
+    return string;
 }

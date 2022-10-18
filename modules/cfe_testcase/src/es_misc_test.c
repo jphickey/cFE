@@ -1,31 +1,27 @@
-/*************************************************************************
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
-** File: es_misc_test.c
-**
-** Purpose:
-**   Functional test of basic ES Miscellaneous APIs
-**
-**   Demonstration of how to register and use the UT assert functions.
-**
-*************************************************************************/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
+/**
+ * \file
+ *   Functional test of basic ES Miscellaneous APIs
+ *
+ *   Demonstration of how to register and use the UT assert functions.
+ */
 
 /*
  * Includes
@@ -45,19 +41,19 @@ void TestCalculateCRC(void)
     UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_MISSION_ES_DEFAULT_CRC));
     UtAssert_MIR("Confirm mission default CRC of \"%s\" is %lu", Data, (unsigned long)Result);
 
-    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), inputCrc, CFE_MISSION_ES_CRC_16));
+    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), inputCrc, CFE_ES_CrcType_CRC16));
     UtAssert_MIR("Confirm CRC16 of \"%s\" with input CRC of %lu is %lu", Data, (unsigned long)inputCrc,
                  (unsigned long)Result);
 
-    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_MISSION_ES_CRC_8));
+    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_ES_CrcType_CRC8));
     UtAssert_MIR("Confirm CRC8 of \"%s\" is %lu", Data, (unsigned long)Result);
 
-    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_MISSION_ES_CRC_32));
+    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_ES_CrcType_CRC32));
     UtAssert_MIR("Confirm CRC32 of \"%s\" is %lu", Data, (unsigned long)Result);
 
     /* NULL input or 0 size returns input crc */
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, sizeof(Data), inputCrc, CFE_MISSION_ES_CRC_16), inputCrc);
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(Data, 0, inputCrc, CFE_MISSION_ES_CRC_16), inputCrc);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, sizeof(Data), inputCrc, CFE_ES_CrcType_CRC16), inputCrc);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(Data, 0, inputCrc, CFE_ES_CrcType_CRC16), inputCrc);
 }
 
 void TestWriteToSysLog(void)

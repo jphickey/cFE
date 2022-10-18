@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 ** File:
@@ -807,7 +805,6 @@ void Test_CFE_TBL_ValidateCmd(void)
 */
 void Test_CFE_TBL_NoopCmd(void)
 {
-
     UtPrintf("Begin Test No-Op Command");
 
     /* Test run through function (there are no additional paths) */
@@ -1443,7 +1440,6 @@ void Test_CFE_TBL_HousekeepingCmd(void)
 */
 void Test_CFE_TBL_ApiInit(void)
 {
-
     UT_ResetCDS();
 
     /* Provide a big enough pool for the load buffers */
@@ -2104,6 +2100,8 @@ void Test_CFE_TBL_Load(void)
     CFE_TBL_RegistryRec_t *     RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
 
+    memset(&TestTable1, 0, sizeof(TestTable1));
+
     UtPrintf("Begin Test Load");
 
     StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
@@ -2577,6 +2575,8 @@ void Test_CFE_TBL_Manage(void)
     void *                      App2TblPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_Handle_t            AccessIterator;
+
+    memset(&TestTable1, 0, sizeof(TestTable1));
 
     UtPrintf("Begin Test Manage");
 
@@ -3079,6 +3079,8 @@ void Test_CFE_TBL_TblMod(void)
     CFE_TBL_Handle_t            AccessIterator;
     uint8                       CDS_Data[sizeof(UT_Table1_t)];
     uint32                      ExpectedCrc;
+
+    memset(&TblInfo1, 0, sizeof(TblInfo1));
 
     UtPrintf("Begin Test Table Modified");
 

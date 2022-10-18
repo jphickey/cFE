@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 ** File:
@@ -40,6 +38,7 @@
 */
 #include "es_UT.h"
 #include "target_config.h"
+#include "cfe_config.h"
 #include "cfe_es_eds_interface.h"
 
 #define ES_UT_CDS_BLOCK_SIZE 16
@@ -58,7 +57,7 @@
 
 extern CFE_ES_Global_t CFE_ES_Global;
 
-extern int32 dummy_function(void);
+int32 dummy_function(void);
 
 /*
 ** Global variables
@@ -285,7 +284,7 @@ void ES_UT_SetupAppStartParams(CFE_ES_AppStartParams_t *Params, const char *File
 void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_t AppState, const char *AppName,
                             CFE_ES_AppRecord_t **OutAppRec, CFE_ES_TaskRecord_t **OutTaskRec)
 {
-    osal_id_t            UtOsalId;
+    osal_id_t            UtOsalId = OS_OBJECT_ID_UNDEFINED;
     CFE_ResourceId_t     UtTaskId;
     CFE_ResourceId_t     UtAppId;
     CFE_ES_AppRecord_t * LocalAppPtr;
@@ -343,7 +342,7 @@ void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_
  */
 void ES_UT_SetupChildTaskId(const CFE_ES_AppRecord_t *ParentApp, const char *TaskName, CFE_ES_TaskRecord_t **OutTaskRec)
 {
-    osal_id_t            UtOsalId;
+    osal_id_t            UtOsalId = OS_OBJECT_ID_UNDEFINED;
     CFE_ES_TaskId_t      UtTaskId;
     CFE_ES_AppId_t       UtAppId;
     CFE_ES_TaskRecord_t *LocalTaskPtr;
@@ -575,6 +574,9 @@ int32 ES_UT_SetupOSCleanupHook(void *UserObj, int32 StubRetcode, uint32 CallCoun
      */
     if (CallCount == 0)
     {
+        /* Initialize to avoid static analysis warnings */
+        memset(ObjList, 0, sizeof(ObjList));
+
         OS_TaskCreate(&ObjList[0], NULL, NULL, OSAL_TASK_STACK_ALLOCATE, 0, 0, 0);
         OS_QueueCreate(&ObjList[1], NULL, 0, 0, 0);
         OS_MutSemCreate(&ObjList[2], NULL, 0);
@@ -649,6 +651,7 @@ void UtTest_Setup(void)
     UT_ADD_TEST(TestESMempool);
     UT_ADD_TEST(TestSysLog);
     UT_ADD_TEST(TestBackground);
+    UT_ADD_TEST(TestStatusToString);
 }
 
 /*
@@ -677,8 +680,7 @@ void ES_ResetUnitTest(void)
      * so it must be re-initialized here every time CFE_ES_Global is reset.
      */
     CFE_ES_Global.ResetDataPtr = ES_UT_PersistentResetData;
-
-} /* end ES_ResetUnitTest() */
+}
 
 void TestInit(void)
 {
@@ -1113,12 +1115,11 @@ static void ES_UT_SetPerfIdle(void *UserObj, UT_EntryKey_t FuncKey, const UT_Stu
 
 static void ES_UT_ForEachObjectIncrease(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-
     OS_ArgCallback_t callback_ptr = UT_Hook_GetArgValueByName(Context, "callback_ptr", OS_ArgCallback_t);
     void *           callback_arg = UT_Hook_GetArgValueByName(Context, "callback_arg", void *);
     int *            count        = (int *)UserObj;
     int              i;
-    osal_id_t        id;
+    osal_id_t        id = OS_OBJECT_ID_UNDEFINED;
 
     /* Increasing number of objects per call */
     for (i = 0; i < *count; i++)
@@ -1131,14 +1132,21 @@ static void ES_UT_ForEachObjectIncrease(void *UserObj, UT_EntryKey_t FuncKey, co
 
 static void ES_UT_ForEachObjectFail(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-
     OS_ArgCallback_t callback_ptr = UT_Hook_GetArgValueByName(Context, "callback_ptr", OS_ArgCallback_t);
     void *           callback_arg = UT_Hook_GetArgValueByName(Context, "callback_arg", void *);
-    osal_id_t        id;
+    osal_id_t        id           = OS_OBJECT_ID_UNDEFINED;
 
     OS_OpenCreate(&id, NULL, 0, 0);
     UT_SetDeferredRetcode(UT_KEY(OS_close), 1, -1);
     (*callback_ptr)(id, callback_arg);
+}
+
+static void ES_UT_Config_IterateAll(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    CFE_Config_Callback_t Callback = UT_Hook_GetArgValueByName(Context, "Callback", CFE_Config_Callback_t);
+
+    (*Callback)(NULL, CFE_CONFIGID_UNDEFINED, "Test");
+    (*Callback)(NULL, CFE_CONFIGID_UNDEFINED, "MOD_SRCVER_test");
 }
 
 void TestApps(void)
@@ -2158,12 +2166,12 @@ void TestGenericPool(void)
 {
     CFE_ES_GenPoolRecord_t Pool1;
     CFE_ES_GenPoolRecord_t Pool2;
-    size_t                 Offset1;
-    size_t                 Offset2;
-    size_t                 Offset3;
-    size_t                 Offset4;
+    size_t                 Offset1 = 0;
+    size_t                 Offset2 = 0;
+    size_t                 Offset3 = 0;
+    size_t                 Offset4 = 0;
     size_t                 OffsetEnd;
-    size_t                 BlockSize;
+    size_t                 BlockSize = 0;
     CFE_ES_MemOffset_t     FreeSize;
     CFE_ES_MemOffset_t     TotalSize;
     uint16                 NumBlocks;
@@ -2971,7 +2979,6 @@ void TestTask(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryAllTasksCmd),
                     UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_TASKINFO_EID);
-    /* TODO */
 
     /* Test write of all task data to a file with file name validation failure */
     ES_ResetUnitTest();
@@ -3516,15 +3523,18 @@ void TestTask(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_ES_CMD_NOOP_CC);
     CFE_UtAssert_PRINTF("Error sending build info event");
 
-    /* Test CFE_ES_GenerateVersionEvents error when sending mission event */
+    /*
+     * Test CFE_ES_GenerateVersionEvents error when sending mission event and add hook
+     * to cover CFE_ES_ModSrcVerCallback
+     */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
     CFE_ES_Global.ResetDataPtr->ResetVars.ResetType = 1;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_SendEvent), 3, CFE_EVS_INVALID_PARAMETER);
+    UT_SetHandlerFunction(UT_KEY(CFE_Config_IterateAll), ES_UT_Config_IterateAll, NULL);
     UtAssert_VOIDCALL(CFE_ES_TaskInit());
     CFE_UtAssert_PRINTF("Error sending mission version event");
-
-} /* end TestTask */
+}
 
 void TestPerf(void)
 {
@@ -4392,17 +4402,17 @@ void TestAPI(void)
      */
     memset(Data, 1, sizeof(Data));
     ES_ResetUnitTest();
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_MISSION_ES_CRC_8), 0);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_ES_CrcType_CRC8), 0);
 
     /* Test calculating a CRC on a range of memory using CRC type 16 */
     ES_ResetUnitTest();
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_MISSION_ES_CRC_16), 2688);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_ES_CrcType_CRC16), 2688);
 
     /* Test calculating a CRC on a range of memory using CRC type 32
      * NOTE: This capability is not currently implemented in cFE
      */
     ES_ResetUnitTest();
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_MISSION_ES_CRC_32), 0);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_ES_CrcType_CRC32), 0);
 
     /* Test calculating a CRC on a range of memory using an invalid CRC type
      */
@@ -4411,8 +4421,8 @@ void TestAPI(void)
 
     /* Test NULL and zero size */
     ES_ResetUnitTest();
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, 12, 345353, CFE_MISSION_ES_CRC_16), 345353);
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 0, 345353, CFE_MISSION_ES_CRC_16), 345353);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, 12, 345353, CFE_ES_CrcType_CRC16), 345353);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 0, 345353, CFE_ES_CrcType_CRC16), 345353);
 
     /* Test shared mutex take with a take error */
     ES_ResetUnitTest();
@@ -4519,8 +4529,12 @@ void TestAPI(void)
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(NULL, TaskId, sizeof(AppName)), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, TaskId, 0), CFE_ES_BAD_ARGUMENT);
     CFE_UtAssert_SUCCESS(CFE_ES_GetTaskName(AppName, TaskId, sizeof(AppName)));
-    UT_SetDeferredRetcode(UT_KEY(OS_GetResourceName), 1, OS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(OS_GetResourceName), 1, OS_ERR_INVALID_ID);
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, TaskId, sizeof(AppName)), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UT_SetDeferredRetcode(UT_KEY(OS_GetResourceName), 1, OS_ERR_NAME_TOO_LONG);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, TaskId, sizeof(AppName)), CFE_ES_BAD_ARGUMENT);
+    UT_SetDeferredRetcode(UT_KEY(OS_GetResourceName), 1, OS_ERROR);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, TaskId, sizeof(AppName)), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskID(NULL), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskId, NULL), CFE_ES_BAD_ARGUMENT);
@@ -4531,7 +4545,7 @@ void TestAPI(void)
 
     /* Hit error case for NULL TaskRecPtr */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_TaskGetId), 1, OS_OBJECT_ID_UNDEFINED);
+    UT_SetDeferredRetcode(UT_KEY(OS_TaskGetId), 1, OS_ObjectIdToInteger(OS_OBJECT_ID_UNDEFINED));
     UtAssert_INT32_EQ(CFE_ES_GetTaskID(&TaskId), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 }
 
@@ -4540,7 +4554,7 @@ void TestGenericCounterAPI(void)
     char               CounterName[OS_MAX_API_NAME + 1];
     CFE_ES_CounterId_t CounterId;
     CFE_ES_CounterId_t CounterId2;
-    uint32             CounterCount;
+    uint32             CounterCount = 0;
     int                i;
 
     /* Test successfully registering a generic counter */
@@ -4681,6 +4695,8 @@ void TestCDS()
     uint8                BlockData[ES_UT_CDS_BLOCK_SIZE];
 
     UtPrintf("Begin Test CDS");
+
+    memset(BlockData, 0, sizeof(BlockData));
 
     /* Test init with a mutex create failure */
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_ERROR);
@@ -5014,8 +5030,7 @@ void TestCDS()
     CFE_ES_Global.CDSIsAvailable = false;
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&CDSHandle, "NotNULL"), CFE_ES_NOT_IMPLEMENTED);
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSName, CDSHandle, sizeof(CDSName)), CFE_ES_NOT_IMPLEMENTED);
-
-} /* End TestCDS */
+}
 
 void TestCDSMempool(void)
 {
@@ -5135,8 +5150,8 @@ void TestCDSMempool(void)
 
 void TestESMempool(void)
 {
-    CFE_ES_MemHandle_t      PoolID1; /* Poo1 1 handle, no mutex */
-    CFE_ES_MemHandle_t      PoolID2; /* Poo1 2 handle, with mutex */
+    CFE_ES_MemHandle_t      PoolID1 = CFE_ES_MEMHANDLE_UNDEFINED; /* Poo1 1 handle, no mutex */
+    CFE_ES_MemHandle_t      PoolID2 = CFE_ES_MEMHANDLE_UNDEFINED; /* Poo1 2 handle, with mutex */
     uint8                   Buffer1[1024];
     uint8                   Buffer2[1024];
     CFE_ES_MemPoolBuf_t     addressp1 = CFE_ES_MEMPOOLBUF_C(0); /* Pool 1 buffer address */
@@ -5626,4 +5641,35 @@ void TestBackground(void)
 
     /* The number of jobs running should be 1 (perf log dump) */
     UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundTask.NumJobsRunning, 1);
+}
+
+/*--------------------------------------------------------------------------------*
+ * TestStatusToString test helper function to avoid repeating logic
+ *--------------------------------------------------------------------------------*/
+void TestStatusToString_Helper(CFE_Status_t status)
+{
+    CFE_StatusString_t status_string;
+    char *             rtn_addr;
+    char               expected[CFE_STATUS_STRING_LENGTH + 1];
+
+    /* Used oversized string to test for truncation */
+    snprintf(expected, sizeof(expected), "0x%08x", (unsigned int)status);
+    rtn_addr = CFE_ES_StatusToString(status, &status_string);
+    UtAssert_ADDRESS_EQ(rtn_addr, status_string);
+    UtAssert_STRINGBUF_EQ(status_string, sizeof(status_string), expected, sizeof(expected));
+}
+
+/*--------------------------------------------------------------------------------*
+ * Functional CFE_ES_StatusToString test
+ *--------------------------------------------------------------------------------*/
+void TestStatusToString(void)
+{
+    /* NULL test */
+    UtAssert_ADDRESS_EQ(CFE_ES_StatusToString(CFE_SUCCESS, NULL), NULL);
+
+    /* Status value tests */
+    TestStatusToString_Helper(CFE_SUCCESS);
+    TestStatusToString_Helper(CFE_SEVERITY_ERROR);
+    TestStatusToString_Helper(CFE_STATUS_C(INT32_MAX));
+    TestStatusToString_Helper(CFE_STATUS_C(INT32_MIN));
 }

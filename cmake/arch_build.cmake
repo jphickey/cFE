@@ -99,6 +99,7 @@ function(add_cfe_app APP_NAME APP_SRC_FILES)
 
   # Create the app module
   add_library(${APP_NAME} ${APPTYPE} ${APP_SRC_FILES} ${ARGN})
+  target_link_libraries(${APP_NAME} core_api)
 
   # If using "DYNAMIC" EDS linkage, then link the app with the EDS library here.
   # Note that the linker will only pull in the compilation unit that actually
@@ -109,8 +110,6 @@ function(add_cfe_app APP_NAME APP_SRC_FILES)
   # only the _referenced_ EDS DBs (i.e. those for loaded apps) are held in memory.
   if (CFE_SYSTEM_EDSDB_DYNAMIC_LINK)
     target_link_libraries($(APP_NAME) cfe_edsdb_static)
-  else()
-    target_link_libraries(${APP_NAME} core_api)
   endif()
 
   # An "install" step is only needed for dynamic/runtime loaded apps
@@ -136,8 +135,8 @@ function(add_cfe_app_dependency MODULE_NAME DEPENDENCY_MODULE)
     set(INCLUDE_LIST)
     set(COMPILE_DEF_LIST)
     foreach(DEP ${DEPENDENCY_MODULE} ${ARGN})
-        list(APPEND INCLUDE_LIST "$<TARGET_PROPERTY:${DEPENDENCY_MODULE},INTERFACE_INCLUDE_DIRECTORIES>")
-        list(APPEND COMPILE_DEF_LIST "$<TARGET_PROPERTY:${DEPENDENCY_MODULE},INTERFACE_COMPILE_DEFINITIONS>")
+        list(APPEND INCLUDE_LIST "$<TARGET_PROPERTY:${DEP},INTERFACE_INCLUDE_DIRECTORIES>")
+        list(APPEND COMPILE_DEF_LIST "$<TARGET_PROPERTY:${DEP},INTERFACE_COMPILE_DEFINITIONS>")
     endforeach()
 
     target_include_directories(${MODULE_NAME} PUBLIC
@@ -161,11 +160,19 @@ endfunction(add_cfe_app_dependency)
 function(add_cfe_tables APP_NAME TBL_SRC_FILES)
 
     get_directory_property(CURRENT_INCLUDE_DIRS INCLUDE_DIRECTORIES)
+    if (NOT CURRENT_INCLUDE_DIRS)
+      set(CURRENT_INCLUDE_DIRS) # make it empty, not -NOTFOUND
+    endif()
+    get_directory_property(CURRENT_COMPILE_DEFS COMPILE_DEFINITIONS)
+    if (NOT CURRENT_COMPILE_DEFS)
+      set(CURRENT_COMPILE_DEFS) # make it empty, not -NOTFOUND
+    endif()
 
     if (TGTNAME)
         set (TABLE_TGTLIST ${TGTNAME})
     elseif (TARGET ${APP_NAME})
         set (TABLE_TGTLIST ${TGTLIST_${APP_NAME}})
+        set (TGTNAME ${APP_NAME})
     else()
         # The first parameter should match the name of an app that was
         # previously defined using "add_cfe_app".  If target-scope properties
@@ -176,10 +183,8 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
         # an error.
         message("NOTE: \"${APP_NAME}\" passed to add_cfe_tables is not a previously-defined application target")
         set (TABLE_TGTLIST ${APP_STATIC_TARGET_LIST} ${APP_DYNAMIC_TARGET_LIST})
+        set (TGTNAME core_api)
     endif()
-
-    # This is where the configrations
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/table_configs)
 
     # The table source must be compiled using the same "include_directories"
     # as any other target, but it uses the "add_custom_command" so there is
@@ -198,11 +203,9 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
         # Get name without extension (NAME_WE) and append to list of tables
         get_filename_component(TBLWE ${TBL} NAME_WE)
 
-        set(TBL_SRC)
-        set(TBL_LUA)
-        set(TBL_SO_FILE)
-
         foreach(TGT ${TABLE_TGTLIST})
+            set(TBL_SRC)
+            set(TBL_LUA)
             set(TABLE_LIBNAME "${TGT}_${APP_NAME}_${TBLWE}")
 
             # Check if an override exists at the mission level (recommended practice)
@@ -250,8 +253,38 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
       	      message(FATAL_ERROR "No table definition for ${APP_NAME}.${TBLWE} on ${TGT} found")
             endif (TBL_SRC)
 
-            file(APPEND ${CMAKE_BINARY_DIR}/table_configs.cmake "list(APPEND TABLE_CONFIG_LIST ${TABLE_LIBNAME})\n")
-            configure_file(${CMAKE_SOURCE_DIR}/cmake/tables/table_config.cmake.in ${CMAKE_BINARY_DIR}/table_configs/${TABLE_LIBNAME}.cmake)
+            # Ensure the directory exists that will hold the generated output
+            file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/tables/${TGT}/${INSTALL_SUBDIR}")
+
+            # Note the table is not generated directly here, as it may require the native system compiler, so
+            # the call to the table tool (eds2cfetbl in this build) is deferred to the parent scope.  Instead, this
+            # generates a file that captures the state (include dirs, source files, targets) for use in a future step.
+            add_custom_command(
+                OUTPUT ${MISSION_BINARY_DIR}/tables/${TABLE_LIBNAME}.d
+                COMMAND ${CMAKE_COMMAND}
+                    -DTEMPLATE_FILE="${CFE_SOURCE_DIR}/cmake/tables/table_environment.d.in"
+                    -DOUTPUT_FILE="${MISSION_BINARY_DIR}/tables/${TABLE_LIBNAME}.d"
+                    -DTABLE_NAME="${TBLWE}"
+                    -DTGT="${TGT}"
+                    -DAPP="${APP}"
+                    -DTBL_SRC="${TBL_SRC}"
+                    -DTBL_LUA="${TBL_LUA}"
+                    -DINSTALL_SUBDIR="${INSTALL_SUBDIR}"
+                    -DINCLUDE_DIRS="${CURRENT_INCLUDE_DIRS};$<TARGET_PROPERTY:${TGTNAME},INTERFACE_INCLUDE_DIRECTORIES>"
+                    -DCOMPILE_DEFS="${CURRENT_COMPILE_DEFS};$<TARGET_PROPERTY:${TGTNAME},INTERFACE_COMPILE_DEFINITIONS>"
+                    -P ${CFE_SOURCE_DIR}/cmake/tables/generate_table_env.cmake
+                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                DEPENDS
+                  ${TGTNAME}
+                  ${CFE_SOURCE_DIR}/cmake/tables/table_environment.d.in
+                  ${CFE_SOURCE_DIR}/cmake/tables/generate_table_env.cmake
+            )
+
+            # Add a custom target to generate the config file
+            add_custom_target(${TABLE_LIBNAME}_tbl
+              DEPENDS ${MISSION_BINARY_DIR}/tables/${TABLE_LIBNAME}.d
+            )
+            add_dependencies(cfetables ${TABLE_LIBNAME}_tbl)
 
         endforeach()
     endforeach()
@@ -531,6 +564,8 @@ function(prepare)
   # Create a directory to hold the generated binary objects
   file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/obj")
 
+  add_custom_target(cfetables)
+
   # Choose the configuration file to use for OSAL on this system
   set(OSAL_CONFIGURATION_FILE)
   foreach(CONFIG ${BUILD_CONFIG_${TARGETSYSTEM}} ${OSAL_SYSTEM_OSCONFIG})
@@ -800,4 +835,3 @@ function(process_arch SYSVAR)
   endforeach(TGTNAME ${TGTSYS_${SYSVAR}})
 
 endfunction(process_arch SYSVAR)
-
