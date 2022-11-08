@@ -55,7 +55,7 @@
   </Package>
 
   <Package name="CFE_ES" shortDescription="CFE_ES configurable items">
-    <!-- 
+    <!--
       Memory size values in CFE CMD/TLM messages.
       Traditionally in CFE these were only 32 bit values.  Keeping as 32-bit
       (4 bytes) allows more compatibility with older (non-EDS) tools, but
@@ -86,7 +86,7 @@
      <Define name="TELEMETRY_BASE_TOPICID" value="61"/>
      <Define name="TELEMETRY_MAX_TOPICID" value="121"/>
 
-    <Define name="ES_CDS_MAX_NAME_LENGTH" value="16">
+     <Define name="ES_CDS_MAX_NAME_LENGTH" value="16">
       <LongDescription>
         \cfeescfg Maximum Length of CDS Name
 
@@ -419,13 +419,14 @@
           Hour - 0 to 23
           Minute - 0 to 59
           Second - 0 to 59
+          Micros - 0 to 999999
       </LongDescription>
     </Define>
     <Define name="TIME_EPOCH_DAY" value="1" />
     <Define name="TIME_EPOCH_HOUR" value="0" />
     <Define name="TIME_EPOCH_MINUTE" value="0" />
     <Define name="TIME_EPOCH_SECOND" value="0" />
-
+    <Define name="TIME_EPOCH_MICROS" value="0" />
 
     <Define name="TIME_FS_FACTOR" value="789004800">
       <LongDescription>
@@ -466,7 +467,7 @@
       </LongDescription>
     </Define>
 
-    <Define name="ES_DEFAULT_CRC" value="CFE_MISSION_ES_CRC_16">
+    <Define name="ES_DEFAULT_CRC" value="CFE_ES_CrcType_CRC16">
     <LongDescription>
       \cfeescfg Mission Default CRC algorithm
 

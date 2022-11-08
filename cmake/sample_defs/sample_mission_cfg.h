@@ -40,27 +40,4 @@
  */
 #include "samplemission_eds_designparameters.h"
 
-/** \name Checksum/CRC algorithm identifiers */
-/** \{ */
-#define CFE_MISSION_ES_CRC_8  1 /**< \brief CRC ( 8 bit additive - returns 32 bit total) (Currently not implemented) */
-#define CFE_MISSION_ES_CRC_16 2 /**< \brief CRC (16 bit additive - returns 32 bit total) */
-#define CFE_MISSION_ES_CRC_32                                                              \
-    3 /**< \brief CRC (32 bit additive - returns 32 bit total) (Currently not implemented) \
-       */
-/** \} */
-
-/**
-**  \cfeescfg Mission Default CRC algorithm
-**
-**  \par Description:
-**      Indicates the which CRC algorithm should be used as the default
-**      for verifying the contents of Critical Data Stores and when calculating
-**      Table Image data integrity values.
-**
-**  \par Limits
-**      Currently only CFE_MISSION_ES_CRC_16 is supported (see #CFE_MISSION_ES_CRC_16)
-*/
-#define CFE_MISSION_ES_DEFAULT_CRC CFE_MISSION_ES_CRC_16
-
-
 #endif /* SAMPLE_MISSION_CFG_H */
