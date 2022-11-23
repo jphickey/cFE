@@ -609,6 +609,7 @@ function(process_arch TARGETSYSTEM)
   # All subordinate builds depend on the generated files being present first
   add_dependencies(${TARGETSYSTEM}-install mission-prebuild)
   add_dependencies(${TARGETSYSTEM}-all mission-prebuild)
+  add_dependencies(${TARGETSYSTEM}-cfetables mission-prebuild)
 
   add_dependencies(mission-all ${TARGETSYSTEM}-all)
   add_dependencies(mission-clean ${TARGETSYSTEM}-clean)
