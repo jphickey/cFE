@@ -1,5 +1,16 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev218
+- Update CI to use Ubuntu 20.04
+- Enforce strict cast alignment on arch
+- Support clang for whole archive flags
+- Explicit toolchain in sample target.cmake
+- See <https://github.com/nasa/cFE/pull/2209>, <https://github.com/nasa/cFE/pull/2206>, <https://github.com/nasa/cFE/pull/2204>, and <https://github.com/nasa/cFE/pull/2203>
+
+## Development Build: v7.0.0-rc4+dev205
+- resolve static analysis errors in tbl_UT.c
+- See <https://github.com/nasa/cFE/pull/2197>
+
 ## Development Build: v7.0.0-rc4+dev201
 - use osal_public_api header targets in doc
 - See <https://github.com/nasa/cFE/pull/2184>
