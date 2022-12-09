@@ -331,7 +331,7 @@ int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLogCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_ReportHousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
+int32 CFE_EVS_ReportHousekeepingCmd(const CFE_EVS_SendHkCmd_t *data)
 {
     uint32                i, j;
     EVS_AppData_t *       AppDataPtr;

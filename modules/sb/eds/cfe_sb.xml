@@ -425,11 +425,13 @@
       </ContainerDataType>
 
       <ContainerDataType name="SubReportBase" baseType="CFE_HDR/CommandHeader">
-        <!-- 
-        This container has no entries of its own, it just serves as a common base type for all command messages.  
-        Defined command messages must all use this container as a base type. 
+        <!--
+        This container has no entries of its own, it just serves as a common base type for all command messages.
+        Defined command messages must all use this container as a base type.
         -->
       </ContainerDataType>
+
+      <ContainerDataType name="SendHkCmd" baseType="CFE_HDR/CommandHeader" shortDescription="Send Housekeeping Command" />
 
       <ContainerDataType name="HousekeepingTlm" baseType="CFE_HDR/TelemetryHeader">
         <EntryList>
@@ -1073,7 +1075,7 @@
           <Interface name="SEND_HK" shortDescription="Send telemetry command interface" type="CFE_SB/Telecommand">
             <!-- This uses a bare spacepacket with no payload -->
             <GenericTypeMapSet>
-              <GenericTypeMap name="TelecommandDataType" type="CFE_HDR/CommandHeader" />
+              <GenericTypeMap name="TelecommandDataType" type="SendHkCmd" />
             </GenericTypeMapSet>
           </Interface>
           <Interface name="HK_TLM" shortDescription="Software bus housekeeping telemetry interface" type="CFE_SB/Telemetry">

@@ -311,7 +311,7 @@ int32 CFE_TIME_TaskInit(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
+int32 CFE_TIME_HousekeepingCmd(const CFE_TIME_SendHkCmd_t *data)
 {
     CFE_TIME_Reference_t Reference;
 

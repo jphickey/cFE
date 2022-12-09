@@ -308,6 +308,8 @@
       <ContainerDataType name="CommandBase" baseType="CFE_HDR/CommandHeader" shortDescription="Base type for all Event Services commands">
       </ContainerDataType>
 
+      <ContainerDataType name="SendHkCmd" baseType="CFE_HDR/CommandHeader" shortDescription="Send Housekeeping Command" />
+
       <ContainerDataType name="HousekeepingTlm" baseType="CFE_HDR/TelemetryHeader" shortDescription="Event Services Housekeeping Telemetry">
         <EntryList>
           <Entry type="HousekeepingTlm_Payload" name="Payload" />
@@ -1291,7 +1293,7 @@
           <Interface name="SEND_HK" shortDescription="Send telemetry command interface" type="CFE_SB/Telecommand">
             <!-- This uses a bare spacepacket with no payload -->
             <GenericTypeMapSet>
-              <GenericTypeMap name="TelecommandDataType" type="CFE_HDR/CommandHeader" />
+              <GenericTypeMap name="TelecommandDataType" type="SendHkCmd" />
             </GenericTypeMapSet>
           </Interface>
           <Interface name="HK_TLM" shortDescription="Software bus housekeeping telemetry interface" type="CFE_SB/Telemetry">

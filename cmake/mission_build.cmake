@@ -188,6 +188,7 @@ function(prepare)
   add_custom_target(mission-install COMMAND $(MAKE) install)
   add_custom_target(mission-clean COMMAND $(MAKE) clean)
   add_custom_target(mission-prebuild)
+  add_custom_target(doc-prebuild)
 
   # Locate the source location for all the apps found within the target file
   # This is done by searching through the list of paths to find a matching name
@@ -386,8 +387,8 @@ function(prepare)
   add_subdirectory(${osal_MISSION_DIR} osal_public_api)
   add_subdirectory(${osal_MISSION_DIR}/docs/src ${CMAKE_BINARY_DIR}/docs/osal-apiguide)
 
-  add_dependencies(cfe-usersguide osal_public_api_headerlist)
-  add_dependencies(mission-doc osal_public_api_headerlist)
+  add_dependencies(cfe-usersguide doc-prebuild)
+  add_dependencies(mission-doc doc-prebuild)
 
   # Pull in any application-specific mission-scope configuration
   # This may include user configuration files such as cfe_mission_cfg.h,

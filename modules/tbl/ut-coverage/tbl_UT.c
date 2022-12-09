@@ -307,8 +307,10 @@ void Test_CFE_TBL_TaskInit(void)
     uint32 ExitCode;
     union
     {
-        CFE_MSG_CommandHeader_t NoArgsCmd;
-        CFE_MSG_Message_t       Msg;
+        CFE_TBL_NoopCmd_t          NoopCmd;
+        CFE_TBL_SendHkCmd_t        SendHkCmd;
+        CFE_TBL_ResetCountersCmd_t ResetCountersCmd;
+        CFE_MSG_Message_t          Msg;
     } CmdBuf;
     CFE_SB_MsgId_t    MsgId   = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t FcnCode = 0;
@@ -378,7 +380,7 @@ void Test_CFE_TBL_TaskInit(void)
 
     /* Test command pipe messages handler response to a valid command */
     UT_InitData();
-    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_TBL_CMD_NOOP_CC);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoopCmd), UT_TPID_CFE_TBL_CMD_NOOP_CC);
     CFE_UtAssert_EVENTSENT(CFE_TBL_NOOP_INF_EID);
 
     /* Test command pipe messages handler response to an invalid
@@ -392,14 +394,14 @@ void Test_CFE_TBL_TaskInit(void)
      * command code
      */
     UT_InitData();
-    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_TBL_CMD_INVALID_CC);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoopCmd), UT_TPID_CFE_TBL_CMD_INVALID_CC);
     CFE_UtAssert_EVENTSENT(CFE_TBL_CC1_ERR_EID);
 
     /* Test command pipe messages handler response to other errors */
     UT_InitData();
     CFE_TBL_Global.CommandCounter      = 0;
     CFE_TBL_Global.CommandErrorCounter = 0;
-    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_TBL_INVALID_MID);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoopCmd), UT_TPID_CFE_TBL_INVALID_MID);
     CFE_UtAssert_EVENTSENT(CFE_TBL_MID_ERR_EID);
     UtAssert_ZERO(CFE_TBL_Global.CommandCounter);
     UtAssert_ZERO(CFE_TBL_Global.CommandErrorCounter);
@@ -408,13 +410,14 @@ void Test_CFE_TBL_TaskInit(void)
     UT_InitData();
     CFE_TBL_Global.CommandCounter      = 0;
     CFE_TBL_Global.CommandErrorCounter = 0;
-    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_TBL_MSG_HK);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.SendHkCmd), UT_TPID_CFE_TBL_MSG_HK);
     UtAssert_ZERO(CFE_TBL_Global.CommandCounter);
     UtAssert_ZERO(CFE_TBL_Global.CommandErrorCounter);
 
     /* Test command pipe messages handler response to "command type" message */
     UT_InitData();
-    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_TBL_CMD_RESET_COUNTERS_CC);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.ResetCountersCmd),
+                    UT_TPID_CFE_TBL_CMD_RESET_COUNTERS_CC);
     CFE_UtAssert_EVENTSENT(CFE_TBL_RESET_INF_EID);
     UtAssert_ZERO(CFE_TBL_Global.CommandCounter);
     UtAssert_ZERO(CFE_TBL_Global.CommandErrorCounter);

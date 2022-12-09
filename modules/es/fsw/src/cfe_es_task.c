@@ -436,13 +436,11 @@ int32 CFE_ES_TaskInit(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_HousekeepingCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
+int32 CFE_ES_HousekeepingCmd(const CFE_ES_SendHkCmd_t *data)
 {
     OS_heap_prop_t HeapProp;
     int32          OsStatus;
