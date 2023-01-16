@@ -467,7 +467,7 @@
       </LongDescription>
     </Define>
 
-    <Define name="ES_DEFAULT_CRC" value="CFE_ES_CrcType_CRC16">
+    <Define name="ES_DEFAULT_CRC" value="CFE_ES_CrcType_CRC_16">
     <LongDescription>
       \cfeescfg Mission Default CRC algorithm
 

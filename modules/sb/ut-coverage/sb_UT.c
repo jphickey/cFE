@@ -4352,7 +4352,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     /* Repress sending the no subscriptions event and process request */
     CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter = 0;
     CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_NO_SUBS_EID_BIT);
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &Housekeeping.SBBuf.Msg, sizeof(Housekeeping.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &Housekeeping.SBBuf.Msg, sizeof(Housekeeping.SendHkCmd),
                     UT_TPID_CFE_SB_SEND_HK);
 
     /* The no subs event should not be in history but count should increment */
@@ -4373,7 +4373,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
 
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_BLOCK_SIZE);
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &Housekeeping.SBBuf.Msg, sizeof(Housekeeping.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &Housekeeping.SBBuf.Msg, sizeof(Housekeeping.SendHkCmd),
                     UT_TPID_CFE_SB_SEND_HK);
     UtAssert_INT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 0);
 
