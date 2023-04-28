@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 **  File:
@@ -73,8 +71,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_SysLogClear_Unsync
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -92,8 +88,6 @@ void CFE_ES_SysLogClear_Unsync(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_SysLogReadStart_Unsync
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -130,8 +124,6 @@ void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_SysLogAppend_Unsync
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -250,12 +242,10 @@ int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
         ++CFE_ES_Global.ResetDataPtr->SystemLogEntryNum;
     }
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_SysLogWrite_Unsync
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -289,8 +279,6 @@ int32 CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...)
  *******************************************************************/
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_SysLogReadData
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -340,8 +328,6 @@ void CFE_ES_SysLogReadData(CFE_ES_SysLogReadBuffer_t *Buffer)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_SysLogSetMode
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -364,8 +350,6 @@ int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_SysLog_vsnprintf
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -444,15 +428,13 @@ void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecSt
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_SysLogDump
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_SysLogDump(const char *Filename)
 {
-    osal_id_t fd;
+    osal_id_t fd = OS_OBJECT_ID_UNDEFINED;
     int32     OsStatus;
     int32     Status;
     size_t    WritePos;
@@ -470,7 +452,7 @@ int32 CFE_ES_SysLogDump(const char *Filename)
         CFE_EVS_SendEvent(CFE_ES_SYSLOG2_ERR_EID, CFE_EVS_EventType_ERROR, "Error creating file %s, RC = %ld", Filename,
                           (long)OsStatus);
         return CFE_ES_FILE_IO_ERR;
-    } /* end if */
+    }
 
     CFE_FS_InitHeader(&Buffer.FileHdr, CFE_ES_SYS_LOG_DESC, CFE_FS_SubType_ES_SYSLOG);
 
@@ -503,7 +485,7 @@ int32 CFE_ES_SysLogDump(const char *Filename)
                 if (OsStatus <= 0)
                 {
                     break;
-                } /* end if */
+                }
 
                 WritePos += (long)OsStatus;
                 TotalSize += (long)OsStatus;

@@ -318,14 +318,14 @@ directory is described as a note under each folder.
     |   |-- The flight software is all configured and built under this directory
     |   |-- All mission and platform configuration files are placed here
     |-- apps
-    |   |-- Contains application source code. 
+    |   |-- Contains application source code.
     |   |-- Application source code may be shared amoung multiple build CPUs
     |-- libs
     |   |-- Contains Core Flight System (cFS) Sample Library (sample_lib)
     |-- tools
     |   |-- Contains Core Flight System (cFS) tools
-``` 
-Module descriptions are provided in the table below. 
+```
+Module descriptions are provided in the table below.
 ```
 -- missionxyz/cfe
    |-- cmake
@@ -353,7 +353,7 @@ Module descriptions are provided in the table below.
 ```
 -- missionxyz/build
    |-- CMakeFiles
-   |   |-- Cmake fore cfe core build and all apps
+   |   |-- Cmake for cfe core build and all apps
    |-- cpu1
    |   |-- Contains start up script "cfe_es_startup.scr"
    |   |-- Where build.o and executable files, etc. are placed
@@ -364,12 +364,12 @@ Module descriptions are provided in the table below.
    |   |-- Where the cpu1 platform configuration include files go
    |-- src
    |-- tools
-```  
+```
 ```
 -- missionxyz/build/cpu1
    |-- default_cpu1
    |   |-- CMakeFiles
-   |   |   | Cmake fore cfe core build and all apps
+   |   |   | Cmake for cfe core build and all apps
    |   |-- apps
    |   |    |-- Where application makefiles go
    |   |    |-- One directory per application
@@ -392,19 +392,19 @@ Module descriptions are provided in the table below.
    |   |-- tbl
    |   |-- time
 ```
-``` 
+```
 -- missionxyz/apps
    |-- ci_lab
    |-- sample_app
    |-- sch_lab
    |-- to_lab
-``` 
-``` 
+```
+```
 -- missionxyz/tools
    |-- cFS-GroundSystem
    |-- elf2cfetbl
    |-- tblCRCTool
-``` 
+```
 ```
 -- missionxyz/cf/modules/es
    |-- eds
@@ -501,7 +501,7 @@ headers, while files listed in the second table (without suffix) should be used 
 
 Finally, to simplify application headers, a single "all-inclusive" cFE header is also provided:
 
-```
+```c
 #include "cfe.h" /* Define cFE API prototypes and data types */
 ```
 
@@ -599,33 +599,109 @@ Child Tasks can be useful in both "Software Only" and "Hardware Servicing"
 applications.
 
 ## 4.2 Best Practices
+
 ### 4.2.1 cFS Application Template
 
 Applications designed to interface with the cFE should follow standard templates.
 Reference sample_app on Github for “live” example.
 
-| **Directory**                         | **Descriptions**                                                                                             |
-|:--------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| fsw/                                  | All components which are used on/deployed to the actual target or define the interface to those components   |
-| fsw/inc/                              | Public/Interface headers for the component                                                                   |
-| fsw/src/                              | Source files and private headers for the component                                                           |
-| tables/                               | Example/Initial table definitions                                                                            |
+__File Organization and Directory Structure__
 
+| **Directory**                         | **Content**                                                                    |
+|:--------------------------------------|:-------------------------------------------------------------------------------|
+| config/                               | Example configuration files for the component                                  |
+| eds/                                  | CCSDS Electronic Data Sheet package for the component (defined per book 876.0) |
+| fsw/                                  | Source units that comprise the flight software that executes on the target     |
+| fsw/inc/                              | Public/Interface headers for the component                                     |
+| fsw/src/                              | Source files and private headers for the component                             |
+| tables/                               | Example table definitions for the component                                    |
 
+__Source File Naming Convention__
 
-| **Files**                             | **Descriptions**                                                                                             |
-|:--------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| fsw/src/sample_app.c                  | Main source code for sample_app. Located in src directory.                                                   |
-| fsw/src/sample_app.h                  | Main header file for sample_app. It contains your main global typedef, prototypes, and miscellaneous define. |
-| fsw/src/sample_app_events.h           | Defines sample_app event IDs                                                                                 |
-| fsw/src/sample_app_msg.h              | Defines sample_app commands and its structures                                                               |
-| fsw/tables/sample_app_table.c             | Define sample_app table(s)                                                                                   |
-| fsw/platform_inc/sample_app_msgids.h  | Define sample_app message IDs                                                                                |
-| fsw/mission_inc/sample_app_perfids.h  | Define sample_app performance IDs                                                                            |
+All source files associated with a component should begin with the component name as a prefix, to help ensure uniqueness
+of file names across all flight software packages once imported into a combined software tree.  All of the configuration header
+files should also be overridable at the mission level; that is, a component only provides a default file (with a `default_` prefix,
+for distinction) that can be "cloned and owned" by placing a copy, without the `default_` prefix, into the `_defs` directory
+for the CFE/CFS mission build.  Any customized file(s) in the `_defs` directory will be seen by the CMake build system and used
+instead of the default version of the file that is provided from the orignal source tree.
 
-In addition to showing the standard structure of a cFS application, the
-sample_app also demonstrates how to interface with cFS libraries and table
-services.
+| **File Name Pattern**      | **Scope** | **Content**                                                                                         |
+|:---------------------------|:---------:|:----------------------------------------------------------------------------------------------------|
+| _module_`_fcncodes.h`      | INTERFACE | Function Codes and associated documentation for the CMD interface of the component (see note)       |
+| _module_`_msgdefs.h`       | INTERFACE | Constant definitions for the CMD/TLM interface(s) of the component (see note)                       |
+| _module_`_tbldefs.h`       | INTERFACE | Constant definitions that affect the table file interface(s) of the component                       |
+| _module_`_msgstruct.h`     | INTERFACE | Structures that define the CMD/TLM message interface(s) of the component                            |
+| _module_`_tblstruct.h`     | INTERFACE | Structures that define the table file interface(s) of the component                                 |
+| _module_`_interface_cfg.h` | INTERFACE | Other configuration that affects the interface(s) of the component (table files and/or messages)    |
+| _module_`_eventids.h`      | INTERFACE | CFE EVS Event IDs for the component, with descriptions/documentation                                |
+| _module_`_global_cfg.h`    |  MISSION  | Constants that need to be consistent across all instances, but do not directly affect interface(s)  |
+| _module_`_version.h`       |  MISSION  | Version number of the component                                                                     |
+| _module_`_msgids.h`        | PLATFORM  | CFE Software Bus Message ID definitions for CMD/TLM interface(s) of the component                   |
+| _module_`_internal_cfg.h`  | PLATFORM  | Software configuration that does not affect interfaces, and may be different per instance/platform  |
+| _module_`_perfids.h`       | PLATFORM  | CFE ES Performance monitor IDs for the component, with descriptions/documentation                   |
+| _module_`_verify.h`        |    FSW    | Compile-time configuration validation (typically included from only one source file)                |
+| _module_`_app.[ch]`        |    FSW    | Application entry point, initialization, and main task loop                                         |
+| _module_`_cmds.[ch]`       |    FSW    | Application command processor functions                                                             |
+| _module_`_dispatch.[ch]`   |    FSW    | Dispatch table for validating incoming commands and invoking appropriate command processor          |
+
+**NOTE**: For backward compatibility, the `_msgdefs.h` header should also provide the function code definitions from `_fcncodes.h`, such that
+inclusion of the `_msgdefs.h` file alone provides the command codes as well as any other required definitions for message interpretation.
+However, the `_fcncodes.h` header should be strictly limited to defining command/function codes for the command interface and should not contain
+any other information.
+
+**IMPORANT**: All of the header files above with "INTERFACE" scope control the table/message interface of the component.  Changing any of the
+values or definitions in these files will affect the inter-processor communication - either table files, exported data products, commands, or
+telementry messages.  Due caution should be exercised when customizing any of these files, as any changes will need to be propagated to all
+other CFE instances, ground systems, test software or scripts, or any other tools that interact with the flight softare.
+
+Also note that Electronic Data Sheets (EDS) definitions will supercede the "INTERFACE" header files listed above.  These headers are not
+used by the software when building FSW based on EDS.  Instead, the EDS tool will generate these headers based on the content of the EDS file(s)
+and the software will be configured to use the generated headers during the build.
+
+__Combination Headers__
+
+The header files in this section combine two or more files from the above set for simplicity of usage in source code, as well as backward
+compatiblity with traditional file names from older versions of CFS apps.  Although these files may also be overridden directly, it is
+recommended to only override/modify the more granular headers defined above.
+
+| **File Name Pattern**      | **Content**                                                                                |
+|:---------------------------|:-------------------------------------------------------------------------------------------|
+| _module_`_mission_cfg.h`   | Combination of `global_cfg.h` and `interface_cfg.h` (mission scope configuration)          |
+| _module_`_platform_cfg.h`  | Combination of `mission_cfg.h` (above), `internal_cfg.h` and any other dependencies        |
+| _module_`_msg.h`           | Complete message interface: Combination of `msgdefs.h`, `msgstruct.h` and all dependencies |
+| _module_`_tbl.h`           | Complete table interface: Combination of `tbldefs.h`, `tblstruct.h` and all dependencies   |
+
+**IMPORANT**: Files from a limited scope may depend on files from a broader scope, but not the other way around.  For example,
+the `platform_cfg.h` may depend on items defined in `mission_cfg.h`, but items in `mission_cfg.h` must **not** depend on items
+defined in `platform_cfg.h`.
+
+__Example for SAMPLE_APP__
+
+The sample application (SAMPLE_APP) provides a concrete example of the currently-recommended patterns for CFE/CFS applications.
+This section provides a summary the naming conventions put into practice for the sample application.
+
+| **Files**                                   | **Description**                                                                                   |
+|:--------------------------------------------|:--------------------------------------------------------------------------------------------------|
+| `config/default_sample_app_msgids.h`        | CFE Software Bus Message ID definitions for SAMPLE_APP (CMD, SEND_HK, and HK_TLM)                 |
+| `config/default_sample_app_msgdefs.h`       | Not needed                                                                                        |
+| `config/default_sample_app_tbldefs.h`       | Not needed                                                                                        |
+| `config/default_sample_app_msgstruct.h`     | Defines NoopCmd, ResetCountersCmd, ProcessCmd, and HkTlm message structures                       |
+| `config/default_sample_app_tblstruct.h`     | Defines the example table content structure                                                       |
+| `config/default_sample_app_interface_cfg.h` | Not needed                                                                                        |
+| `config/default_sample_app_global_cfg.h`    | Not needed                                                                                        |
+| `config/default_sample_app_internal_cfg.h`  | Not needed                                                                                        |
+| `eds/sample_app.xml`                        | EDS `<PackageFile>` for the SAMPLE_APP component (supercedes headers above, if enabled)           |
+| `fsw/inc/sample_app_events.h`               | Defines sample_app event IDs                                                                      |
+| `fsw/inc/sample_app_perfids.h`              | Define sample_app performance IDs                                                                 |
+| `fsw/src/sample_app.c`                      | Application entry point, initialization, and main task loop                                       |
+| `fsw/inc/sample_app.h`                      | Declarations/Prototypes for `sample_app.c` that are needed by other source units                  |
+| `fsw/src/sample_app_cmds.c`                 | Application command processor functions                                                           |
+| `fsw/inc/sample_app_cmds.h`                 | Declarations/Prototypes for `sample_app_cmds.c` that are needed by other source units             |
+| `fsw/src/sample_app_dispatch.c`             | Application command dispatcher ("TaskPipe"; identification and validation of all message inputs)  |
+| `fsw/inc/sample_app_dispatch.h`             | Declarations/Prototypes for `sample_app_dispatch.c` that are needed by other source units         |
+
+In addition to showing the standard structure of a cFS application, the sample_app also demonstrates how to interface with cFS libraries
+and table services.
 
 ### 4.2.2 Avoid "Endian-ness" Dependencies
 
@@ -779,7 +855,7 @@ clock tick. This can also be used to calculate the appropriate number of
 system clock ticks for a specific delta time. An example can be seen
 below:
 
-```
+```c
 uint32 ConvertSecs2Ticks(uint32 Seconds)
 {
 	uint32 NumOfTicks,TickDurationInMicroSec;
@@ -790,7 +866,6 @@ uint32 ConvertSecs2Ticks(uint32 Seconds)
 		( (Seconds * 1000000) + TickDurationInMicroSec - 1 ) / TickDurationInMicroSec;
 
 	return(NumOfTicks);
-
 }
 ```
 ## 5.7 OS Queues, Semaphores and Mutexes
@@ -839,20 +914,20 @@ success, the OS_BinSemCreate function sets the sem_id parameter to the ID of
 the newly-created resource.  This ID is used in all other functions that use
 the binary semaphore.
 
-```
+```c
 int32 OS_BinSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
  			       uint32 sem_initial_value, uint32 options);
 ```
 
 There are two options for pending on a binary semaphore:
 
-```
+```c
 int32 OS_BinSemTake( uint32 xxx_SEM_ID );
 ```
 
 which waits indefinitely for a semaphore to become available, and
 
-```
+```c
 int32 OS_BinSemTimedWait( uint32 xxx_SEM_ID , uint32 timeout_in_milliseconds );
 ```
 
@@ -861,7 +936,7 @@ has not become available.
 
 A binary semaphore is given by using this function:
 
-```
+```c
 int32 OS_BinSemGive( uint32 xxx_SEM_ID );
 ```
 
@@ -886,25 +961,26 @@ Upon success, the OS_CountSemCreate function sets the sem_id parameter to the
 ID of the newly-created resource. This ID is used in all other functions that
 use the binary semaphore.
 
-```
+```c
 int32 OS_CountSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
  			       uint32 sem_initial_value, uint32 options);
 ```
 
 There are two options for pending on a counting semaphore:
 
-```
+```c
 int32 OS_CountSemTake( uint32 xxx_SEM_ID );
 ```
 
 which waits indefinitely for a semaphore to become available, and
 
-```
+```c
 int32 OS_CountSemTimedWait( uint32 xxx_SEM_ID , uint32 timeout_in_milliseconds );
 ```
+
 A counting semaphore is given by using this function:
 
-```
+```c
 int32 OS_CountSemGive( uint32 xxx_SEM_ID );
 ```
 
@@ -940,7 +1016,7 @@ being done in the protected region. The Take and Give functions should
 have the same level of indentation, and there should be exactly one
 entry point and one exit point to the protected region.
 
-```
+```c
 int32 OS_MutSemTake( uint32 xxx_MUT_ID );
 
    /* protected region */
@@ -965,25 +1041,25 @@ of the entire system.
 
 An application creates a mutex by calling:
 
-```
+```c
 int32 OS_MutSemCreate (uint32 *sem_id, const char *sem_name, uint32 options);
 ```
 
 and deletes it by calling:
 
-```
+```c
 int32 OS_MutSemDelete (uint32 sem_id);
 ```
 
 An application takes a mutex by calling:
 
-```
+```c
 int32 OS_MutSemTake( uint32 xxx_MUT_ID );
 ```
 
 and gives it by calling:
 
-```
+```c
 int32 OS_MutSemGive( uint32 xxx_MUT_ID );
 ```
 
@@ -1009,7 +1085,7 @@ Similar to interrupt service routines, handlers can be associated with
 specific exceptions. The following function specifies a handler for an
 exception:
 
-```
+```c
 OS_ExcAttachHandler( uint32 ExceptionNumber, void *ExceptionHandler, int32 Param );
 ```
 
@@ -1017,14 +1093,14 @@ The ExceptionHandler is a function that will be called when the
 exception is detected and should have a prototype that looks like the
 following:
 
-```
+```c
 void ExceptionHandler( int32 Param );
 ```
 
 There are addition functions for enabling/masking and
 disabling/unmasking specific exceptions. These are as follows:
 
-```
+```c
 OS_ExcEnable( uint32 ExceptionNumber );
 OS_ExcDisable( uint32 ExceptionNumber );
 ```
@@ -1035,7 +1111,7 @@ In addition to the exception handlers identified above, a similar
 paradigm exists for handling floating point processor exceptions. The
 following function specifies a handler for an FPU exception:
 
-```
+```c
 OS_FPUExcAttachHandler( uint32 ExceptionNumber, void *ExceptionHandler, int32 Param );
 ```
 
@@ -1043,14 +1119,14 @@ The ExceptionHandler is a function that will be called when the
 exception is detected and should have a prototype that looks like the
 following:
 
-```
+```c
 void ExceptionHandler( int32 Param );
 ```
 
 There are addition functions for enabling/masking and
 disabling/unmasking specific exceptions. These are as follows:
 
-```
+```c
 OS_FPUExcEnable( uint32 ExceptionNumber );
 OS_FPUExcDisable( uint32 ExceptionNumber );
 ```
@@ -1281,7 +1357,7 @@ void SAMPLE_TaskMain(void)
     }
     CFE_EVS_SendEvent(CFE_TBL_EXIT_ERR_EID, CFE_EVS_ERROR,
                       "SAMPLE Task terminating, err = 0x%X", Status);
-} /* End of SAMPLE_TaskMain() */
+}
 ```
 
 ### 5.10.4	Standard CRC Calculations
@@ -1293,24 +1369,28 @@ an API for a CRC calculation that can be used by all Applications on a mission.
 This function looks like the following:
 
 ```c
-uint32 CFE_ES_CalculateCRC(void *pData, uint32 DataLength, uint32 InputCRC, uint32 TypeCRC);
+uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputCRC, CFE_ES_CrcType_Enum_t TypeCRC);
 ```
 
-where pData points to the first byte of an array of bytes that are to have
+where DataPtr points to the first byte of an array of bytes that are to have
 the CRC calculated on, DataLength specifies the number of sequential bytes to
 include in the calculation, InputCRC is the initial value of the CRC and
 TypeCRC identifies which of the standard CRC polynomials to be used.  Currently,
 there are the following types available:
 
 ```
-CFE_MISSION_ES_CRC_8 – an 8-bit additive checksum calculation that returns a 32-bit value
-CFE_MISSION_ES_CRC_16 – a 16-bit additive checksum calculation that returns a 32-bit value
-CFE_MISSION_ES_CRC_32 – a 32-bit additive checksum calculation that returns a 32-bit value
-CFE_MISSION_ES_DEFAULT_CRC – the mission specified default CRC calculation
+CFE_ES_CrcType_CRC_8 – an 8-bit additive checksum calculation that returns a 32-bit value
+CFE_ES_CrcType_CRC_16 – a 16-bit additive checksum calculation that returns a 32-bit value
+CFE_ES_CrcType_CRC_32 – a 32-bit additive checksum calculation that returns a 32-bit value
+CFE_MISSION_ES_DEFAULT_CRC – the mission specified default CRC calculation (currently
+                             this is set to CFE_ES_CrcType_CRC_16 in sample_mission_cfg.h)
 ```
 
-Unless there is a specific interface with a specified CRC calculation,
-Applications must use the CFE_MISSION_ES_DEFAULT_CRC type.
+Unless there is a specific interface with a specified CRC calculation, applications
+must use the CFE_MISSION_ES_DEFAULT_CRC type.
+
+Currently only CFE_ES_CrcType_CRC_16 is supported. CFE_ES_CrcType_CRC_8 and CFE_ES_CrcType_CRC_32 are yet
+to be implemented.
 
 ## 5.11 File System Functions
 
@@ -1367,7 +1447,7 @@ significant Event that cannot be recorded using the CFE_EVS_SendEvent
 function, then the Developer can use the CFE_ES_WriteToSysLog
 function. This function has the following prototype:
 
-```
+```c
 int32 CFE_ES_WriteToSysLog(const char *pSpecString, ...);
 ```
 
@@ -1820,7 +1900,6 @@ typedef struct
   */
   uint8          CmdCounter;
   uint8          ErrCounter;
-
 } SAMPLE_HkPacket_t;
 
 
@@ -1883,14 +1962,12 @@ containing just a CFE_MSG_Message_t is invalid per the CCSDS standard.
 ```c
 typedef struct
 {
-
     uint8 FunctionCode; /**< \brief Command Function Code */
                         /* bits shift ---------description-------- */
                         /* 0x7F  0    Command function code        */
                         /* 0x80  7    Reserved                     */
 
     uint8 Checksum; /**< \brief Command checksum  (all bits, 0xFF)      */
-
 } CFE_MSG_CommandSecondaryHeader_t;
 
 /**
@@ -1898,9 +1975,7 @@ typedef struct
  */
 typedef struct
 {
-
     uint8 Time[6]; /**< \brief Time, big endian: 4 byte seconds, 2 byte subseconds */
-
 } CFE_MSG_TelemetrySecondaryHeader_t;
 ```
 
@@ -2130,7 +2205,6 @@ typedef struct
   ** Task command interface counters...
   */
   uint8          Data[SAMPLE_BIGPKT_DATALEN];
-
 } SAMPLE_BigPkt_t;
 
 typedef union
@@ -2313,7 +2387,7 @@ used to uniquely identify an application event. The Event ID is defined
 and supplied to the EVS by the application requesting services. The
 hexadecimal bit mask represents the filtering frequency for the event.
 
-```
+```c
 typedef struct
 {
 	uint16  EventID,
@@ -2342,7 +2416,7 @@ section 7.4) regardless of whether the message was sent.
 An example of an Application registering with Event Services and
 specifying its binary filters is shown below:
 
-```
+```c
 FILE: sample_app.h
 
 ...
@@ -2415,7 +2489,7 @@ reset the filter counter for a specified Event ID. The latter function
 resets all event filter counters for the Application. An example of
 resetting a specific Event ID filter counter is shown below:
 
-```
+```c
 FILE: sample_app.c
 
 {
@@ -2434,7 +2508,7 @@ or the CFE_EVS_SendTimedEvent() function, which are both analogous to
 the C printf() function in how strings are formatted. An example of each
 function call is shown below:
 
-```
+```c
 CFE_EVS_SendEvent(EventID, EventType, "Unknown stream on cmd pipe:
 0x%04X", sid);
 ```
@@ -2451,7 +2525,7 @@ sent.
 The other function that can be called to send an event message is shown
 below:
 
-```
+```c
 CFE_EVS_SendTimedEvent(PktTime, EventID, EventType, "CSS Data Bad:
 0x%04X", CssData);
 ```
@@ -2644,7 +2718,7 @@ it should use the CFE_TBL_Share API instead.  The CFE_TBL_Share API will locate
 the specified Table by name and return a Table Handle to the calling
 Application.  An example of Table sharing is shown below:
 
-```
+```c
 FILE: SAMPLE_app.c
 
 CFE_TBL_Handle_t  MyTableHandle;  /* Handle to MyTable */
@@ -2679,7 +2753,7 @@ Application can obtain a pointer to the start of the data within the
 Table using the CFE_TBL_GetAddress or CFE_TBL_GetAddresses APIs.  An example
 of this is shown in Section 8.5.1.
 
-```
+```c
 {
    int32 Status = CFE_SUCCESS;
    SAMPLE_MyTable_t *MyTblPtr;
@@ -2772,7 +2846,7 @@ assigning and creating a validation function is a fairly simple process.
 To use the function, the Application should periodically identify when a
 Table Validation Request has been made as shown below:
 
-```
+```c
 {
     int32   Status = CFE_SUCCESS;
     boolean FinishedManaging = FALSE;
@@ -2821,7 +2895,7 @@ the Table with default values or when the Application is changing modes
 and wishes to use a different parameter set. An example of this can be
 seen below:
 
-```
+```c
 FILE: sample_app.c
 
 CFE_TBL_Handle_t  MyTableHandle  /* Handle to MyTable */
@@ -2847,7 +2921,7 @@ SAMPLE_MyTable_t MyTblInitData = { 0x1234, 0x5678, { 2, 3, 4, ... }, ...};
 If a developer wishes to load the table from a file rather than from a
 memory image, the code would look something like the following:
 
-```
+```c
 {
    int32 Status;
 
@@ -2898,6 +2972,7 @@ A typical layout of table-related files within an application (xx) is shown
 below. Note that this does not show all of an application's files, just those
 related to tables.
 
+```
 xx
  |----fsw
        |----src
@@ -2910,27 +2985,28 @@ xx
        |
        |----platform_inc
               |----xx_platform_cfg.h
+```
 
-The xx_app.h file is included in this layout only because table handles are
-typically stored in an application's AppData_t structure.
+The `xx_app.h` file is included in this layout only because table handles are
+typically stored in an application's `AppData_t` structure.
 
-The file xx_tbldefs.h (sometimes just named xx_tbl.h) typically contains the
+The file `xx_tbldefs.h` (sometimes just named `xx_tbl.h`) typically contains the
 structure definition of a single table entry.  This file is included in the
-xx_table1.c file where the table itself is defined.  It may also contain
+`xx_table1.c` file where the table itself is defined.  It may also contain
 declarations for table-related utility functions.
 
-The xx_tbl.c file typically contains table-related utility functions.  For
+The `xx_tbl.c` file typically contains table-related utility functions.  For
 instance, many applications define table initialization and validation functions
 in this file.
 
-The xx_table1.c file is the source code for a table itself.
+The `xx_table1.c` file is the source code for a table itself.
 
-The xx_platform_cfg.h file contains configuration parameters for applications,
+The `xx_platform_cfg.h` file contains configuration parameters for applications,
 and there are typically several configuration parameters associated with tables.
 
 ### 8.5.1 Table Files Example
 
-```
+```c
 FILE: xx_app.h
 
 ...
@@ -2945,7 +3021,7 @@ XX_AppData_t XX_AppData;
 ...
 ```
 
-```
+```c
 FILE: xx_tbldefs.h
 
 ...
@@ -2968,7 +3044,7 @@ int32 XX_ValidateTable(void *TableData);
 ...
 ```
 
-```
+```c
 FILE: xx_tbl.c
 
 #include xx_tbldefs.h
@@ -3028,7 +3104,7 @@ int32 XX_ValidateTable(void *TableData)
 }
 ```
 
-```
+```c
 FILE: xx_table1.c
 
 #include "cfe.h"
@@ -3054,7 +3130,7 @@ XX_MyTable_t XX_MyTable =
 };
 ```
 
-```
+```c
 FILE: xx_platform_cfg.h
 
 #define XX_APP_NAME            "XX"
@@ -3071,7 +3147,7 @@ In order to build application tables with the CMake build system, the
 application is structured with a "Tables" directory, another
 "aux_source_directory" may need to be added as well.
 
-```
+```cmake
 aux_source_directory(fsw/tables APP_TABLE_FILES)
 
 # Create the app module
@@ -3106,7 +3182,7 @@ standard file header.
 
 The structure of the standard file header is as follows:
 
-```
+```c
 typedef struct
 {
     uint32  ContentType;           /* Identifies the content type (magic #=’cFE1’) */
@@ -3120,7 +3196,6 @@ typedef struct
     uint32  TimeSubSeconds;        /* File creation timestamp (sub-seconds) */
 
     char    Description[32];       /* File description */
-
 } CFE_FS_Header_t;
 ```
 
@@ -3215,7 +3290,7 @@ integer represents the number of seconds and the second integer
 represents the number of `2^-32` seconds. The data structure for this
 representation of time is as follows:
 
-```
+```c
 typedef struct {
       uint32      Seconds;      /* Number of seconds */
       uint32      Subseconds;   /* Number of 2^(-32) subseconds */
@@ -3388,7 +3463,7 @@ seconds past the epoch time.
 
 The drawback to allowing rollovers is that this adds an interesting
 dilemma to comparing two absolute times. Going back to our analog wall
-clock analogy, let us assume we wish to compute determine whether 9:00
+clock analogy, let us assume we wish to determine whether 9:00
 is before or after 2:00. Since the clock is allowed to roll over, which
 is first? As shown below, 9:00 is either 5 hours before 2:00 or it is 7
 hours later.
@@ -3420,7 +3495,7 @@ the first time in the subtraction. Otherwise, as shown above, the delta
 time between two absolute times could either be 5 hours or 7 hours. An
 example of a delta time computation function is shown below:
 
-```
+```c
 CFE_TIME_SysTime_t ComputeDeltaTime(CFE_TIME_SysTime_t TimeA,
                                     CFE_TIME_SysTime_t TimeB)
 {

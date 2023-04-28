@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 **  File:
@@ -66,8 +64,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_StartApplications
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -83,7 +79,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
     osal_id_t   AppFile = OS_OBJECT_ID_UNDEFINED;
     int32       Status;
     int32       OsStatus;
-    char        c;
+    char        c           = 0;
     bool        LineTooLong = false;
     bool        FileOpened  = false;
 
@@ -118,8 +114,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
             CFE_ES_WriteToSysLog("%s: CFE_FS_ParseInputFileName() RC=%08x parsing volatile script file name.\n",
                                  __func__, (unsigned int)Status);
         }
-
-    } /* end if */
+    }
 
     /*
     ** This if block covers two cases: A Power on reset, and a Processor reset when
@@ -283,8 +278,6 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_ParseFileEntry
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -389,12 +382,10 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
         Status = CFE_ES_ERR_APP_CREATE;
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_LoadModule
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -403,7 +394,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName,
                         const CFE_ES_ModuleLoadParams_t *LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus)
 {
-    osal_id_t ModuleId;
+    osal_id_t ModuleId = OS_OBJECT_ID_UNDEFINED;
     cpuaddr   InitSymbolAddress;
     int32     ReturnCode;
     int32     OsStatus;
@@ -496,8 +487,6 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GetTaskFunction
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -547,12 +536,10 @@ int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
         *FuncPtr = EntryFunc;
     }
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_TaskEntryPoint
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -582,8 +569,6 @@ void CFE_ES_TaskEntryPoint(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_StartAppTask
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -592,7 +577,7 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
                           const CFE_ES_TaskStartParams_t *Params, CFE_ES_AppId_t ParentAppId)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
-    osal_id_t            OsalTaskId;
+    osal_id_t            OsalTaskId = OS_OBJECT_ID_UNDEFINED;
     CFE_ES_TaskId_t      LocalTaskId;
     int32                OsStatus;
     int32                ReturnCode;
@@ -661,8 +646,6 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_AppCreate
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -827,8 +810,6 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_LoadLibrary
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -978,12 +959,10 @@ int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, cons
 
     *LibraryIdPtr = CFE_ES_LIBID_C(PendingResourceId);
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_RunAppTableScan
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1073,8 +1052,7 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
                 AppPtr->AppState                = CFE_ES_AppState_WAITING;
                 AppPtr->ControlReq.AppTimerMsec = CFE_PLATFORM_ES_APP_KILL_TIMEOUT * CFE_PLATFORM_ES_APP_SCAN_RATE;
             }
-
-        } /* end if */
+        }
 
         ++AppPtr;
 
@@ -1105,8 +1083,6 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_ProcessControlRequest
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1332,8 +1308,6 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CleanUpApp
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1403,7 +1377,7 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
             }
 
             ++TaskRecPtr;
-        } /* end for */
+        }
 
         CFE_ES_Global.RegisteredTasks -= NumTasks;
 
@@ -1421,7 +1395,7 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
             }
 
             ++MemPoolRecPtr;
-        } /* end for */
+        }
 
         /*
          * Set the record to RESERVED.
@@ -1558,7 +1532,7 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*
@@ -1576,8 +1550,6 @@ typedef struct
 } CFE_ES_CleanupState_t;
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CleanupObjectCallback
  *
  * Internal helper routine only, not part of API.
  *
@@ -1678,8 +1650,6 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CleanupTaskResources
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1741,12 +1711,10 @@ int32 CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId)
         Result = CFE_ES_TASK_DELETE_ERR;
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CopyModuleBasicInfo
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1763,8 +1731,6 @@ void CFE_ES_CopyModuleBasicInfo(const CFE_ES_ModuleLoadParams_t *ParamsPtr, CFE_
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CopyModuleStatusInfo
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1776,8 +1742,6 @@ void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CopyModuleAddressInfo
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1787,26 +1751,27 @@ void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoP
     OS_module_prop_t ModuleInfo;
     int32            OsStatus;
 
+    memset(&ModuleInfo, 0, sizeof(ModuleInfo));
+
     OsStatus = OS_ModuleInfo(ModuleId, &ModuleInfo);
     if (OsStatus == OS_SUCCESS)
     {
         AppInfoPtr->AddressesAreValid =
-            (sizeof(ModuleInfo.addr.code_address) <= sizeof(AppInfoPtr->Code.Address)) && ModuleInfo.addr.valid;
+            (sizeof(ModuleInfo.addr.code_address) <= sizeof(AppInfoPtr->CodeAddress)) && ModuleInfo.addr.valid;
     }
     else
     {
         AppInfoPtr->AddressesAreValid = false;
-        memset(&ModuleInfo, 0, sizeof(ModuleInfo));
     }
 
     /*
      * Convert the internal size and address to the telemetry format.
      * (The telemetry format may be a different bitwidth than the native processor)
      */
-    AppInfoPtr->Code.Address = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.code_address);
-    AppInfoPtr->Code.Size    = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.code_size);
-    AppInfoPtr->Data.Address = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.data_address);
-    AppInfoPtr->Data.Size    = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.data_size);
-    AppInfoPtr->BSS.Address  = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.bss_address);
-    AppInfoPtr->BSS.Size     = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.bss_size);
+    AppInfoPtr->CodeAddress = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.code_address);
+    AppInfoPtr->CodeSize    = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.code_size);
+    AppInfoPtr->DataAddress = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.data_address);
+    AppInfoPtr->DataSize    = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.data_size);
+    AppInfoPtr->BSSAddress  = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.bss_address);
+    AppInfoPtr->BSSSize     = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.bss_size);
 }

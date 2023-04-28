@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -60,7 +58,6 @@ typedef struct
 {
     uint32 AppControlRequest; /* What the App should be doing next */
     int32  AppTimerMsec;      /* Countdown timer for killing an app, in milliseconds */
-
 } CFE_ES_ControlReq_t;
 
 /*
@@ -78,7 +75,6 @@ typedef struct
 {
     char InitSymbolName[OS_MAX_API_NAME];
     char FileName[OS_MAX_PATH_LEN];
-
 } CFE_ES_ModuleLoadParams_t;
 
 /*
@@ -92,7 +88,6 @@ typedef struct
 {
     osal_id_t ModuleId;
     cpuaddr   InitSymbolAddress;
-
 } CFE_ES_ModuleLoadStatus_t;
 
 /*
@@ -105,7 +100,6 @@ typedef struct
 {
     size_t                     StackSize;
     CFE_ES_TaskPriority_Atom_t Priority;
-
 } CFE_ES_TaskStartParams_t;
 
 /*
@@ -124,7 +118,6 @@ typedef struct
 
     CFE_ES_TaskStartParams_t      MainTaskInfo;
     CFE_ES_ExceptionAction_Enum_t ExceptionAction;
-
 } CFE_ES_AppStartParams_t;
 
 /*
@@ -141,7 +134,6 @@ typedef struct
     CFE_ES_ModuleLoadStatus_t LoadStatus;               /* Runtime module information */
     CFE_ES_ControlReq_t       ControlReq;               /* The Control Request Record for External cFE Apps */
     CFE_ES_TaskId_t           MainTaskId;               /* The Application's Main Task ID */
-
 } CFE_ES_AppRecord_t;
 
 /*
@@ -156,7 +148,6 @@ typedef struct
     CFE_ES_TaskStartParams_t  StartParams;               /* The start parameters for the task */
     CFE_ES_TaskEntryFuncPtr_t EntryFunc;                 /* Task entry function */
     uint32                    ExecutionCounter;          /* The execution counter for the task */
-
 } CFE_ES_TaskRecord_t;
 
 /*
@@ -169,7 +160,6 @@ typedef struct
     char                      LibName[OS_MAX_API_NAME]; /* Library Name */
     CFE_ES_ModuleLoadParams_t LoadParams;               /* Basic (static) information about the module */
     CFE_ES_ModuleLoadStatus_t LoadStatus;               /* Runtime information about the module */
-
 } CFE_ES_LibRecord_t;
 
 /*

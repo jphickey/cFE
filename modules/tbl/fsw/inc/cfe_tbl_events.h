@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -348,16 +346,16 @@
 #define CFE_TBL_NO_WORK_BUFFERS_ERR_EID 60
 
 /**
- * \brief TBL Load Table Command Get Working Buffer Internal Failure Event ID
+ * \brief TBL Encoding/Decoding error Event ID
  *
  *  \par Type: ERROR
  *
- *  \par Cause:
+ *  \par Cause: Encoding/Decoding of the table binary data from the file content failed
  *
- *  \link #CFE_TBL_LOAD_CC TBL Load Table Command \endlink failure due to
- *  internal get working buffer error.
+ *  This is possibly due to a corrupt or incompatible file.
+ *
  */
-#define CFE_TBL_INTERNAL_ERROR_ERR_EID 61
+#define CFE_TBL_CODEC_ERROR_ERR_EID 61
 
 /**
  * \brief TBL Write File Creation Failure Event ID

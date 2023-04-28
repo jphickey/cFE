@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 ** File: cfe_time_api.c
@@ -38,8 +36,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TIME_GetTime
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -58,12 +54,10 @@ CFE_TIME_SysTime_t CFE_TIME_GetTime(void)
 
 #endif
 
-    return (CurrentTime);
+    return CurrentTime;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_GetTAI
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -89,12 +83,10 @@ CFE_TIME_SysTime_t CFE_TIME_GetTAI(void)
     */
     tai = CFE_TIME_CalculateTAI(&Reference);
 
-    return (tai);
+    return tai;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_GetUTC
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -119,12 +111,10 @@ CFE_TIME_SysTime_t CFE_TIME_GetUTC(void)
     */
     utc = CFE_TIME_CalculateUTC(&Reference);
 
-    return (utc);
+    return utc;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_MET2SCTime
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -132,7 +122,6 @@ CFE_TIME_SysTime_t CFE_TIME_GetUTC(void)
  *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_MET2SCTime(CFE_TIME_SysTime_t METTime)
 {
-
     CFE_TIME_SysTime_t STCF;
     CFE_TIME_SysTime_t TIATime;
     CFE_TIME_SysTime_t ReturnTime;
@@ -160,12 +149,10 @@ CFE_TIME_SysTime_t CFE_TIME_MET2SCTime(CFE_TIME_SysTime_t METTime)
 
 #endif
 
-    return (ReturnTime);
+    return ReturnTime;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_GetClockState
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -190,12 +177,10 @@ CFE_TIME_ClockState_Enum_t CFE_TIME_GetClockState(void)
     */
     state = (CFE_TIME_ClockState_Enum_t)CFE_TIME_CalculateState(&Reference);
 
-    return (state);
+    return state;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_GetClockInfo
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -292,12 +277,10 @@ uint16 CFE_TIME_GetClockInfo(void)
         StateFlags |= CFE_TIME_FLAG_REFERR;
     }
 
-    return (StateFlags);
+    return StateFlags;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_GetLeapSeconds
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -317,12 +300,10 @@ int16 CFE_TIME_GetLeapSeconds(void)
     */
     CFE_TIME_GetReference(&Reference);
 
-    return (Reference.AtToneLeapSeconds);
+    return Reference.AtToneLeapSeconds;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_GetSTCF
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -342,12 +323,10 @@ CFE_TIME_SysTime_t CFE_TIME_GetSTCF(void)
     */
     CFE_TIME_GetReference(&Reference);
 
-    return (Reference.AtToneSTCF);
+    return Reference.AtToneSTCF;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_GetMET
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -367,12 +346,10 @@ CFE_TIME_SysTime_t CFE_TIME_GetMET(void)
     */
     CFE_TIME_GetReference(&Reference);
 
-    return (Reference.CurrentMET);
+    return Reference.CurrentMET;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_GetMETseconds
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -392,12 +369,10 @@ uint32 CFE_TIME_GetMETseconds(void)
     */
     CFE_TIME_GetReference(&Reference);
 
-    return (Reference.CurrentMET.Seconds);
+    return Reference.CurrentMET.Seconds;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_GetMETsubsecs
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -417,12 +392,10 @@ uint32 CFE_TIME_GetMETsubsecs(void)
     */
     CFE_TIME_GetReference(&Reference);
 
-    return (Reference.CurrentMET.Subseconds);
+    return Reference.CurrentMET.Subseconds;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_Add
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -446,12 +419,10 @@ CFE_TIME_SysTime_t CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Tim
         Result.Seconds = Time1.Seconds + Time2.Seconds;
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_Subtract
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -472,12 +443,10 @@ CFE_TIME_SysTime_t CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_
         Result.Seconds = Time1.Seconds - Time2.Seconds;
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_Compare
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -534,12 +503,10 @@ CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t
         }
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_Sub2MicroSecs
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -560,8 +527,6 @@ uint32 CFE_TIME_Sub2MicroSecs(uint32 SubSeconds)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_Micro2SubSecs
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -589,12 +554,10 @@ uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
         SubSeconds = OS_TimeGetSubsecondsPart(tm);
     }
 
-    return (SubSeconds);
+    return SubSeconds;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_Print
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -621,9 +584,13 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
     /*
     ** Convert the cFE time (offset from epoch) into calendar time...
     */
-    NumberOfMinutes = (TimeToPrint.Seconds / 60) + CFE_MISSION_TIME_EPOCH_MINUTE;
-    NumberOfSeconds = (TimeToPrint.Seconds % 60) + CFE_MISSION_TIME_EPOCH_SECOND;
+    NumberOfMicros = CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) + CFE_MISSION_TIME_EPOCH_MICROS;
 
+    NumberOfMinutes = (NumberOfMicros / 60000000) + (TimeToPrint.Seconds / 60) + CFE_MISSION_TIME_EPOCH_MINUTE;
+    NumberOfMicros  = NumberOfMicros % 60000000;
+
+    NumberOfSeconds = (NumberOfMicros / 1000000) + (TimeToPrint.Seconds % 60) + CFE_MISSION_TIME_EPOCH_SECOND;
+    NumberOfMicros  = NumberOfMicros % 1000000;
     /*
     ** Adding the epoch "seconds" after computing the minutes avoids
     **    overflow problems when the input time value (seconds) is
@@ -700,7 +667,7 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
     /*
     ** After computing microseconds, convert to 5 digits from 6 digits...
     */
-    NumberOfMicros = CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) / 10;
+    NumberOfMicros = NumberOfMicros / 10;
 
     /*
     ** Build formatted output string (yyyy-ddd-hh:mm:ss.xxxxx)...
@@ -740,13 +707,9 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
     *PrintBuffer++ = '0' + (char)(NumberOfMicros / 10);
     *PrintBuffer++ = '0' + (char)(NumberOfMicros % 10);
     *PrintBuffer++ = '\0';
-
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ExternalTone
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -758,13 +721,9 @@ void CFE_TIME_ExternalTone(void)
     ** Call tone signal ISR (OK if called from non-ISR context)...
     */
     CFE_TIME_Tone1HzISR();
-
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_RegisterSynchCallback
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -788,7 +747,6 @@ CFE_Status_t CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callback
 
         if (Status == CFE_SUCCESS)
         {
-
             if (AppIndex >= (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])) ||
                 CFE_TIME_Global.SynchCallback[AppIndex].Ptr != NULL)
             {
@@ -805,8 +763,6 @@ CFE_Status_t CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callback
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_UnregisterSynchCallback
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -830,7 +786,6 @@ CFE_Status_t CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callba
 
         if (Status == CFE_SUCCESS)
         {
-
             if (AppIndex >= (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])) ||
                 CFE_TIME_Global.SynchCallback[AppIndex].Ptr != CallbackFuncPtr)
             {
@@ -848,8 +803,6 @@ CFE_Status_t CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callba
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TIME_ExternalMET
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -861,14 +814,10 @@ void CFE_TIME_ExternalMET(CFE_TIME_SysTime_t NewMET)
     ** Process external MET data...
     */
     CFE_TIME_ToneSendMET(NewMET);
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_MET  */
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ExternalGPS
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -881,14 +830,10 @@ void CFE_TIME_ExternalGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
     ** Process external GPS time data...
     */
     CFE_TIME_ToneSendGPS(NewTime, NewLeaps);
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_GPS */
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ExternalTime
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -901,7 +846,5 @@ void CFE_TIME_ExternalTime(CFE_TIME_SysTime_t NewTime)
     ** Process external time data...
     */
     CFE_TIME_ToneSendTime(NewTime);
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_TIME */

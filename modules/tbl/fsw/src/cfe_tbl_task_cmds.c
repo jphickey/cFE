@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 ** File: cfe_tbl_task_cmds.c
@@ -41,8 +39,6 @@
 #include <string.h>
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_HousekeepingCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -140,8 +136,6 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_GetHkData
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -255,8 +249,6 @@ void CFE_TBL_GetHkData(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_GetTblRegData
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -315,8 +307,6 @@ void CFE_TBL_GetTblRegData(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_NoopCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -330,8 +320,6 @@ int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_ResetCountersCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -353,8 +341,6 @@ int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_LoadCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -365,7 +351,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
     const CFE_TBL_LoadCmd_Payload_t *CmdPtr     = &data->Payload;
     CFE_FS_Header_t                  StdFileHeader;
     CFE_TBL_File_Hdr_t               TblFileHeader;
-    osal_id_t                        FileDescriptor;
+    osal_id_t                        FileDescriptor = OS_OBJECT_ID_UNDEFINED;
     int32                            Status;
     int32                            OsStatus;
     int16                            RegIndex;
@@ -492,15 +478,10 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
                                                   TblFileHeader.TableName);
                             }
                         }
-                        else if (Status == CFE_TBL_ERR_NO_BUFFER_AVAIL)
+                        else
                         {
                             CFE_EVS_SendEvent(CFE_TBL_NO_WORK_BUFFERS_ERR_EID, CFE_EVS_EventType_ERROR,
                                               "No working buffers available for table '%s'", TblFileHeader.TableName);
-                        }
-                        else
-                        {
-                            CFE_EVS_SendEvent(CFE_TBL_INTERNAL_ERROR_ERR_EID, CFE_EVS_EventType_ERROR,
-                                              "Internal Error (Status=0x%08X)", (unsigned int)Status);
                         }
                     }
                     else
@@ -543,8 +524,6 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_DumpCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -716,7 +695,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
     ReturnCode = CFE_TBL_EncodeFromMemory(WorkingBufferPtr->BufferPtr, SrcBufferPtr, RegRecPtr);
     if (ReturnCode != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(CFE_TBL_INTERNAL_ERROR_ERR_EID, CFE_EVS_EventType_ERROR, "Cannot encode table '%s'",
+        CFE_EVS_SendEvent(CFE_TBL_CODEC_ERROR_ERR_EID, CFE_EVS_EventType_ERROR, "Cannot encode table '%s'",
                           TableName);
 
         /* Free the working buffer + dump control buffer too */
@@ -750,8 +729,6 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_DumpToFile
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -763,7 +740,7 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
     bool                 FileExistedPrev = false;
     CFE_FS_Header_t      StdFileHeader;
     CFE_TBL_File_Hdr_t   TblFileHeader;
-    osal_id_t            FileDescriptor;
+    osal_id_t            FileDescriptor = OS_OBJECT_ID_UNDEFINED;
     int32                Status;
     int32                OsStatus;
     size_t               TblSizeInBytes;
@@ -816,8 +793,8 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
             /* Initialize the Table Image Header for the Dump File */
             strncpy(TblFileHeader.TableName, TableName, sizeof(TblFileHeader.TableName) - 1);
             TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = 0;
-            TblFileHeader.Offset                                         = CFE_ES_MEMOFFSET_C(0);
-            TblFileHeader.NumBytes                                       = CFE_ES_MEMOFFSET_C(TblSizeInBytes);
+            TblFileHeader.Offset                                         = 0;
+            TblFileHeader.NumBytes                                       = TblSizeInBytes;
             TblFileHeader.Reserved                                       = 0;
 
             /* The EdsContentId defines how the data is packed */
@@ -912,8 +889,6 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_ValidateCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1056,8 +1031,6 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_ActivateCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1135,8 +1108,6 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_DumpRegistryGetter
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1256,8 +1227,6 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_DumpRegistryEventHandler
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1320,8 +1289,6 @@ void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event,
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_DumpRegistryCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1383,8 +1350,6 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_SendRegistryCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1423,8 +1388,6 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_DeleteCDSCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1514,8 +1477,6 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_AbortLoadCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1565,8 +1526,6 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_AbortLoad
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

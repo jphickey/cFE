@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    GSC-18128-1, "Core Flight Executive Version 6.7"
+   NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
 
-    Copyright (c) 2006-2019 United States Government as represented by
-    the Administrator of the National Aeronautics and Space Administration.
-    All Rights Reserved.
+   Copyright (c) 2020 United States Government as represented by the
+   Administrator of the National Aeronautics and Space Administration.
+   All Rights Reserved.
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+   Licensed under the Apache License, Version 2.0 (the "License"); you may
+   not use this file except in compliance with the License. You may obtain
+   a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 
-      http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
 
     This document adheres to the Electronic Data Sheet (EDS) XML schema
     as prescribed in CCSDS book 876.0.
@@ -40,7 +38,7 @@
       </EnumeratedDataType>
 
       <EnumeratedDataType name="ExceptionAction" shortDescription="Identifies action to take if exception occurs" >
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="RESTART_APP" value="0" shortDescription="Restart application if exception occurs" />
           <Enumeration label="PROC_RESTART"  value="1" shortDescription="Restart processor if exception occurs" />
@@ -48,7 +46,7 @@
       </EnumeratedDataType>
 
       <EnumeratedDataType name="AppType" shortDescription="Identifies type of CFE application">
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="CORE" value="1" shortDescription="CFE core application" />
           <Enumeration label="EXTERNAL"  value="2" shortDescription="CFE external application" />
@@ -167,56 +165,41 @@
         </Range>
       </IntegerDataType>
 
-      <IntegerDataType name="MemOffset" shortDescription="Type used for memory sizes and offsets in commands and telemetry">
+      <IntegerDataType name="MemOffset" shortDescription="Integer type used for CPU memory addresses, sizes and offsets">
         <LongDescription>
-          For backward compatibility with existing CFE code this should be uint32,
+          For backward compatibility with existing CFS code this should be uint32,
           but all telemetry information will be limited to 4GB in size as a result.
 
-          On 64-bit platforms this can be a 64-bit value which will allow larger
+          On 64-bit platforms this can be expanded to 64 bits which will allow larger
           memory objects, but this will break compatibility with existing control
-          systems, and may also change the alignment/padding of messages.
+          systems, and may also change the alignment/padding of some messages.
 
-          In either case this must be an unsigned type.
+          In either case this must be an unsigned type, and should be large enough
+          to represent the largest memory address/size in use in the CFS system.
         </LongDescription>
-        <IntegerDataEncoding sizeInBits="${CFE_ES/MEM_OFFSET_SIZE_BITS}" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" encoding="unsigned" />
         <Range>
-          <MinMaxRange max="2 ^ ${CFE_ES/MEM_OFFSET_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
+          <MinMaxRange max="2 ^ ${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
         </Range>
       </IntegerDataType>
 
-      <IntegerDataType name="MemAddress" shortDescription="Type used for memory addresses in command and telemetry messages">
+      <IntegerDataType name="MemAddress" shortDescription="Integer type used for CPU memory addresses, sizes and offsets">
         <LongDescription>
-          For backward compatibility with existing CFE code this should be uint32,
-          but if running on a 64-bit platform, addresses in telemetry will be
-          truncated to 32 bits and therefore will not be valid.
+          For backward compatibility with existing CFS code this should be uint32,
+          but all telemetry information will be limited to 4GB in size as a result.
 
-          On 64-bit platforms this can be a 64-bit address which will allow the
-          full memory address in commands and telemetry, but this will break
-          compatibility with existing control systems, and may also change
-          the alignment/padding of messages.
+          On 64-bit platforms this can be expanded to 64 bits which will allow larger
+          memory objects, but this will break compatibility with existing control
+          systems, and may also change the alignment/padding of some messages.
 
-          In either case this must be an unsigned type.
-
-          FSW code should access this value via the macros provided, which
-          converts to the native "cpuaddr" type provided by OSAL.  This macro
-          provides independence between the message representation and local
-          representation of a memory address.
+          In either case this must be an unsigned type, and should be large enough
+          to represent the largest memory address/size in use in the CFS system.
         </LongDescription>
-        <IntegerDataEncoding sizeInBits="${CFE_ES/MEM_OFFSET_SIZE_BITS}" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" encoding="unsigned" />
         <Range>
-          <MinMaxRange max="2 ^ ${CFE_ES/MEM_OFFSET_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
+          <MinMaxRange max="2 ^ ${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
         </Range>
       </IntegerDataType>
-
-      <ContainerDataType name="MemAddOff" shortDescription="Memory Address and Memory Offset combination">
-        <LongDescription>
-          A combination of #CFE_ES_MemAddress_t and #CFE_ES_MemOffset_t, since they are often used together
-        </LongDescription>
-        <EntryList>
-          <Entry name="Address" type="MemAddress" />
-          <Entry name="Size" type="MemOffset" />
-        </EntryList>
-      </ContainerDataType>
 
       <StringDataType name="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" length="${CFE_MISSION/ES_CDS_MAX_FULL_NAME_LEN}" />
 
@@ -258,7 +241,7 @@
                \cfetlmmnemonic  \ES_APPFILENAME
             </LongDescription>
           </Entry>
-          <Entry name="StackSize" type="BASE_TYPES/uint32" shortDescription="The Stack Size of the Application">
+          <Entry name="StackSize" type="MemOffset" shortDescription="The Stack Size of the Application">
             <LongDescription>
                \cfetlmmnemonic  \ES_STACKSIZE
             </LongDescription>
@@ -273,11 +256,36 @@
                \cfetlmmnemonic  \ES_ADDRVALID
             </LongDescription>
           </Entry>
-
-          <Entry name="Code" type="MemAddOff" shortDescription="Address and size of the Code section" />
-          <Entry name="Data" type="MemAddOff" shortDescription="Address and size of the Data section" />
-          <Entry name="BSS" type="MemAddOff" shortDescription="Address and size of the BSS section" />
-          
+          <Entry name="CodeAddress" type="MemAddress" shortDescription="The Address of the Application Code Segment">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_CODEADDR
+            </LongDescription>
+          </Entry>
+          <Entry name="CodeSize" type="MemOffset" shortDescription="The Code Size of the Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_CODESIZE
+            </LongDescription>
+          </Entry>
+          <Entry name="DataAddress" type="MemAddress" shortDescription="The Address of the Application Data Segment">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_DATAADDR
+            </LongDescription>
+          </Entry>
+          <Entry name="DataSize" type="MemOffset" shortDescription="The Data Size of the Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_DATASIZE
+            </LongDescription>
+          </Entry>
+          <Entry name="BSSAddress" type="MemAddress" shortDescription="The Address of the Application BSS Segment">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_BSSADDR
+            </LongDescription>
+          </Entry>
+          <Entry name="BSSSize" type="MemOffset" shortDescription="The BSS Size of the Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_BSSSIZE
+            </LongDescription>
+          </Entry>
           <Entry name="StartAddress" type="MemAddress" shortDescription="The Start Address of the Application">
             <LongDescription>
                \cfetlmmnemonic  \ES_STARTADDR
@@ -340,7 +348,7 @@
 
       <ContainerDataType name="BlockStats" shortDescription="Memory Pool Statistics data type">
         <EntryList>
-          <Entry name="BlockSize" type="BASE_TYPES/uint32" shortDescription="Number of bytes in each of these blocks" />
+          <Entry name="BlockSize" type="MemOffset" shortDescription="Number of bytes in each of these blocks" />
           <Entry name="NumCreated" type="BASE_TYPES/uint32" shortDescription="Number of Memory Blocks of this size created" />
           <Entry name="NumFree" type="BASE_TYPES/uint32" shortDescription="Number of Memory Blocks of this size that are free" />
         </EntryList>
@@ -419,7 +427,7 @@
           <Entry name="Application" type="BASE_TYPES/ApiName" shortDescription="Name of Application to be started" />
           <Entry name="AppEntryPoint" type="BASE_TYPES/ApiName" shortDescription="Symbolic name of Application's entry point" />
           <Entry name="AppFileName" type="BASE_TYPES/PathName" shortDescription="Full path and filename of Application's executable image" />
-          <Entry name="StackSize" type="BASE_TYPES/uint32" shortDescription="Desired stack size for the new application" />
+          <Entry name="StackSize" type="MemOffset" shortDescription="Desired stack size for the new application" />
           <Entry name="ExceptionAction" type="ExceptionAction">
             <LongDescription>
                \brief  #CFE_ES_ExceptionAction_RESTART_APP=On exception, restart Application,
@@ -619,12 +627,12 @@
                \cfetlmmnemonic  \ES_PSPMISSIONREV
             </LongDescription>
           </Entry>
-          <Entry name="SysLogBytesUsed" type="BASE_TYPES/uint32" shortDescription="Total number of bytes used in system log">
+          <Entry name="SysLogBytesUsed" type="MemOffset" shortDescription="Total number of bytes used in system log">
             <LongDescription>
                \cfetlmmnemonic  \ES_SYSLOGBYTEUSED
             </LongDescription>
           </Entry>
-          <Entry name="SysLogSize" type="BASE_TYPES/uint32" shortDescription="Total size of the system log">
+          <Entry name="SysLogSize" type="MemOffset" shortDescription="Total size of the system log">
             <LongDescription>
                \cfetlmmnemonic  \ES_SYSLOGSIZE
             </LongDescription>
@@ -739,17 +747,17 @@
                \cfetlmmnemonic  \ES_PERFDATA2WRITE
             </LongDescription>
           </Entry>
-          <Entry name="HeapBytesFree" type="BASE_TYPES/uint32" shortDescription="Number of free bytes remaining in the OS heap">
+          <Entry name="HeapBytesFree" type="MemOffset" shortDescription="Number of free bytes remaining in the OS heap">
             <LongDescription>
                \cfetlmmnemonic  \ES_HEAPBYTESFREE
             </LongDescription>
           </Entry>
-          <Entry name="HeapBlocksFree" type="BASE_TYPES/uint32" shortDescription="Number of free blocks remaining in the OS heap">
+          <Entry name="HeapBlocksFree" type="MemOffset" shortDescription="Number of free blocks remaining in the OS heap">
             <LongDescription>
                \cfetlmmnemonic  \ES_HEAPBLKSFREE
             </LongDescription>
           </Entry>
-          <Entry name="HeapMaxBlockSize" type="BASE_TYPES/uint32" shortDescription="Number of bytes in the largest free block">
+          <Entry name="HeapMaxBlockSize" type="MemOffset" shortDescription="Number of bytes in the largest free block">
             <LongDescription>
                \cfetlmmnemonic  \ES_HEAPMAXBLK
             </LongDescription>
@@ -759,6 +767,8 @@
 
       <ContainerDataType name="CommandBase" baseType="CFE_HDR/CommandHeader">
       </ContainerDataType>
+
+      <ContainerDataType name="SendHkCmd" baseType="CFE_HDR/CommandHeader" shortDescription="Send Housekeeping Command" />
 
       <ContainerDataType name="HousekeepingTlm" baseType="CFE_HDR/TelemetryHeader">
         <EntryList>
@@ -2057,7 +2067,7 @@
           <Interface name="SEND_HK" shortDescription="Send telemetry command interface" type="CFE_SB/Telecommand">
             <!-- This uses a bare spacepacket with no payload -->
             <GenericTypeMapSet>
-              <GenericTypeMap name="TelecommandDataType" type="CFE_HDR/CommandHeader" />
+              <GenericTypeMap name="TelecommandDataType" type="SendHkCmd" />
             </GenericTypeMapSet>
           </Interface>
           <Interface name="HK_TLM" shortDescription="Software bus housekeeping telemetry interface" type="CFE_SB/Telemetry">

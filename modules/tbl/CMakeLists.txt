@@ -12,12 +12,16 @@ set(tbl_SOURCES
     fsw/src/cfe_tbl_internal.c
     fsw/src/cfe_tbl_task.c
     fsw/src/cfe_tbl_task_cmds.c
-    fsw/src/cfe_tbl_dispatch.c
-    fsw/src/cfe_tbl_api.c
-    fsw/src/cfe_tbl_internal.c
-    fsw/src/cfe_tbl_task.c
-    fsw/src/cfe_tbl_task_cmds.c
 )
+
+if (CFE_EDS_ENABLED_BUILD)
+  # Use EDS-based message dispatch
+  list(APPEND tbl_SOURCES fsw/src/cfe_tbl_eds_dispatch.c)
+else()
+  # Use hardcoded message dispatch
+  list(APPEND tbl_SOURCES fsw/src/cfe_tbl_dispatch.c)
+endif()
+
 add_library(tbl STATIC ${tbl_SOURCES})
 
 target_include_directories(tbl PUBLIC fsw/inc)

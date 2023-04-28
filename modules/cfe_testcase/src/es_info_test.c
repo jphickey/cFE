@@ -1,31 +1,27 @@
-/*************************************************************************
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
-** File: es_info_test.c
-**
-** Purpose:
-**   Functional test of basic ES Information APIs
-**
-**   Demonstration of how to register and use the UT assert functions.
-**
-*************************************************************************/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
+/**
+ * \file
+ *   Functional test of basic ES Information APIs
+ *
+ *   Demonstration of how to register and use the UT assert functions.
+ */
 
 /*
  * Includes
@@ -39,7 +35,7 @@ const char TEST_EXPECTED_FILE_NAME[]  = "cfe_testcase";
 const char ES_APP_EXPECTED_NAME[]     = "CFE_ES";
 const char INVALID_APP_NAME[]         = "INVALID_NAME";
 
-void TestAppInfo(void)
+void TestGetAppInfo(void)
 {
     CFE_ES_AppId_t   TestAppId;
     CFE_ES_AppId_t   ESAppId;
@@ -74,25 +70,17 @@ void TestAppInfo(void)
                   TestAppInfo.FileName);
     UtAssert_True(strlen(ESAppInfo.FileName) == 0, "ES App Info -> FileName  = %s", ESAppInfo.FileName);
 
-    UtAssert_True(TestAppInfo.StackSize > 0, "Test App Info -> StackSz  = %d", (int)TestAppInfo.StackSize);
-    UtAssert_True(ESAppInfo.StackSize > 0, "ES App Info -> StackSz  = %d", (int)ESAppInfo.StackSize);
+    UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(TestAppInfo.StackSize));
+    UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(ESAppInfo.StackSize));
 
     if (TestAppInfo.AddressesAreValid)
     {
-        UtAssert_True(TestAppInfo.AddressesAreValid > 0, "Test App Info -> Addrs.Valid?  = %d",
-                      (int)TestAppInfo.AddressesAreValid);
-        UtAssert_True(TestAppInfo.Code.Address > 0, "Test App Info -> Code.Address  = %ld",
-                      (unsigned long)TestAppInfo.Code.Address);
-        UtAssert_True(TestAppInfo.Code.Size > 0, "Test App Info -> Code.Size  = %ld",
-                      (unsigned long)TestAppInfo.Code.Size);
-        UtAssert_True(TestAppInfo.Data.Address > 0, "Test App Info -> Data.Address  = %ld",
-                      (unsigned long)TestAppInfo.Data.Address);
-        UtAssert_True(TestAppInfo.Data.Size > 0, "Test App Info -> Data.Size  = %ld",
-                      (unsigned long)TestAppInfo.Data.Size);
-        UtAssert_True(TestAppInfo.BSS.Address > 0, "Test App Info -> BSS.Address  = %ld",
-                      (unsigned long)TestAppInfo.BSS.Address);
-        UtAssert_True(TestAppInfo.BSS.Size > 0, "Test App Info -> BSS.Size  = %ld",
-                      (unsigned long)TestAppInfo.BSS.Size);
+        UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(TestAppInfo.CodeAddress));
+        UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(TestAppInfo.CodeSize));
+        UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(TestAppInfo.DataAddress));
+        UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(TestAppInfo.DataSize));
+        UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(TestAppInfo.BSSAddress));
+        UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(TestAppInfo.BSSSize));
     }
     else
     {
@@ -107,10 +95,8 @@ void TestAppInfo(void)
     UtAssert_True(ESAppInfo.AddressesAreValid == 0, "ES App Info -> AddrsValid?  = %d",
                   (int)ESAppInfo.AddressesAreValid);
 
-    UtAssert_True(TestAppInfo.StartAddress > 0, "Test App Info -> StartAddress  = 0x%8lx",
-                  (unsigned long)TestAppInfo.StartAddress);
-    UtAssert_True(ESAppInfo.StartAddress == 0, "ES App Info -> StartAddress  = 0x%8lx",
-                  (unsigned long)ESAppInfo.StartAddress);
+    UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(TestAppInfo.StartAddress));
+    UtAssert_NULL(CFE_ES_MEMADDRESS_TO_PTR(ESAppInfo.StartAddress));
 
     UtAssert_INT32_EQ(TestAppInfo.ExceptionAction, 0);
     UtAssert_INT32_EQ(ESAppInfo.ExceptionAction, 1);
@@ -134,7 +120,7 @@ void TestAppInfo(void)
     UtAssert_INT32_EQ(CFE_ES_GetAppInfo(NULL, TestAppId), CFE_ES_BAD_ARGUMENT);
 }
 
-void TestTaskInfo(void)
+void TestGetTaskInfo(void)
 {
     CFE_ES_AppId_t    AppId;
     CFE_ES_AppInfo_t  AppInfo;
@@ -164,7 +150,7 @@ void TestTaskInfo(void)
     UtAssert_INT32_EQ(CFE_ES_GetTaskID(NULL), CFE_ES_BAD_ARGUMENT);
 }
 
-void TestLibInfo(void)
+void TestGetLibInfo(void)
 {
     CFE_ES_LibId_t   LibId;
     CFE_ES_LibId_t   CheckId;
@@ -185,18 +171,17 @@ void TestLibInfo(void)
     UtAssert_StrCmp(LibInfo.EntryPoint, "CFE_Assert_LibInit", "Lib Info -> EntryPt  = %s", LibInfo.EntryPoint);
     UtAssert_True(strstr(LibInfo.FileName, FileName) != NULL, "Lib Info -> FileName = %s contains %s", LibInfo.FileName,
                   FileName);
-    UtAssert_True(LibInfo.StackSize == 0, "Lib Info -> StackSz  = %d", (int)LibInfo.StackSize);
+
+    UtAssert_ZERO(CFE_ES_MEMOFFSET_TO_SIZET(LibInfo.StackSize));
 
     if (LibInfo.AddressesAreValid)
     {
-        UtAssert_True(LibInfo.AddressesAreValid > 0, "Lib Info -> AddrsValid?  = %ld",
-                      (unsigned long)LibInfo.AddressesAreValid);
-        UtAssert_True(LibInfo.Code.Address > 0, "Lib Info -> CodeAddress  = %ld", (unsigned long)LibInfo.Code.Address);
-        UtAssert_True(LibInfo.Code.Size > 0, "Lib Info -> Code.Size  = %ld", (unsigned long)LibInfo.Code.Size);
-        UtAssert_True(LibInfo.Data.Address > 0, "Lib Info -> Data.Address  = %ld", (unsigned long)LibInfo.Data.Address);
-        UtAssert_True(LibInfo.Data.Size > 0, "Lib Info -> Data.Size  = %ld", (unsigned long)LibInfo.Data.Size);
-        UtAssert_True(LibInfo.BSS.Address > 0, "Lib Info -> BSS.Address  = %ld", (unsigned long)LibInfo.BSS.Address);
-        UtAssert_True(LibInfo.BSS.Size > 0, "Lib Info -> BSS.Size  = %ld", (unsigned long)LibInfo.BSS.Size);
+        UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(LibInfo.CodeAddress));
+        UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(LibInfo.CodeSize));
+        UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(LibInfo.DataAddress));
+        UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(LibInfo.DataSize));
+        UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(LibInfo.BSSAddress));
+        UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(LibInfo.BSSSize));
     }
     else
     {
@@ -243,7 +228,7 @@ void TestResetType(void)
     UtAssert_True((rSubType > 0) && (rSubType < 10), "Reset Sub-Type = %d", (int)rSubType);
 }
 
-void TestModuleInfo(void)
+void TestGetModuleInfo(void)
 {
     CFE_ES_AppInfo_t ModuleInfo;
     CFE_ES_LibId_t   LibIdByName;
@@ -251,6 +236,10 @@ void TestModuleInfo(void)
     CFE_ES_AppInfo_t LibInfo;
     CFE_ES_AppInfo_t TestAppInfo;
     const char *     LibName = "ASSERT_LIB";
+
+    memset(&ModuleInfo, 0, sizeof(ModuleInfo));
+    memset(&LibInfo, 0, sizeof(LibInfo));
+    memset(&TestAppInfo, 0, sizeof(TestAppInfo));
 
     UtPrintf("Testing: CFE_ES_GetModuleInfo");
 
@@ -272,9 +261,9 @@ void TestModuleInfo(void)
 
 void ESInfoTestSetup(void)
 {
-    UtTest_Add(TestAppInfo, NULL, NULL, "Test App Info");
-    UtTest_Add(TestTaskInfo, NULL, NULL, "Test Task Info");
-    UtTest_Add(TestLibInfo, NULL, NULL, "Test Lib Info");
+    UtTest_Add(TestGetAppInfo, NULL, NULL, "Test App Info");
+    UtTest_Add(TestGetTaskInfo, NULL, NULL, "Test Task Info");
+    UtTest_Add(TestGetLibInfo, NULL, NULL, "Test Lib Info");
     UtTest_Add(TestResetType, NULL, NULL, "Test Reset Type");
-    UtTest_Add(TestModuleInfo, NULL, NULL, "Test Module Info");
+    UtTest_Add(TestGetModuleInfo, NULL, NULL, "Test Module Info");
 }

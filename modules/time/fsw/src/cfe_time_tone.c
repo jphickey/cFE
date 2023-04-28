@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 ** File: cfe_time_tone.c
@@ -44,8 +42,6 @@
 #include <string.h>
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ToneSend
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -160,14 +156,10 @@ void CFE_TIME_ToneSend(void)
     ** Count of "time at the tone" commands sent with internal data...
     */
     CFE_TIME_Global.InternalCount++;
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ToneSendMET
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -283,7 +275,7 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
             /*
             ** Send "time at the tone" command data packet...
             */
-            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneDataCmd.CmdHeader.Msg, false);
+            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneDataCmd.CommandHeader.Msg, false);
 
             /*
             ** Count of "time at the tone" commands sent with external data...
@@ -294,13 +286,11 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
 
     /* Exit performance monitoring */
     CFE_ES_PerfLogExit(CFE_MISSION_TIME_SENDMET_PERF_ID);
-    return (Result);
+    return Result;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_MET */
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ToneSendGPS
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -425,7 +415,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
             /*
             ** Send "time at the tone" command data packet...
             */
-            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneDataCmd.CmdHeader.Msg, false);
+            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneDataCmd.CommandHeader.Msg, false);
 
             /*
             ** Count of "time at the tone" commands sent with external data...
@@ -434,13 +424,11 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
         }
     }
 
-    return (Result);
+    return Result;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_GPS */
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ToneSendTime
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -567,7 +555,7 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
             /*
             ** Send "time at the tone" command data packet...
             */
-            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneDataCmd.CmdHeader.Msg, false);
+            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneDataCmd.CommandHeader.Msg, false);
 
             /*
             ** Count of "time at the tone" commands sent with external data...
@@ -576,13 +564,11 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
         }
     }
 
-    return (Result);
+    return Result;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_TIME */
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ToneData
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -648,13 +634,9 @@ void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd)
     ** Maintain a count of tone data packets...
     */
     CFE_TIME_Global.ToneDataCounter++;
-
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ToneSignal
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -691,13 +673,9 @@ void CFE_TIME_ToneSignal(void)
     ** Maintain a count of tone signal packets...
     */
     CFE_TIME_Global.ToneSignalCounter++;
-
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ToneVerify
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -776,13 +754,9 @@ void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
 
     PrevTime1 = Time1;
     PrevTime2 = Time2;
-
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ToneUpdate
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -967,13 +941,9 @@ void CFE_TIME_ToneUpdate(void)
     {
         CFE_EVS_SendEvent(CFE_TIME_FLY_OFF_EID, CFE_EVS_EventType_INFORMATION, "Stop FLYWHEEL");
     }
-
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_Local1HzTimerCallback
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -986,15 +956,12 @@ void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TIME_Tone1HzISR
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_Tone1HzISR(void)
 {
-
     CFE_TIME_SysTime_t ToneSignalLatch;
     CFE_TIME_SysTime_t Elapsed;
     CFE_TIME_Compare_t Result;
@@ -1089,13 +1056,9 @@ void CFE_TIME_Tone1HzISR(void)
 
     /* Exit performance monitoring */
     CFE_ES_PerfLogExit(CFE_MISSION_TIME_TONE1HZISR_PERF_ID);
-
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_Tone1HzTask
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1149,12 +1112,9 @@ void CFE_TIME_Tone1HzTask(void)
     ** This should never happen - but during development we
     **    had an error in the creation of the semaphore.
     */
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_Local1HzStateMachine
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1162,7 +1122,6 @@ void CFE_TIME_Tone1HzTask(void)
  *-----------------------------------------------------------------*/
 void CFE_TIME_Local1HzStateMachine(void)
 {
-
     CFE_TIME_Reference_t                Reference;
     volatile CFE_TIME_ReferenceState_t *NextState;
 
@@ -1272,28 +1231,21 @@ void CFE_TIME_Local1HzStateMachine(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TIME_Local1HzISR
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_Local1HzISR(void)
 {
-
     CFE_TIME_Global.LocalIntCounter++;
 
     /*
     ** Enable 1Hz task (we can't send a SB message from here)...
     */
     OS_BinSemGive(CFE_TIME_Global.LocalSemaphore);
-
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_Local1HzTask
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1305,7 +1257,6 @@ void CFE_TIME_Local1HzTask(void)
 
     while (true)
     {
-
         /* Increment the Main task Execution Counter */
         CFE_ES_IncrementTaskCounter();
 
@@ -1348,12 +1299,9 @@ void CFE_TIME_Local1HzTask(void)
     ** This should never happen - but during development we had an
     **    error in the creation of the semaphore.
     */
-    return;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_NotifyTimeSynchApps
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1382,6 +1330,4 @@ void CFE_TIME_NotifyTimeSynchApps(void)
             }
         }
     }
-
-    return;
 }

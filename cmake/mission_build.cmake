@@ -174,12 +174,27 @@ function(prepare)
     add_definitions(-DSIMULATION=${SIMULATION})
   endif (SIMULATION)
 
+  # Prepare the table makefile - Ensure the list of tables is initially empty
+  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/tables")
+  file(WRITE "${MISSION_BINARY_DIR}/tables/Makefile"
+    "MISSION_BINARY_DIR := ${MISSION_BINARY_DIR}\n"
+    "TABLE_BINARY_DIR := ${MISSION_BINARY_DIR}/tables\n"
+    "MISSION_SOURCE_DIR := ${MISSION_SOURCE_DIR}\n"
+    "MISSION_DEFS := ${MISSION_DEFS}\n\n"
+    "include \$(wildcard ${CFE_SOURCE_DIR}/cmake/tables/*.mk) \$(wildcard *.d)\n"
+  )
+
   # Create custom targets for building and cleaning all architectures
   # This is required particularly for doing extra stuff in the clean step
   add_custom_target(mission-all COMMAND $(MAKE) all)
   add_custom_target(mission-install COMMAND $(MAKE) install)
   add_custom_target(mission-clean COMMAND $(MAKE) clean)
   add_custom_target(mission-prebuild)
+  add_custom_target(mission-cfetables)
+  add_custom_target(doc-prebuild)
+
+  add_dependencies(mission-all mission-cfetables)
+  add_dependencies(mission-install mission-cfetables)
 
   # Locate the source location for all the apps found within the target file
   # This is done by searching through the list of paths to find a matching name
@@ -333,10 +348,6 @@ function(prepare)
   string(CONCAT DETAILDESIGN_DOXYFILE_USER_CONTENT ${DETAILDESIGN_DOXYFILE_USER_CONTENT})
   string(CONCAT TGTSYSTEM_DOXYFILE_USER_CONTENT ${TGTSYSTEM_DOXYFILE_USER_CONTENT})
 
-  configure_file("${CFE_SOURCE_DIR}/cmake/cfe-common.doxyfile.in"
-    "${CMAKE_BINARY_DIR}/docs/cfe-common.doxyfile"
-    @ONLY)
-
   # Generate an "empty" osconfig.h file for doxygen purposes
   # this does not have the actual user-defined values, but will
   # have the documentation associated with each macro definition.
@@ -347,7 +358,6 @@ function(prepare)
   # NOTE: the userguide is built against the headers of the default core apps. Even if
   # an alternate version of the module is in use, it should adhere to the same interface.
   set(SUBMODULE_HEADER_PATHS
-    "${osal_MISSION_DIR}/src/os/inc/*.h"
     "${psp_MISSION_DIR}/psp/fsw/inc/*.h"
   )
   foreach(MODULE core_api ${MISSION_CORE_MODULES})
@@ -355,35 +365,36 @@ function(prepare)
   endforeach()
   file(GLOB MISSION_USERGUIDE_HEADERFILES
     ${SUBMODULE_HEADER_PATHS}
-    "${CMAKE_BINARY_DIR}/docs/osconfig-example.h"
   )
 
   string(REPLACE ";" " \\\n" MISSION_USERGUIDE_HEADERFILES "${MISSION_USERGUIDE_HEADERFILES}")
 
-  file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/docs/detaildesign")
-  configure_file("${CFE_SOURCE_DIR}/cmake/mission-detaildesign.doxyfile.in"
-    "${CMAKE_BINARY_DIR}/docs/detaildesign/Doxyfile"
+  configure_file("${CFE_SOURCE_DIR}/cmake/cfe-common.doxyfile.in"
+    "${CMAKE_BINARY_DIR}/docs/cfe-common.doxyfile"
+    @ONLY)
+
+  file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/docs/mission-doc")
+  configure_file("${CFE_SOURCE_DIR}/cmake/mission-doc.doxyfile.in"
+    "${CMAKE_BINARY_DIR}/docs/mission-doc/Doxyfile"
     @ONLY)
   add_custom_target(mission-doc doxygen
-    COMMAND echo "Detail Design: file://${CMAKE_BINARY_DIR}/docs/detaildesign/html/index.html"
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/docs/detaildesign")
+    COMMAND echo "Detail Design: file://${CMAKE_BINARY_DIR}/docs/mission-doc/html/index.html"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/docs/mission-doc")
 
-  file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/docs/users_guide")
+  file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/docs/cfe-usersguide")
   configure_file("${CFE_SOURCE_DIR}/cmake/cfe-usersguide.doxyfile.in"
-    "${CMAKE_BINARY_DIR}/docs/users_guide/Doxyfile"
+    "${CMAKE_BINARY_DIR}/docs/cfe-usersguide/Doxyfile"
     @ONLY)
   add_custom_target(cfe-usersguide doxygen
-    COMMAND echo "Users Guide: file://${CMAKE_BINARY_DIR}/docs/users_guide/html/index.html"
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/docs/users_guide")
+    COMMAND echo "Users Guide: file://${CMAKE_BINARY_DIR}/docs/cfe-usersguide/html/index.html"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/docs/cfe-usersguide")
 
   # OSAL API GUIDE include PUBLIC API
-  set(OSAL_API_INCLUDE_DIRECTORIES
-    "${osal_MISSION_DIR}/src/os/inc"
-    "${CMAKE_BINARY_DIR}/docs"
-  )
-  add_subdirectory(${osal_MISSION_DIR}/docs/src ${CMAKE_BINARY_DIR}/docs/osalguide)
-  add_custom_target(osalguide)
-  add_dependencies(osalguide osal-apiguide)
+  add_subdirectory(${osal_MISSION_DIR} osal_public_api)
+  add_subdirectory(${osal_MISSION_DIR}/docs/src ${CMAKE_BINARY_DIR}/docs/osal-apiguide)
+
+  add_dependencies(cfe-usersguide doc-prebuild)
+  add_dependencies(mission-doc doc-prebuild)
 
   # Pull in any application-specific mission-scope configuration
   # This may include user configuration files such as cfe_mission_cfg.h,
@@ -414,7 +425,7 @@ function(prepare)
   )
   foreach(APP ${MISSION_DEPS})
     list(APPEND VARLIST "${APP}_MISSION_DIR")
-  endforeach(APP ${MISSION_APPS})
+  endforeach()
 
   foreach(SYSVAR ${TGTSYS_LIST})
     list(APPEND VARLIST "BUILD_CONFIG_${SYSVAR}")
@@ -490,6 +501,24 @@ function(prepare)
   # Add a dependency on the table generator tool as this is required for table builds
   # The "eds2cfetbl" target should have been added by the "tools" above
   add_dependencies(mission-prebuild eds2cfetbl)
+  set(TABLETOOL_EXEC $<TARGET_FILE:eds2cfetbl>)
+
+  add_custom_target(tabletool-execute
+    COMMAND $(MAKE)
+      CC="${CMAKE_C_COMPILER}"
+      CFLAGS="${CMAKE_C_FLAGS}"
+      AR="${CMAKE_AR}"
+      TBLTOOL="${TABLETOOL_EXEC}"
+      cfetables
+    WORKING_DIRECTORY
+      "${CMAKE_BINARY_DIR}/tables"
+    DEPENDS
+        mission-cfetables
+  )
+  add_dependencies(mission-all tabletool-execute)
+  add_dependencies(mission-install tabletool-execute)
+  add_dependencies(mission-cfetables mission-prebuild)
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/tables/staging/ DESTINATION .)
 
   # Build version information should be generated as part of the pre-build process
   add_dependencies(mission-prebuild mission-version)
@@ -539,9 +568,6 @@ function(process_arch TARGETSYSTEM)
     set(SELECTED_TOOLCHAIN_FILE)
   endif ()
 
-  # Ensure the list of tables for this arch is initially empty
-  file(REMOVE ${ARCH_BINARY_DIR}/table_configs.cmake)
-
   # Execute CMake subprocess to create a binary build tree for the specific CPU architecture
   execute_process(
     COMMAND ${CMAKE_COMMAND}
@@ -550,6 +576,7 @@ function(process_arch TARGETSYSTEM)
         -DMISSION_BINARY_DIR=${MISSION_BINARY_DIR}
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+        -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=${CMAKE_EXPORT_COMPILE_COMMANDS}
         ${SELECTED_TOOLCHAIN_FILE}
         ${CFE_SOURCE_DIR}
     WORKING_DIRECTORY
@@ -560,13 +587,6 @@ function(process_arch TARGETSYSTEM)
   if (NOT RESULT EQUAL 0)
     message(FATAL_ERROR "Failed to configure ${TARGETSYSTEM}")
   endif (NOT RESULT EQUAL 0)
-
-  # Now include the list of tables that might have been generated
-  set(TABLE_CONFIG_LIST)
-  include(${ARCH_BINARY_DIR}/table_configs.cmake OPTIONAL)
-  foreach (TBLCFG ${TABLE_CONFIG_LIST})
-    add_subdirectory(${CMAKE_SOURCE_DIR}/cmake/tables tables/${TBLCFG})
-  endforeach()
 
   # Hook the "make all", "make clean", and "make install" targets for the subordinate build
   # to top-level build targets prefixed by the CPU architecture.
@@ -588,13 +608,21 @@ function(process_arch TARGETSYSTEM)
    WORKING_DIRECTORY
       "${ARCH_BINARY_DIR}"
   )
+  add_custom_target(${TARGETSYSTEM}-cfetables
+   COMMAND
+      $(MAKE) cfetables
+   WORKING_DIRECTORY
+      "${ARCH_BINARY_DIR}"
+  )
 
   # All subordinate builds depend on the generated files being present first
   add_dependencies(${TARGETSYSTEM}-install mission-prebuild)
   add_dependencies(${TARGETSYSTEM}-all mission-prebuild)
+  add_dependencies(${TARGETSYSTEM}-cfetables mission-prebuild)
 
   add_dependencies(mission-all ${TARGETSYSTEM}-all)
   add_dependencies(mission-clean ${TARGETSYSTEM}-clean)
   add_dependencies(mission-install ${TARGETSYSTEM}-install)
+  add_dependencies(mission-cfetables ${TARGETSYSTEM}-cfetables)
 
 endfunction(process_arch TARGETSYSTEM)

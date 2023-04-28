@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -35,8 +33,6 @@
 #include <string.h>
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_Config_GetValue
  *
  * Defined per public API
  * See description in header file for argument/return detail
@@ -57,8 +53,6 @@ uint32 CFE_Config_GetValue(CFE_ConfigId_t ConfigId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_Config_GetObjPointer
- *
  * Defined per public API
  * See description in header file for argument/return detail
  *
@@ -77,8 +71,6 @@ const void *CFE_Config_GetObjPointer(CFE_ConfigId_t ConfigId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_Config_GetObjPointer
  *
  * Defined per public API
  * See description in header file for argument/return detail
@@ -99,8 +91,6 @@ const char *CFE_Config_GetString(CFE_ConfigId_t ConfigId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_Config_GetName
- *
  * Defined per public API
  * See description in header file for argument/return detail
  *
@@ -120,8 +110,6 @@ const char *CFE_Config_GetName(CFE_ConfigId_t ConfigId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_Config_GetIdByName
  *
  * Defined per public API
  * See description in header file for argument/return detail
@@ -151,8 +139,6 @@ CFE_ConfigId_t CFE_Config_GetIdByName(const char *Name)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_Config_GetIdByName
  *
  * Defined per public API
  * See description in header file for argument/return detail

@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 **  File:
@@ -45,8 +43,6 @@
 #include <stdarg.h>
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_WriteToERLogWithContext
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -144,12 +140,10 @@ int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint3
      */
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (CFE_SUCCESS);
+    return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_WriteToERLog
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -164,8 +158,6 @@ int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_BackgroundERLogFileDataGetter
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -232,8 +224,6 @@ bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **B
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_BackgroundERLogFileEventHandler
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -273,8 +263,6 @@ void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t 
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_RunExceptionScan
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -311,7 +299,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
                  (long)PspStatus);
         PspContextId    = 0;
         ExceptionTaskID = OS_OBJECT_ID_UNDEFINED;
-    } /* end if */
+    }
 
     /*
      * Note that writes to the ES ER log actually do not get propagated to the debug console.

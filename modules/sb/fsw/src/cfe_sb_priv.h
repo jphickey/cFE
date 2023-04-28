@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -109,7 +107,6 @@ typedef struct CFE_SB_BufferLink
 {
     struct CFE_SB_BufferLink *Next;
     struct CFE_SB_BufferLink *Prev;
-
 } CFE_SB_BufferLink_t;
 
 /******************************************************************************
@@ -158,7 +155,6 @@ typedef struct CFE_SB_BufferD
     uint16 UseCount; /**< Number of active references to this buffer in the system */
 
     CFE_SB_Buffer_t Content; /* Variably sized content field, Keep last */
-
 } CFE_SB_BufferD_t;
 
 /******************************************************************************
@@ -191,10 +187,8 @@ typedef struct
 */
 typedef struct
 {
-
     CFE_ES_MemHandle_t PoolHdl;
     CFE_ES_STATIC_POOL_TYPE(CFE_PLATFORM_SB_BUF_MEMORY_BYTES) Partition;
-
 } CFE_SB_MemParams_t;
 
 /*******************************************************************************/
@@ -262,7 +256,6 @@ typedef struct
 
     /* A list of buffers currently issued to apps for zero-copy */
     CFE_SB_BufferLink_t ZeroCopyList;
-
 } CFE_SB_Global_t;
 
 /******************************************************************************
@@ -337,14 +330,6 @@ void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber);
  * @param LineNumber  the line number of the calling code
  */
 void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber);
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * Processes a single message buffer that has been received from the command pipe
- *
- * @param SBBufPtr Software bus buffer pointer
- */
-void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -463,8 +448,6 @@ int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId);
  * @note This must only be invoked while holding the SB global lock
  *
  * @param bd  Pointer to the buffer descriptor.
- *
- * \return Execution status, see \ref CFEReturnCodes
  */
 void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd);
 
@@ -481,8 +464,6 @@ void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd);
  * @note This must only be invoked while holding the SB global lock
  *
  * @param bd  Pointer to the buffer descriptor.
- *
- * \return Execution status, see \ref CFEReturnCodes
  */
 void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
 
@@ -575,7 +556,7 @@ static inline CFE_SB_BufferLink_t *CFE_SB_TrackingListGetNext(CFE_SB_BufferLink_
 /**
  * \brief For SB buffer tracking, checks if this current position represents the end of the list
  */
-static inline bool CFE_SB_TrackingListIsEnd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node)
+static inline bool CFE_SB_TrackingListIsEnd(const CFE_SB_BufferLink_t *List, const CFE_SB_BufferLink_t *Node)
 {
     /* Normally list nodes should never have NULL, buf if they do, do not follow it */
     return (Node == NULL || Node == List);
@@ -693,7 +674,7 @@ int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **
  * \note Assumes destination pointer is valid
  *
  * \param[in] RouteId The route ID to add destination node to
- * \param[in] DestPtr Pointer to the destination to add
+ * \param[in] NewNode Pointer to the destination to add
  */
 int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNode);
 
@@ -705,8 +686,8 @@ int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNo
  *
  * \note Assumes destination pointer is valid and in route
  *
- * \param[in] RouteId The route ID to remove destination node from
- * \param[in] DestPtr Pointer to the destination to remove
+ * \param[in] RouteId      The route ID to remove destination node from
+ * \param[in] NodeToRemove Pointer to the destination to remove
  */
 void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NodeToRemove);
 
@@ -813,7 +794,7 @@ int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data);
+int32 CFE_SB_SendHKTlmCmd(const CFE_SB_SendHkCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**

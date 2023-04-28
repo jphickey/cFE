@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -84,6 +82,18 @@ typedef CFE_ES_TaskEntryFuncPtr_t CFE_ES_ChildTaskMainFuncPtr_t;
  * This type is used in the CFE ES task API.
  */
 typedef void *CFE_ES_StackPointer_t; /* aka osal_stackptr_t in proposed OSAL change */
+
+/**
+ * \brief Checksum/CRC algorithm identifiers
+ *
+ * Currently only CFE_ES_CrcType_CRC_16 is supported.
+ */
+typedef enum CFE_ES_CrcType_Enum
+{
+    CFE_ES_CrcType_CRC_8  = 1, /**< \brief CRC ( 8 bit additive - returns 32 bit total) (Not currently implemented) */
+    CFE_ES_CrcType_CRC_16 = 2, /**< \brief CRC (16 bit additive - returns 32 bit total) */
+    CFE_ES_CrcType_CRC_32 = 3  /**< \brief CRC (32 bit additive - returns 32 bit total) (Not currently implemented) */
+} CFE_ES_CrcType_Enum_t;
 
 /**
  * \brief Pool Alignment

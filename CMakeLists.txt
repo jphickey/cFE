@@ -63,6 +63,9 @@ cmake_minimum_required(VERSION 3.5)
 # Note: this line defines the CFE_SOURCE_DIR variable.
 project(CFE C)
 
+# This build uses EDS framework by default
+set(CFE_EDS_ENABLED_BUILD TRUE CACHE BOOL "Use EDS framework")
+
 # Allow unit tests to be added by any recipe
 enable_testing()
 
@@ -114,9 +117,11 @@ elseif (IS_CFS_MISSION_BUILD)
     include("${MISSION_DEFS}/mission_build_custom.cmake" OPTIONAL)
 endif (IS_CFS_ARCH_BUILD)
 
-# The CFE_EDS_ENABLED_BUILD switch indicates that any
-# compile-time EDS options should be enabled in this build
-add_definitions(-DCFE_EDS_ENABLED_BUILD)
+if (CFE_EDS_ENABLED_BUILD)
+  # The CFE_EDS_ENABLED_BUILD switch indicates that any
+  # compile-time EDS options should be enabled in this build
+  add_definitions(-DCFE_EDS_ENABLED_BUILD)
+endif()
 
 # Call the prepare function defined by the sub-script
 # This is implemented differently depending on whether this is a
@@ -127,4 +132,3 @@ prepare()
 foreach(SYSVAR ${TGTSYS_LIST})
   process_arch(${SYSVAR})
 endforeach(SYSVAR ${TGTSYS_LIST})
-

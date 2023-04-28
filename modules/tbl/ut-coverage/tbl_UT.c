@@ -1,22 +1,20 @@
-/*
-**  GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**  Copyright (c) 2006-2019 United States Government as represented by
-**  the Administrator of the National Aeronautics and Space Administration.
-**  All Rights Reserved.
-**
-**  Licensed under the Apache License, Version 2.0 (the "License");
-**  you may not use this file except in compliance with the License.
-**  You may obtain a copy of the License at
-**
-**    http://www.apache.org/licenses/LICENSE-2.0
-**
-**  Unless required by applicable law or agreed to in writing, software
-**  distributed under the License is distributed on an "AS IS" BASIS,
-**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**  See the License for the specific language governing permissions and
-**  limitations under the License.
-*/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
 ** File:
@@ -149,8 +147,8 @@ static void UT_TBL_SetEdsLibTypeInfo(void *UserObj, UT_EntryKey_t FuncKey, const
  */
 void UT_TBL_SetupHeader(CFE_TBL_File_Hdr_t *TblFileHeader, size_t Offset, size_t NumBytes)
 {
-    TblFileHeader->Offset   = CFE_ES_MEMOFFSET_C(Offset);
-    TblFileHeader->NumBytes = CFE_ES_MEMOFFSET_C(NumBytes);
+    TblFileHeader->Offset   = Offset;
+    TblFileHeader->NumBytes = NumBytes;
 
     /* Set the fake UT EdsId in the header, which will correlate with to UT_Table1_t (see above) */
     TblFileHeader->EdsAppId    = EDS_INDEX(CFE_TBL);
@@ -309,8 +307,10 @@ void Test_CFE_TBL_TaskInit(void)
     uint32 ExitCode;
     union
     {
-        CFE_MSG_CommandHeader_t NoArgsCmd;
-        CFE_MSG_Message_t       Msg;
+        CFE_TBL_NoopCmd_t          NoopCmd;
+        CFE_TBL_SendHkCmd_t        SendHkCmd;
+        CFE_TBL_ResetCountersCmd_t ResetCountersCmd;
+        CFE_MSG_Message_t          Msg;
     } CmdBuf;
     CFE_SB_MsgId_t    MsgId   = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t FcnCode = 0;
@@ -380,7 +380,7 @@ void Test_CFE_TBL_TaskInit(void)
 
     /* Test command pipe messages handler response to a valid command */
     UT_InitData();
-    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_TBL_CMD_NOOP_CC);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoopCmd), UT_TPID_CFE_TBL_CMD_NOOP_CC);
     CFE_UtAssert_EVENTSENT(CFE_TBL_NOOP_INF_EID);
 
     /* Test command pipe messages handler response to an invalid
@@ -394,14 +394,14 @@ void Test_CFE_TBL_TaskInit(void)
      * command code
      */
     UT_InitData();
-    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_TBL_CMD_INVALID_CC);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoopCmd), UT_TPID_CFE_TBL_CMD_INVALID_CC);
     CFE_UtAssert_EVENTSENT(CFE_TBL_CC1_ERR_EID);
 
     /* Test command pipe messages handler response to other errors */
     UT_InitData();
     CFE_TBL_Global.CommandCounter      = 0;
     CFE_TBL_Global.CommandErrorCounter = 0;
-    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_TBL_INVALID_MID);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoopCmd), UT_TPID_CFE_TBL_INVALID_MID);
     CFE_UtAssert_EVENTSENT(CFE_TBL_MID_ERR_EID);
     UtAssert_ZERO(CFE_TBL_Global.CommandCounter);
     UtAssert_ZERO(CFE_TBL_Global.CommandErrorCounter);
@@ -410,13 +410,14 @@ void Test_CFE_TBL_TaskInit(void)
     UT_InitData();
     CFE_TBL_Global.CommandCounter      = 0;
     CFE_TBL_Global.CommandErrorCounter = 0;
-    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_TBL_MSG_HK);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.SendHkCmd), UT_TPID_CFE_TBL_MSG_HK);
     UtAssert_ZERO(CFE_TBL_Global.CommandCounter);
     UtAssert_ZERO(CFE_TBL_Global.CommandErrorCounter);
 
     /* Test command pipe messages handler response to "command type" message */
     UT_InitData();
-    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_TBL_CMD_RESET_COUNTERS_CC);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.ResetCountersCmd),
+                    UT_TPID_CFE_TBL_CMD_RESET_COUNTERS_CC);
     CFE_UtAssert_EVENTSENT(CFE_TBL_RESET_INF_EID);
     UtAssert_ZERO(CFE_TBL_Global.CommandCounter);
     UtAssert_ZERO(CFE_TBL_Global.CommandErrorCounter);
@@ -807,7 +808,6 @@ void Test_CFE_TBL_ValidateCmd(void)
 */
 void Test_CFE_TBL_NoopCmd(void)
 {
-
     UtPrintf("Begin Test No-Op Command");
 
     /* Test run through function (there are no additional paths) */
@@ -828,7 +828,7 @@ void Test_CFE_TBL_GetTblRegData(void)
     CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr                  = CFE_ES_MEMADDRESS_C(0);
     CFE_TBL_Global.Registry[CFE_TBL_Global.HkTlmTblRegIndex].DoubleBuffered = true;
     CFE_TBL_GetTblRegData();
-    UtAssert_NONZERO(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr);
+    UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr));
 
     /* Test using a single buffered table and the buffer is inactive */
     UT_InitData();
@@ -836,14 +836,14 @@ void Test_CFE_TBL_GetTblRegData(void)
     CFE_TBL_Global.Registry[CFE_TBL_Global.HkTlmTblRegIndex].DoubleBuffered = false;
     CFE_TBL_Global.Registry[CFE_TBL_Global.HkTlmTblRegIndex].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     CFE_TBL_GetTblRegData();
-    UtAssert_NONZERO(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr);
+    UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr));
 
     /* Test with no inactive buffer */
     UT_InitData();
     CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr                  = CFE_ES_MEMADDRESS_C(0);
     CFE_TBL_Global.Registry[CFE_TBL_Global.HkTlmTblRegIndex].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
     CFE_TBL_GetTblRegData();
-    UtAssert_ZERO(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr);
+    UtAssert_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr));
 }
 
 /*
@@ -1443,7 +1443,6 @@ void Test_CFE_TBL_HousekeepingCmd(void)
 */
 void Test_CFE_TBL_ApiInit(void)
 {
-
     UT_ResetCDS();
 
     /* Provide a big enough pool for the load buffers */
@@ -2104,6 +2103,8 @@ void Test_CFE_TBL_Load(void)
     CFE_TBL_RegistryRec_t *     RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
 
+    memset(&TestTable1, 0, sizeof(TestTable1));
+
     UtPrintf("Begin Test Load");
 
     StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
@@ -2458,6 +2459,8 @@ void Test_CFE_TBL_ReleaseAddresses(void)
     /* Test releasing 0 then 1 addresses */
     UT_InitData();
 
+    memset(&File, 0, sizeof(File));
+
     /* a. Configure for successful file read to initialize table */
     strncpy(FileHeader.Description, "FS header description", sizeof(FileHeader.Description) - 1);
     FileHeader.Description[sizeof(FileHeader.Description) - 1] = '\0';
@@ -2577,6 +2580,8 @@ void Test_CFE_TBL_Manage(void)
     void *                      App2TblPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_Handle_t            AccessIterator;
+
+    memset(&TestTable1, 0, sizeof(TestTable1));
 
     UtPrintf("Begin Test Manage");
 
@@ -3080,6 +3085,8 @@ void Test_CFE_TBL_TblMod(void)
     uint8                       CDS_Data[sizeof(UT_Table1_t)];
     uint32                      ExpectedCrc;
 
+    memset(&TblInfo1, 0, sizeof(TblInfo1));
+
     UtPrintf("Begin Test Table Modified");
 
     FileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
@@ -3101,6 +3108,8 @@ void Test_CFE_TBL_TblMod(void)
 
     /* b. Perform test */
     UT_ClearEventHistory();
+
+    memset(&File, 0, sizeof(File));
 
     /* Configure for successful file read to initialize table */
     strncpy(FileHeader.Description, "FS header description", sizeof(FileHeader.Description) - 1);

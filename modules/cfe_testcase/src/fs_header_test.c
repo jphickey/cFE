@@ -1,31 +1,27 @@
-/*************************************************************************
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
-** File: fs_header_test.c
-**
-** Purpose:
-**   Functional test of basic FS Header APIs
-**
-**   Demonstration of how to register and use the UT assert functions.
-**
-*************************************************************************/
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
+/**
+ * \file
+ *   Functional test of basic FS Header APIs
+ *
+ *   Demonstration of how to register and use the UT assert functions.
+ */
 
 /*
  * Includes
@@ -38,8 +34,10 @@ char *fsAddrPtr = NULL;
 
 static osal_id_t setup_file(void)
 {
-    osal_id_t id;
+    osal_id_t id = OS_OBJECT_ID_UNDEFINED;
+
     UtAssert_INT32_EQ(OS_OpenCreate(&id, OS_TEST_HEADER_FILENAME, OS_FILE_FLAG_CREATE, OS_READ_WRITE), OS_SUCCESS);
+
     return id;
 }
 
@@ -74,6 +72,8 @@ void TestReadHeader(void)
     const char *    TestDescription = "TEST_HEADER";
     osal_id_t       fd              = setup_file();
 
+    memset(&ReadHeader, 0, sizeof(ReadHeader));
+
     UtPrintf("Testing: CFE_FS_ReadHeader");
 
     UtAssert_VOIDCALL(CFE_FS_InitHeader(&Header, TestDescription, CFE_FS_SubType_ES_ERLOG));
@@ -99,6 +99,8 @@ void TestTimeStamp(void)
     const char *       TestDescription = "TEST_HEADER";
     CFE_TIME_SysTime_t NewTimestamp    = {0xFFFFFFFF, 0xFFFFFFFF};
     osal_id_t          fd              = setup_file();
+
+    memset(&ReadHeader, 0, sizeof(ReadHeader));
 
     UtPrintf("Testing: CFE_FS_SetTimestamp");
 
