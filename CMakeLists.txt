@@ -132,3 +132,4 @@ prepare()
 foreach(SYSVAR ${TGTSYS_LIST})
   process_arch(${SYSVAR})
 endforeach(SYSVAR ${TGTSYS_LIST})
+

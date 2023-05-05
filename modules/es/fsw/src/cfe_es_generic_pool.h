@@ -38,7 +38,6 @@
 ** Include Files
 */
 #include "common_types.h"
-#include "cfe_es_extern_typedefs.h"
 
 /*
 ** Macro Definitions

@@ -34,6 +34,7 @@
 #include "common_types.h"
 #include "osconfig.h"
 #include "cfe_fs_extern_typedefs.h"
+#include "cfe_fs_interface_cfg.h"
 
 /**
  * \brief Generalized file types/categories known to FS

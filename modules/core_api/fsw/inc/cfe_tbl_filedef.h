@@ -49,15 +49,21 @@
 #include "cfe_tbl_extern_typedefs.h" /* for "CFE_TBL_FileHdr_t" definition */
 #include "cfe_fs_extern_typedefs.h"  /* for "CFE_FS_HDR_DESC_MAX_LEN" definition */
 
-/** The CFE_TBL_FILEDEF macro can be used to simplify the declaration of a table image when using the elf2cfetbl
-utility.
-**
-**  Note that the macro adds a NULL at the end to ensure that it is null-terminated. (C allows
-**  a struct to be statically initialized with a string exactly the length of the array, which
-**  loses the null terminator.) This means the actual length limit of the fields are the above
-**  LEN - 1.
-**
-**  An example of the source code and how this macro would be used is as follows:
+/**
+ * \brief Macro to assist in with table definition object declaration
+ *
+ * See notes in the #CFE_TBL_FileDef_t structure type about naming conventions and
+ * recommended practices for the various fields.
+ *
+ * The CFE_TBL_FILEDEF macro can be used to simplify the declaration of a table image
+ * when using the elf2cfetbl utility.
+ *
+ *  Note that the macro adds a NULL at the end to ensure that it is null-terminated. (C allows
+ *  a struct to be statically initialized with a string exactly the length of the array, which
+ *  loses the null terminator.) This means the actual length limit of the fields are the above
+ *  LEN - 1.
+ *
+ *  An example of the source code and how this macro would be used is as follows:
 \code
 
     #include "cfe_tbl_filedef.h"

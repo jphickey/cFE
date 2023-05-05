@@ -35,7 +35,7 @@
 #define CFE_ERROR_H
 
 /* Include Files */
-#include "common_types.h"
+#include "osapi.h"
 
 /**
  * \brief cFE Status type for readability and eventually type safety

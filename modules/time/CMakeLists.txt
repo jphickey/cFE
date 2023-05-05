@@ -33,6 +33,6 @@ if(ENABLE_UNIT_TESTS)
 endif(ENABLE_UNIT_TESTS)
 
 cfs_app_check_intf(${DEP}
-    cfe_time_events.h
+    cfe_time_eventids.h
     cfe_time_msg.h
 )

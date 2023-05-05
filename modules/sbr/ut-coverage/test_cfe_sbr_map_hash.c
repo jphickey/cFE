@@ -44,7 +44,7 @@
 /******************************************************************************
  * Local helper to unhash
  */
-CFE_SB_MsgId_t Test_SBR_Unhash(CFE_SB_MsgIdValue_Atom_t Hash)
+CFE_SB_MsgId_t Test_SBR_Unhash(CFE_SB_MsgId_Atom_t Hash)
 {
     Hash = ((Hash >> 16) ^ Hash) * CFE_SBR_UNHASH_MAGIC;
     Hash = ((Hash >> 16) ^ Hash) * CFE_SBR_UNHASH_MAGIC;
@@ -55,8 +55,8 @@ CFE_SB_MsgId_t Test_SBR_Unhash(CFE_SB_MsgIdValue_Atom_t Hash)
 
 void Test_SBR_Map_Hash(void)
 {
-    CFE_SB_MsgIdValue_Atom_t msgidx;
-    CFE_SB_MsgIdValue_Atom_t msgid_limit;
+    CFE_SB_MsgId_Atom_t msgidx;
+    CFE_SB_MsgId_Atom_t msgid_limit;
     CFE_SBR_RouteId_t   routeid[3];
     CFE_SB_MsgId_t      msgid[3];
     uint32              count;
