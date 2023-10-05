@@ -349,6 +349,7 @@ function(add_cfe_tables TABLE_FQNAME TBL_DEFAULT_SRC_FILES)
             -DOUTPUT_FILE="${TABLE_RULEFILE}"
             -DTABLE_NAME="${TABLE_BASENAME}"
             -DSOURCES="${TBL_SRC}"
+            -DOBJEXT="${CMAKE_C_OUTPUT_EXTENSION}"
             -P "${TABLE_GENSCRIPT}"
           WORKING_DIRECTORY
             ${WORKING_DIRECTORY}
@@ -360,7 +361,7 @@ function(add_cfe_tables TABLE_FQNAME TBL_DEFAULT_SRC_FILES)
 
         # Add a custom target to generate the config file
         add_custom_target(generate_table_${TGT}_${APP_NAME}_${TABLE_BASENAME}
-            DEPENDS "${TABLE_RULEFILE}"
+            DEPENDS "${TABLE_RULEFILE}" ${TABLE_LIBNAME}
         )
         add_dependencies(cfetables generate_table_${TGT}_${APP_NAME}_${TABLE_BASENAME})
 
@@ -371,7 +372,7 @@ function(add_cfe_tables TABLE_FQNAME TBL_DEFAULT_SRC_FILES)
         # On older versions one may not reference the TARGET_OBJECTS property from the custom command.
         # As a workaround this is built into a static library, and then the desired object is extracted
         # before passing to elf2cfetbl.  It is roundabout but it works.
-        add_library(${TABLE_LIBNAME} STATIC ${TABLE_SELECTED_SRCS})
+        add_library(${TABLE_LIBNAME} STATIC EXCLUDE_FROM_ALL ${TABLE_SELECTED_SRCS})
         target_compile_definitions(${TABLE_LIBNAME} PRIVATE
           CFE_CPU_NAME=${TGT}
         )

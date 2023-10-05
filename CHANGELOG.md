@@ -1,5 +1,48 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev370
+- 'Fix #2430, reinstate example header files.'
+- See: <https://github.com/nasa/cFE/pull/2431>
+
+
+## Development Build: v7.0.0-rc4+dev366
+- 'Fix #2427, Race condition in TestCreateChild'
+- See: <https://github.com/nasa/cFE/pull/2428>
+
+
+## Development Build: v7.0.0-rc4+dev362
+- 'Fix #2421, adjust dependencies on table lib'
+- 'Fix #2423, avoid use of abspath make function'
+- See: <https://github.com/nasa/cFE/pull/2422> <https://github.com/nasa/cFE/pull/2424>
+
+
+## Development Build: v7.0.0-rc4+dev356
+- 'Fix #2415, use correct object extension in table build'
+- See: <https://github.com/nasa/cFE/pull/2416>
+
+
+## Development Build: v7.0.0-rc4+dev342
+- 'Fix #2368, cFE Functional Test 23'
+- 'Fix #1407, Add error report on EVS failure during log header write'
+- 'Fix #1515, Remove unnecessary memset from CFE_TBL_LoadFromFile'
+- See: <https://github.com/nasa/cFE/pull/2369> <https://github.com/nasa/cFE/pull/2272> <https://github.com/nasa/cFE/pull/2276>
+
+
+## Development Build: v7.0.0-rc4+dev334
+- Format update for additional counters in summary
+- make shared tbl configurable
+- Update README_Functionaltest.md
+- Increase CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC to 15
+- Increase slp time in funct test workflow
+- CFE_TIME_Print() calls strftime()
+- Adds utassert message descriptions to README_Functionaltest.md
+- See <https://github.com/nasa/cFE/pull/2350>, <https://github.com/nasa/cFE/pull/2354>, <https://github.com/nasa/cFE/pull/2355>, <https://github.com/nasa/cFE/pull/2366>, <https://github.com/nasa/cFE/pull/2364>, <https://github.com/nasa/cFE/pull/2356>, and <https://github.com/nasa/cFE/pull/2361>
+
+## Development Build: v7.0.0-rc4+dev318
+- generalize update header parameter
+- add msg verify capability
+- See <https://github.com/nasa/cFE/pull/2336> and <https://github.com/nasa/cFE/pull/2338>
+
 ## Development Build: v7.0.0-rc4+dev312
 - adjust UT pool buffer size for platform config
 - Remove unused CFE_PLATFORM_ES_RESET_AREA_SIZE
@@ -80,7 +123,30 @@
 - See <https://github.com/nasa/cFE/pull/2184>
 
 ## Development Build: v7.0.0-rc4+dev197
-- Remove Changelog in Doxygen Config
+- Remove # Changelog
+
+## Development Build: v7.0.0-rc4+dev366
+- 'Fix #2427, Race condition in TestCreateChild'
+- See: <https://github.com/nasa/cFE/pull/2428>
+
+
+## Development Build: v7.0.0-rc4+dev362
+- 'Fix #2421, adjust dependencies on table lib'
+- 'Fix #2423, avoid use of abspath make function'
+- See: <https://github.com/nasa/cFE/pull/2422> <https://github.com/nasa/cFE/pull/2424>
+
+
+## Development Build: v7.0.0-rc4+dev356
+- 'Fix #2415, use correct object extension in table build'
+- See: <https://github.com/nasa/cFE/pull/2416>
+
+
+## Development Build: v7.0.0-rc4+dev342
+- 'Fix #2368, cFE Functional Test 23'
+- 'Fix #1407, Add error report on EVS failure during log header write'
+- 'Fix #1515, Remove unnecessary memset from CFE_TBL_LoadFromFile'
+- See: <https://github.com/nasa/cFE/pull/2369> <https://github.com/nasa/cFE/pull/2272> <https://github.com/nasa/cFE/pull/2276>
+ in Doxygen Config
 - See <https://github.com/nasa/cFE/pull/2165>
 
 ## Development Build: v7.0.0-rc4+dev193
