@@ -165,7 +165,7 @@
         </Range>
       </IntegerDataType>
 
-      <IntegerDataType name="MemOffset" shortDescription="Integer type used for CPU memory addresses, sizes and offsets">
+      <AliasDataType name="MemOffset" type="BASE_TYPES/MemReference" shortDescription="Integer type used for CPU memory addresses, sizes and offsets">
         <LongDescription>
           For backward compatibility with existing CFS code this should be uint32,
           but all telemetry information will be limited to 4GB in size as a result.
@@ -177,13 +177,9 @@
           In either case this must be an unsigned type, and should be large enough
           to represent the largest memory address/size in use in the CFS system.
         </LongDescription>
-        <IntegerDataEncoding sizeInBits="${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" encoding="unsigned" />
-        <Range>
-          <MinMaxRange max="2 ^ ${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
-        </Range>
-      </IntegerDataType>
+      </AliasDataType>
 
-      <IntegerDataType name="MemAddress" shortDescription="Integer type used for CPU memory addresses, sizes and offsets">
+      <AliasDataType name="MemAddress" type="BASE_TYPES/MemReference" shortDescription="Integer type used for CPU memory addresses, sizes and offsets">
         <LongDescription>
           For backward compatibility with existing CFS code this should be uint32,
           but all telemetry information will be limited to 4GB in size as a result.
@@ -195,11 +191,7 @@
           In either case this must be an unsigned type, and should be large enough
           to represent the largest memory address/size in use in the CFS system.
         </LongDescription>
-        <IntegerDataEncoding sizeInBits="${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" encoding="unsigned" />
-        <Range>
-          <MinMaxRange max="2 ^ ${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
-        </Range>
-      </IntegerDataType>
+      </AliasDataType>
 
       <StringDataType name="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" length="${CFE_MISSION/ES_CDS_MAX_FULL_NAME_LEN}" />
 
