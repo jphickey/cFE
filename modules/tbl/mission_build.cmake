@@ -26,6 +26,7 @@ if (CFE_EDS_ENABLED_BUILD)
   set(TBL_CFGFILE_SRC_cfe_tbl_mission_cfg     "cfe_tbl_eds_designparameters.h")
   set(TBL_CFGFILE_SRC_cfe_tbl_fcncodes        "cfe_tbl_eds_cc.h")
   set(TBL_CFGFILE_SRC_cfe_tbl_msgstruct       "cfe_tbl_eds_typedefs.h")
+  set(TBL_CFGFILE_SRC_cfe_tbl_msgdefs         "cfe_tbl_eds_typedefs.h")
   set(TBL_CFGFILE_SRC_cfe_tbl_extern_typedefs "${CMAKE_CURRENT_LIST_DIR}/config/cfe_tbl_extern_typedefs_eds_adapter.h")
   set(TBL_CFGFILE_SRC_cfe_tbl_topicids        "cfe_mission_eds_designparameters.h")
 

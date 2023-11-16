@@ -25,7 +25,8 @@ if (CFE_EDS_ENABLED_BUILD)
   # In an EDS-based build, these files come generated from the EDS tool
   set(SB_CFGFILE_SRC_cfe_sb_mission_cfg     "cfe_sb_eds_designparameters.h")
   set(SB_CFGFILE_SRC_cfe_sb_fcncodes        "cfe_sb_eds_cc.h")
-  set(SB_CFGFILE_SRC_cfe_sb_msg             "cfe_sb_eds_typedefs.h")
+  set(SB_CFGFILE_SRC_cfe_sb_msgstruct       "cfe_sb_eds_typedefs.h")
+  set(SB_CFGFILE_SRC_cfe_sb_msgdefs         "cfe_sb_eds_typedefs.h")
   set(SB_CFGFILE_SRC_cfe_sb_extern_typedefs "${CMAKE_CURRENT_LIST_DIR}/config/cfe_sb_extern_typedefs_eds_adapter.h")
   set(SB_CFGFILE_SRC_cfe_sb_topicids        "cfe_mission_eds_designparameters.h")
 

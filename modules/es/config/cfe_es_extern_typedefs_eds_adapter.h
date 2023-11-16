@@ -35,13 +35,6 @@
 /* Add adapter typedefs and supplemental macros */
 
 /**
- * @brief Type used for memory sizes and offsets in commands and telemetry
- *
- * The width of this type should be configured via EDS
- */
-typedef CFE_ES_MemOffset_Atom_t CFE_ES_MemOffset_t;
-
-/**
  * @brief Memory Offset initializer wrapper
  *
  * A converter macro to use when initializing a CFE_ES_MemOffset_t
@@ -56,13 +49,6 @@ typedef CFE_ES_MemOffset_Atom_t CFE_ES_MemOffset_t;
  * value as a "size_t" type
  */
 #define CFE_ES_MEMOFFSET_TO_SIZET(x) ((size_t)(x))
-
-/**
- * @brief Type used for memory addresses in command and telemetry messages
- *
- * The width of this type should be configured via EDS
- */
-typedef CFE_ES_MemAddress_Atom_t CFE_ES_MemAddress_t;
 
 /**
  * @brief Memory Address initializer wrapper

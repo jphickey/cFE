@@ -14,8 +14,5 @@ eds/%.o:
 	@mkdir -pv $(dir $(@))
 	$(CC) $(CFLAGS) -fPIC $(LOCAL_CFLAGS) -MMD -c -o $(@) $(<)
 
-#%.o: %.a
-#	$(AR) x $(<) $(@) #$(filter %.c,$(^))
-
 %.so: %.o
 	$(CC) $(CFLAGS) -shared -o $(@) $(<)
