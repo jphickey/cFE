@@ -34,8 +34,7 @@ foreach(TBL_SRC ${SOURCES})
         string(APPEND TABLE_RULES
             "${TABLE_LEGACY_FILE}.o: C_INCLUDE_DIRS += ${INCLUDE_DIRS}\n"
             "${TABLE_LEGACY_FILE}.o: C_COMPILE_DEFS += ${COMPILE_DEFS}\n"
-            "${TABLE_LEGACY_FILE}.o: ${TBL_SRC}\n"
-            "${TABLE_LEGACY_FILE}.so: ${TABLE_LEGACY_FILE}.o\n"
+            "${TABLE_LEGACY_FILE}.source: ${TBL_SRC}\n"
             "\n")
         set(DEP_FILE "${TABLE_LEGACY_FILE}.so")
     else()

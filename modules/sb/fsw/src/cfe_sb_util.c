@@ -189,6 +189,86 @@ CFE_Status_t CFE_SB_GetUserPayloadInfo(const CFE_MSG_Message_t *MsgPtr, EdsLib_D
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
+CFE_SB_MsgId_Atom_t CFE_SB_CmdTopicIdToMsgId(uint16 TopicId, uint16 InstanceNum)
+{
+    const CFE_SB_Listener_Component_t     Params = {{.InstanceNumber = InstanceNum, .TopicId = TopicId}};
+    CFE_SB_SoftwareBus_PubSub_Interface_t Output;
+
+    CFE_MissionLib_MapListenerComponent(&Output, &Params);
+
+    return CFE_SB_MsgIdToValue(Output.MsgId);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_SB_MsgId_Atom_t CFE_SB_TlmTopicIdToMsgId(uint16 TopicId, uint16 InstanceNum)
+{
+    const CFE_SB_Publisher_Component_t    Params = {{.InstanceNumber = InstanceNum, .TopicId = TopicId}};
+    CFE_SB_SoftwareBus_PubSub_Interface_t Output;
+
+    CFE_MissionLib_MapPublisherComponent(&Output, &Params);
+
+    return CFE_SB_MsgIdToValue(Output.MsgId);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_SB_MsgId_Atom_t CFE_SB_GlobalCmdTopicIdToMsgId(uint16 TopicId)
+{
+    /* Instance number 0 is used for globals */
+    return CFE_SB_CmdTopicIdToMsgId(TopicId, 0);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_SB_MsgId_Atom_t CFE_SB_GlobalTlmTopicIdToMsgId(uint16 TopicId)
+{
+    /* Instance number 0 is used for globals */
+    return CFE_SB_TlmTopicIdToMsgId(TopicId, 0);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_SB_MsgId_Atom_t CFE_SB_LocalCmdTopicIdToMsgId(uint16 TopicId)
+{
+    /* PSP-reported Instance number is used for locals */
+    return CFE_SB_CmdTopicIdToMsgId(TopicId, CFE_PSP_GetProcessorId());
+}
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_SB_MsgId_Atom_t CFE_SB_LocalTlmTopicIdToMsgId(uint16 TopicId)
+{
+    /* PSP-reported Instance number is used for locals */
+    return CFE_SB_TlmTopicIdToMsgId(TopicId, CFE_PSP_GetProcessorId());
+}
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr)
 {
     CFE_Status_t                   Status;
