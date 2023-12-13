@@ -520,13 +520,13 @@ void Test_SB_Cmds_Noop(void)
 
     memset(&Noop, 0, sizeof(Noop));
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &Noop.SBBuf.Msg, sizeof(Noop.Cmd), UT_TPID_CFE_SB_CMD_NOOP_CC);
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(Noop.SBBuf), sizeof(Noop.Cmd), UT_TPID_CFE_SB_CMD_NOOP_CC);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_CMD0_RCVD_EID);
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &Noop.SBBuf.Msg, 0, UT_TPID_CFE_SB_CMD_NOOP_CC);
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(Noop.SBBuf), 0, UT_TPID_CFE_SB_CMD_NOOP_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
 }
 
@@ -543,14 +543,15 @@ void Test_SB_Cmds_RstCtrs(void)
 
     memset(&ResetCounters, 0, sizeof(ResetCounters));
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &ResetCounters.SBBuf.Msg, sizeof(ResetCounters.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(ResetCounters.SBBuf), sizeof(ResetCounters.Cmd),
                     UT_TPID_CFE_SB_CMD_RESET_COUNTERS_CC);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_CMD1_RCVD_EID);
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &ResetCounters.SBBuf.Msg, 0, UT_TPID_CFE_SB_CMD_RESET_COUNTERS_CC);
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(ResetCounters.SBBuf), 0,
+                    UT_TPID_CFE_SB_CMD_RESET_COUNTERS_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
 } /* Test_SB_Cmds_RstCtrs */
 
@@ -593,7 +594,7 @@ void Test_SB_Cmds_Stats(void)
 
     CFE_UtAssert_EVENTSENT(CFE_SB_SND_STATS_EID);
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &SendSbStats.SBBuf.Msg, 0, UT_TPID_CFE_SB_CMD_SEND_SB_STATS_CC);
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(SendSbStats.SBBuf), 0, UT_TPID_CFE_SB_CMD_SEND_SB_STATS_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId1));
@@ -617,7 +618,7 @@ void Test_SB_Cmds_RoutingInfoDef(void)
     /* Make some routing info by calling CFE_SB_AppInit */
     CFE_UtAssert_SETUP(CFE_SB_AppInit());
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WriteRoutingInfo.SBBuf.Msg, sizeof(WriteRoutingInfo.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(WriteRoutingInfo.SBBuf), sizeof(WriteRoutingInfo.Cmd),
                     UT_TPID_CFE_SB_CMD_WRITE_ROUTING_INFO_CC);
 
     CFE_UtAssert_EVENTCOUNT(5);
@@ -628,12 +629,13 @@ void Test_SB_Cmds_RoutingInfoDef(void)
 
     /* Also test with a bad file name - should generate CFE_SB_SND_RTG_ERR1_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WriteRoutingInfo.SBBuf.Msg, sizeof(WriteRoutingInfo.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(WriteRoutingInfo.SBBuf), sizeof(WriteRoutingInfo.Cmd),
                     UT_TPID_CFE_SB_CMD_WRITE_ROUTING_INFO_CC);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_SND_RTG_ERR1_EID);
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WriteRoutingInfo.SBBuf.Msg, 0, UT_TPID_CFE_SB_CMD_WRITE_ROUTING_INFO_CC);
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(WriteRoutingInfo.SBBuf), 0,
+                    UT_TPID_CFE_SB_CMD_WRITE_ROUTING_INFO_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(CFE_SB_Global.CmdPipe));
@@ -657,7 +659,7 @@ void Test_SB_Cmds_RoutingInfoAlreadyPending(void)
     strncpy(WriteRoutingInfo.Cmd.Payload.Filename, "RoutingTstFile", sizeof(WriteRoutingInfo.Cmd.Payload.Filename) - 1);
     WriteRoutingInfo.Cmd.Payload.Filename[sizeof(WriteRoutingInfo.Cmd.Payload.Filename) - 1] = '\0';
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WriteRoutingInfo.SBBuf.Msg, sizeof(WriteRoutingInfo.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(WriteRoutingInfo.SBBuf), sizeof(WriteRoutingInfo.Cmd),
                     UT_TPID_CFE_SB_CMD_WRITE_ROUTING_INFO_CC);
 
     CFE_UtAssert_EVENTCOUNT(1);
@@ -764,7 +766,7 @@ void Test_SB_Cmds_PipeInfoDef(void)
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId2, PipeDepth, "TestPipe2"));
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId3, PipeDepth, "TestPipe3"));
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WritePipeInfo.SBBuf.Msg, sizeof(WritePipeInfo.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(WritePipeInfo.SBBuf), sizeof(WritePipeInfo.Cmd),
                     UT_TPID_CFE_SB_CMD_WRITE_PIPE_INFO_CC);
 
     CFE_UtAssert_EVENTCOUNT(3);
@@ -773,11 +775,12 @@ void Test_SB_Cmds_PipeInfoDef(void)
 
     /* Also test with a bad file name - should generate CFE_SB_SND_RTG_ERR1_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WritePipeInfo.SBBuf.Msg, sizeof(WritePipeInfo.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(WritePipeInfo.SBBuf), sizeof(WritePipeInfo.Cmd),
                     UT_TPID_CFE_SB_CMD_WRITE_PIPE_INFO_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_SND_RTG_ERR1_EID);
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WritePipeInfo.SBBuf.Msg, 0, UT_TPID_CFE_SB_CMD_WRITE_PIPE_INFO_CC);
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(WritePipeInfo.SBBuf), 0,
+                    UT_TPID_CFE_SB_CMD_WRITE_PIPE_INFO_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId1));
@@ -803,7 +806,7 @@ void Test_SB_Cmds_PipeInfoAlreadyPending(void)
     strncpy(WritePipeInfo.Cmd.Payload.Filename, "PipeTstFile", sizeof(WritePipeInfo.Cmd.Payload.Filename) - 1);
     WritePipeInfo.Cmd.Payload.Filename[sizeof(WritePipeInfo.Cmd.Payload.Filename) - 1] = '\0';
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WritePipeInfo.SBBuf.Msg, sizeof(WritePipeInfo.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(WritePipeInfo.SBBuf), sizeof(WritePipeInfo.Cmd),
                     UT_TPID_CFE_SB_CMD_WRITE_PIPE_INFO_CC);
 
     CFE_UtAssert_EVENTCOUNT(1);
@@ -966,7 +969,7 @@ void Test_SB_Cmds_MapInfoDef(void)
     CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId4, PipeId3));
     CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId5, PipeId2));
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WriteMapInfo.SBBuf.Msg, sizeof(WriteMapInfo.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(WriteMapInfo.SBBuf), sizeof(WriteMapInfo.Cmd),
                     UT_TPID_CFE_SB_CMD_WRITE_MAP_INFO_CC);
 
     CFE_UtAssert_EVENTCOUNT(10);
@@ -977,12 +980,12 @@ void Test_SB_Cmds_MapInfoDef(void)
 
     /* Also test with a bad file name - should generate CFE_SB_SND_RTG_ERR1_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WriteMapInfo.SBBuf.Msg, sizeof(WriteMapInfo.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(WriteMapInfo.SBBuf), sizeof(WriteMapInfo.Cmd),
                     UT_TPID_CFE_SB_CMD_WRITE_MAP_INFO_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_SND_RTG_ERR1_EID);
 
     /* Bad Size */
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WriteMapInfo.SBBuf.Msg, 0, UT_TPID_CFE_SB_CMD_WRITE_MAP_INFO_CC);
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(WriteMapInfo.SBBuf), 0, UT_TPID_CFE_SB_CMD_WRITE_MAP_INFO_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId1));
@@ -1008,7 +1011,7 @@ void Test_SB_Cmds_MapInfoAlreadyPending(void)
     strncpy(WriteMapInfo.Cmd.Payload.Filename, "MapTstFile", sizeof(WriteMapInfo.Cmd.Payload.Filename) - 1);
     WriteMapInfo.Cmd.Payload.Filename[sizeof(WriteMapInfo.Cmd.Payload.Filename) - 1] = '\0';
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WriteMapInfo.SBBuf.Msg, sizeof(WriteMapInfo.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(WriteMapInfo.SBBuf), sizeof(WriteMapInfo.Cmd),
                     UT_TPID_CFE_SB_CMD_WRITE_MAP_INFO_CC);
 
     CFE_UtAssert_EVENTCOUNT(1);
@@ -1037,7 +1040,7 @@ void Test_SB_Cmds_EnRouteValParam(void)
     EnableRoute.Cmd.Payload.MsgId = MsgId;
     EnableRoute.Cmd.Payload.Pipe  = PipeId;
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &EnableRoute.SBBuf.Msg, sizeof(EnableRoute.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(EnableRoute.SBBuf), sizeof(EnableRoute.Cmd),
                     UT_TPID_CFE_SB_CMD_ENABLE_ROUTE_CC);
 
     CFE_UtAssert_EVENTCOUNT(3);
@@ -1049,7 +1052,7 @@ void Test_SB_Cmds_EnRouteValParam(void)
     CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE2_EID);
 
     /* Bad Size */
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &EnableRoute.SBBuf.Msg, 0, UT_TPID_CFE_SB_CMD_ENABLE_ROUTE_CC);
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(EnableRoute.SBBuf), 0, UT_TPID_CFE_SB_CMD_ENABLE_ROUTE_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
@@ -1078,7 +1081,7 @@ void Test_SB_Cmds_EnRouteNonExist(void)
     EnableRoute.Cmd.Payload.MsgId = MsgId;
     EnableRoute.Cmd.Payload.Pipe  = PipeId2;
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &EnableRoute.SBBuf.Msg, sizeof(EnableRoute.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(EnableRoute.SBBuf), sizeof(EnableRoute.Cmd),
                     UT_TPID_CFE_SB_CMD_ENABLE_ROUTE_CC);
 
     CFE_UtAssert_EVENTCOUNT(4);
@@ -1107,7 +1110,7 @@ void Test_SB_Cmds_EnRouteInvParam(void)
     EnableRoute.Cmd.Payload.MsgId = SB_UT_LAST_VALID_MID;
     EnableRoute.Cmd.Payload.Pipe  = SB_UT_PIPEID_3;
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &EnableRoute.SBBuf.Msg, sizeof(EnableRoute.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(EnableRoute.SBBuf), sizeof(EnableRoute.Cmd),
                     UT_TPID_CFE_SB_CMD_ENABLE_ROUTE_CC);
 
     CFE_UtAssert_EVENTCOUNT(1);
@@ -1131,7 +1134,7 @@ void Test_SB_Cmds_EnRouteInvParam2(void)
     EnableRoute.Cmd.Payload.MsgId = CFE_SB_INVALID_MSG_ID;
     EnableRoute.Cmd.Payload.Pipe  = SB_UT_PIPEID_3;
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &EnableRoute.SBBuf.Msg, sizeof(EnableRoute.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(EnableRoute.SBBuf), sizeof(EnableRoute.Cmd),
                     UT_TPID_CFE_SB_CMD_ENABLE_ROUTE_CC);
 
     CFE_UtAssert_EVENTCOUNT(1);
@@ -1156,7 +1159,7 @@ void Test_SB_Cmds_EnRouteInvParam3(void)
     EnableRoute.Cmd.Payload.MsgId = SB_UT_ALTERNATE_INVALID_MID;
     EnableRoute.Cmd.Payload.Pipe  = SB_UT_PIPEID_0;
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &EnableRoute.SBBuf.Msg, sizeof(EnableRoute.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(EnableRoute.SBBuf), sizeof(EnableRoute.Cmd),
                     UT_TPID_CFE_SB_CMD_ENABLE_ROUTE_CC);
 
     CFE_UtAssert_EVENTCOUNT(1);
@@ -1185,7 +1188,7 @@ void Test_SB_Cmds_DisRouteValParam(void)
     DisableRoute.Cmd.Payload.MsgId = MsgId;
     DisableRoute.Cmd.Payload.Pipe  = PipeId;
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &DisableRoute.SBBuf.Msg, sizeof(DisableRoute.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(DisableRoute.SBBuf), sizeof(DisableRoute.Cmd),
                     UT_TPID_CFE_SB_CMD_DISABLE_ROUTE_CC);
 
     CFE_UtAssert_EVENTCOUNT(3);
@@ -1197,7 +1200,7 @@ void Test_SB_Cmds_DisRouteValParam(void)
     CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE2_EID);
 
     /* Bad Size */
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &DisableRoute.SBBuf.Msg, 0, UT_TPID_CFE_SB_CMD_DISABLE_ROUTE_CC);
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(DisableRoute.SBBuf), 0, UT_TPID_CFE_SB_CMD_DISABLE_ROUTE_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
@@ -1226,7 +1229,7 @@ void Test_SB_Cmds_DisRouteNonExist(void)
     DisableRoute.Cmd.Payload.MsgId = MsgId;
     DisableRoute.Cmd.Payload.Pipe  = PipeId2;
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &DisableRoute.SBBuf.Msg, sizeof(DisableRoute.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(DisableRoute.SBBuf), sizeof(DisableRoute.Cmd),
                     UT_TPID_CFE_SB_CMD_DISABLE_ROUTE_CC);
 
     CFE_UtAssert_EVENTCOUNT(4);
@@ -1255,7 +1258,7 @@ void Test_SB_Cmds_DisRouteInvParam(void)
     DisableRoute.Cmd.Payload.MsgId = SB_UT_LAST_VALID_MID;
     DisableRoute.Cmd.Payload.Pipe  = SB_UT_PIPEID_3;
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &DisableRoute.SBBuf.Msg, sizeof(DisableRoute.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(DisableRoute.SBBuf), sizeof(DisableRoute.Cmd),
                     UT_TPID_CFE_SB_CMD_DISABLE_ROUTE_CC);
 
     CFE_UtAssert_EVENTCOUNT(1);
@@ -1279,7 +1282,7 @@ void Test_SB_Cmds_DisRouteInvParam2(void)
     DisableRoute.Cmd.Payload.MsgId = CFE_SB_INVALID_MSG_ID;
     DisableRoute.Cmd.Payload.Pipe  = SB_UT_PIPEID_3;
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &DisableRoute.SBBuf.Msg, sizeof(DisableRoute.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(DisableRoute.SBBuf), sizeof(DisableRoute.Cmd),
                     UT_TPID_CFE_SB_CMD_DISABLE_ROUTE_CC);
 
     CFE_UtAssert_EVENTCOUNT(1);
@@ -1304,7 +1307,7 @@ void Test_SB_Cmds_DisRouteInvParam3(void)
     DisableRoute.Cmd.Payload.MsgId = SB_UT_ALTERNATE_INVALID_MID;
     DisableRoute.Cmd.Payload.Pipe  = SB_UT_PIPEID_0;
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &DisableRoute.SBBuf.Msg, sizeof(DisableRoute.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(DisableRoute.SBBuf), sizeof(DisableRoute.Cmd),
                     UT_TPID_CFE_SB_CMD_DISABLE_ROUTE_CC);
 
     CFE_UtAssert_EVENTCOUNT(1);
@@ -1465,7 +1468,8 @@ void Test_SB_Cmds_SendPrevSubs(void)
     UT_ClearEventHistory();
 
     /* Bad Size */
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &SendPrevSubs.SBBuf.Msg, 0, UT_TPID_CFE_SB_SUB_RPT_CTL_SEND_PREV_SUBS_CC);
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(SendPrevSubs.SBBuf), 0,
+                    UT_TPID_CFE_SB_SUB_RPT_CTL_SEND_PREV_SUBS_CC);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
 
@@ -1486,7 +1490,7 @@ void Test_SB_Cmds_SubRptOn(void)
 
     memset(&EnableSubReporting, 0, sizeof(EnableSubReporting));
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &EnableSubReporting.SBBuf.Msg, sizeof(EnableSubReporting.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(EnableSubReporting.SBBuf), sizeof(EnableSubReporting.Cmd),
                     UT_TPID_CFE_SB_SUB_RPT_CTL_ENABLE_SUB_REPORTING_CC);
 
     CFE_UtAssert_EVENTCOUNT(0);
@@ -1495,7 +1499,7 @@ void Test_SB_Cmds_SubRptOn(void)
     UT_ClearEventHistory();
 
     /* Bad Size */
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &EnableSubReporting.SBBuf.Msg, 0,
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(EnableSubReporting.SBBuf), 0,
                     UT_TPID_CFE_SB_SUB_RPT_CTL_ENABLE_SUB_REPORTING_CC);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
@@ -1514,7 +1518,7 @@ void Test_SB_Cmds_SubRptOff(void)
 
     memset(&DisableSubReporting, 0, sizeof(DisableSubReporting));
 
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &DisableSubReporting.SBBuf.Msg, sizeof(DisableSubReporting.Cmd),
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(DisableSubReporting.SBBuf), sizeof(DisableSubReporting.Cmd),
                     UT_TPID_CFE_SB_SUB_RPT_CTL_DISABLE_SUB_REPORTING_CC);
 
     CFE_UtAssert_EVENTCOUNT(0);
@@ -1523,7 +1527,7 @@ void Test_SB_Cmds_SubRptOff(void)
     UT_ClearEventHistory();
 
     /* Bad Size */
-    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &DisableSubReporting.SBBuf.Msg, 0,
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(DisableSubReporting.SBBuf), 0,
                     UT_TPID_CFE_SB_SUB_RPT_CTL_DISABLE_SUB_REPORTING_CC);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
@@ -4454,7 +4458,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_MSG_TOO_BIG_EID_BIT);
-    CFE_SB_TransmitMsg(&Housekeeping.SBBuf.Msg, true);
+    CFE_SB_TransmitMsg(CFE_MSG_PTR(Housekeeping.SBBuf), true);
     CFE_UtAssert_EVENTNOTSENT(CFE_SB_MSG_TOO_BIG_EID);
     UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
 
@@ -4463,7 +4467,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     MsgId                                              = CFE_SB_INVALID_MSG_ID;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_INV_MSGID_EID_BIT);
-    CFE_SB_TransmitMsg(&Housekeeping.SBBuf.Msg, true);
+    CFE_SB_TransmitMsg(CFE_MSG_PTR(Housekeeping.SBBuf), true);
     CFE_UtAssert_EVENTNOTSENT(CFE_SB_SEND_INV_MSGID_EID);
     UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
 
