@@ -94,6 +94,7 @@ CFE_Status_t CFE_SB_GetUserPayloadInfo(const CFE_MSG_Message_t *MsgPtr, EdsLib_D
         CFE_SB_Publisher_Component_t Publisher;
 
     } FuncParams;
+    CFE_MSG_Type_t                           MsgType;
     int32                                    EdsStatus;
     EdsLib_Id_t                              EdsId;
     EdsLib_DataTypeDB_DerivativeObjectInfo_t DerivObjInfo;
@@ -102,6 +103,7 @@ CFE_Status_t CFE_SB_GetUserPayloadInfo(const CFE_MSG_Message_t *MsgPtr, EdsLib_D
     const EdsLib_DatabaseObject_t *               EDS_DB    = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
     const CFE_MissionLib_SoftwareBus_Interface_t *SBINTF_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_SBINTF_DB);
 
+    MsgType   = CFE_MSG_Type_Invalid;
     EdsStatus = CFE_MISSIONLIB_FAILURE;
     if (MsgPtr != NULL)
     {
@@ -109,6 +111,7 @@ CFE_Status_t CFE_SB_GetUserPayloadInfo(const CFE_MSG_Message_t *MsgPtr, EdsLib_D
 
         if (CFE_MissionLib_PubSub_IsListenerComponent(&PubSubParams))
         {
+            MsgType = CFE_MSG_Type_Cmd;
             CFE_MissionLib_UnmapListenerComponent(&FuncParams.Listener, &PubSubParams);
 
             EdsStatus = CFE_MissionLib_GetArgumentType(SBINTF_DB, CFE_SB_Telecommand_Interface_ID,
@@ -116,6 +119,7 @@ CFE_Status_t CFE_SB_GetUserPayloadInfo(const CFE_MSG_Message_t *MsgPtr, EdsLib_D
         }
         else if (CFE_MissionLib_PubSub_IsPublisherComponent(&PubSubParams))
         {
+            MsgType = CFE_MSG_Type_Tlm;
             CFE_MissionLib_UnmapPublisherComponent(&FuncParams.Publisher, &PubSubParams);
 
             EdsStatus = CFE_MissionLib_GetArgumentType(SBINTF_DB, CFE_SB_Telemetry_Interface_ID,
@@ -148,6 +152,27 @@ CFE_Status_t CFE_SB_GetUserPayloadInfo(const CFE_MSG_Message_t *MsgPtr, EdsLib_D
     if (EdsStatus == EDSLIB_SUCCESS)
     {
         EdsStatus = EdsLib_DataTypeDB_GetMemberByIndex(EDS_DB, EdsId, 1, PayloadInfo);
+    }
+
+    /*
+     * Back up: Not all messages are necessarily defined in EDS.  If the above lookup didn't work,
+     * then it means the content is not EDS-defined.  Revert to the traditional method of locating
+     * the payload by simply adding the header size to the base pointer.
+     */
+    if (EdsStatus != CFE_MISSIONLIB_SUCCESS)
+    {
+        memset(PayloadInfo, 0, sizeof(*PayloadInfo));
+
+        if (MsgType == CFE_MSG_Type_Cmd)
+        {
+            PayloadInfo->Offset.Bytes = sizeof(CFE_MSG_CommandHeader_t);
+            EdsStatus                 = CFE_MISSIONLIB_SUCCESS;
+        }
+        else if (MsgType == CFE_MSG_Type_Tlm)
+        {
+            PayloadInfo->Offset.Bytes = sizeof(CFE_MSG_TelemetryHeader_t);
+            EdsStatus                 = CFE_MISSIONLIB_SUCCESS;
+        }
     }
 
     if (EdsStatus != CFE_MISSIONLIB_SUCCESS)
