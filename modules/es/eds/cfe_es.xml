@@ -116,6 +116,15 @@
         </EnumerationList>
       </EnumeratedDataType>
 
+      <EnumeratedDataType name="PerfTrigger" shortDescription="Performance Monitor trigger modes">
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="START"  value="0" shortDescription="Trigger at start" />
+          <Enumeration label="CENTER" value="1" shortDescription="Trigger at center" />
+          <Enumeration label="END"    value="2" shortDescription="Trigger at end" />
+        </EnumerationList>
+      </EnumeratedDataType>
+
       <ContainerDataType name="AppId" baseType="CFE_RESOURCEID/BaseType" shortDescription="A type for Application IDs">
         <LongDescription>
           This is the type that is used for any API accepting or returning an App ID
@@ -467,7 +476,7 @@
           For command details, see #CFE_ES_PERF_STARTDATA_CC
         </LongDescription>
         <EntryList>
-          <Entry name="TriggerMode" type="BASE_TYPES/uint32" shortDescription="Desired trigger position (Start, Center, End)" />
+          <Entry name="TriggerMode" type="PerfTrigger" shortDescription="Desired trigger position (Start, Center, End)" />
         </EntryList>
       </ContainerDataType>
 

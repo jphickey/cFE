@@ -33,6 +33,10 @@
 #include "cfe_es_eds_typedefs.h"
 
 /* Add adapter typedefs and supplemental macros */
+#define CFE_ES_PERF_TRIGGER_START  CFE_ES_PerfTrigger_START
+#define CFE_ES_PERF_TRIGGER_CENTER CFE_ES_PerfTrigger_CENTER
+#define CFE_ES_PERF_TRIGGER_END    CFE_ES_PerfTrigger_END
+#define CFE_ES_PERF_MAX_MODES      (1 + CFE_ES_PerfTrigger_END)
 
 /**
  * @brief Memory Offset initializer wrapper
