@@ -23,11 +23,10 @@ set(EVS_MISSION_CONFIG_FILE_LIST
 if (CFE_EDS_ENABLED_BUILD)
 
   # In an EDS-based build, these files come generated from the EDS tool
-  set(EVS_CFGFILE_SRC_cfe_evs_mission_cfg     "cfe_evs_eds_designparameters.h")
   set(EVS_CFGFILE_SRC_cfe_evs_fcncodes        "cfe_evs_eds_cc.h")
   set(EVS_CFGFILE_SRC_cfe_evs_msgstruct       "cfe_evs_eds_typedefs.h")
   set(EVS_CFGFILE_SRC_cfe_evs_msgdefs         "cfe_evs_eds_typedefs.h")
-  set(EVS_CFGFILE_SRC_cfe_evs_extern_typedefs "${CMAKE_CURRENT_LIST_DIR}/config/cfe_evs_extern_typedefs_eds_adapter.h")
+  set(EVS_CFGFILE_SRC_cfe_evs_interface_cfg   "cfe_evs_eds_designparameters.h")
   set(EVS_CFGFILE_SRC_cfe_evs_topicids        "cfe_mission_eds_designparameters.h")
 
 endif(CFE_EDS_ENABLED_BUILD)

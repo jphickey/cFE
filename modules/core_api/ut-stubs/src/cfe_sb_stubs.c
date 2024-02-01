@@ -33,6 +33,8 @@ void UT_DefaultHandler_CFE_SB_GetPipeName(void *, UT_EntryKey_t, const UT_StubCo
 void UT_DefaultHandler_CFE_SB_GetUserData(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_GetUserDataLength(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_IsValidMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_LocalCmdTopicIdToMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_LocalTlmTopicIdToMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_MessageStringGet(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_MessageStringSet(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_ReceiveBuffer(void *, UT_EntryKey_t, const UT_StubContext_t *);
@@ -251,7 +253,7 @@ CFE_SB_MsgId_Atom_t CFE_SB_LocalCmdTopicIdToMsgId(uint16 TopicId)
 
     UT_GenStub_AddParam(CFE_SB_LocalCmdTopicIdToMsgId, uint16, TopicId);
 
-    UT_GenStub_Execute(CFE_SB_LocalCmdTopicIdToMsgId, Basic, NULL);
+    UT_GenStub_Execute(CFE_SB_LocalCmdTopicIdToMsgId, Basic, UT_DefaultHandler_CFE_SB_LocalCmdTopicIdToMsgId);
 
     return UT_GenStub_GetReturnValue(CFE_SB_LocalCmdTopicIdToMsgId, CFE_SB_MsgId_Atom_t);
 }
@@ -267,7 +269,7 @@ CFE_SB_MsgId_Atom_t CFE_SB_LocalTlmTopicIdToMsgId(uint16 TopicId)
 
     UT_GenStub_AddParam(CFE_SB_LocalTlmTopicIdToMsgId, uint16, TopicId);
 
-    UT_GenStub_Execute(CFE_SB_LocalTlmTopicIdToMsgId, Basic, NULL);
+    UT_GenStub_Execute(CFE_SB_LocalTlmTopicIdToMsgId, Basic, UT_DefaultHandler_CFE_SB_LocalTlmTopicIdToMsgId);
 
     return UT_GenStub_GetReturnValue(CFE_SB_LocalTlmTopicIdToMsgId, CFE_SB_MsgId_Atom_t);
 }

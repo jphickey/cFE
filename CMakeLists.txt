@@ -63,11 +63,23 @@ cmake_minimum_required(VERSION 3.5)
 # Note: this line defines the CFE_SOURCE_DIR variable.
 project(CFE C)
 
-# This build uses EDS framework by default
-set(CFE_EDS_ENABLED_BUILD TRUE CACHE BOOL "Use EDS framework")
-
 # Allow unit tests to be added by any recipe
 enable_testing()
+
+# This switch determines whether to use EDS framework
+# By default it is set OFF/false as this is a new/experimental feature.
+option(CFE_EDS_ENABLED_BUILD "Use EDS framework" OFF)
+
+# Always create directories to hold generated files/wrappers
+# EDS makes signficant use of generated files.  In non-EDS builds 
+# some headers and wrapper files are also generated.  Directories 
+# may simply remain empty if not used/needed in the current config.
+file(MAKE_DIRECTORY 
+    "${CMAKE_BINARY_DIR}/eds"
+    "${CMAKE_BINARY_DIR}/obj"
+    "${CMAKE_BINARY_DIR}/inc"
+    "${CMAKE_BINARY_DIR}/src"
+)
 
 # Include the global routines
 include("cmake/global_functions.cmake")
@@ -117,12 +129,6 @@ elseif (IS_CFS_MISSION_BUILD)
     include("${MISSION_DEFS}/mission_build_custom.cmake" OPTIONAL)
 endif (IS_CFS_ARCH_BUILD)
 
-if (CFE_EDS_ENABLED_BUILD)
-  # The CFE_EDS_ENABLED_BUILD switch indicates that any
-  # compile-time EDS options should be enabled in this build
-  add_definitions(-DCFE_EDS_ENABLED_BUILD)
-endif()
-
 # Call the prepare function defined by the sub-script
 # This is implemented differently depending on whether this is a
 # top-level or arch-specific build
@@ -132,4 +138,3 @@ prepare()
 foreach(SYSVAR ${TGTSYS_LIST})
   process_arch(${SYSVAR})
 endforeach(SYSVAR ${TGTSYS_LIST})
-

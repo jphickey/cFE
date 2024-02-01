@@ -19,17 +19,21 @@
 /**
  * @file
  *
- * Declarations and prototypes for cfe_fs_extern_typedefs module
+ * CFE Test Table struct definition
  */
 
-#ifndef CFE_FS_EXTERN_TYPEDEFS_H
-#define CFE_FS_EXTERN_TYPEDEFS_H
+#ifndef CFE_TEST_TBLSTRUCT_H
+#define CFE_TEST_TBLSTRUCT_H
 
 #include "common_types.h"
-#include "cfe_mission_cfg.h"
-#include "cfe_resourceid_typedef.h"
 
-/* Source the definitions from EDS */
-#include "cfe_fs_eds_typedefs.h"
+/*
+ * Test table structure
+ */
+typedef struct
+{
+    uint16 Int1;
+    uint16 Int2;
+} CFE_TEST_TestTable_t;
 
-#endif /* CFE_FS_EXTERN_TYPEDEFS_H */
+#endif /* CFE_TEST_TBLSTRUCT_H */

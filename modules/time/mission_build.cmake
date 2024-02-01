@@ -23,11 +23,10 @@ set(TIME_MISSION_CONFIG_FILE_LIST
 if (CFE_EDS_ENABLED_BUILD)
 
   # In an EDS-based build, these files come generated from the EDS tool
-  set(TIME_CFGFILE_SRC_cfe_time_mission_cfg     "cfe_time_eds_designparameters.h")
   set(TIME_CFGFILE_SRC_cfe_time_fcncodes        "cfe_time_eds_cc.h")
   set(TIME_CFGFILE_SRC_cfe_time_msgstruct       "cfe_time_eds_typedefs.h")
   set(TIME_CFGFILE_SRC_cfe_time_msgdefs         "cfe_time_eds_typedefs.h")
-  set(TIME_CFGFILE_SRC_cfe_time_extern_typedefs "${CMAKE_CURRENT_LIST_DIR}/config/cfe_time_extern_typedefs_eds_adapter.h")
+  set(TIME_CFGFILE_SRC_cfe_time_interface_cfg   "cfe_time_eds_designparameters.h")
   set(TIME_CFGFILE_SRC_cfe_time_topicids        "cfe_mission_eds_designparameters.h")
 
 endif(CFE_EDS_ENABLED_BUILD)

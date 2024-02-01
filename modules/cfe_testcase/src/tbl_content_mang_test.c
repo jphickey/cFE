@@ -55,25 +55,25 @@ static const char TESTTBL_PARTIAL_FILE[] =
 
 void TestLoad(void)
 {
-    CFE_TBL_Handle_t  BadTblHandle;
-    const char *      BadTblName = "BadTableName";
-    CFE_TBL_Handle_t  DumpTblHandle;
-    const char *      DumpTblName = "DumpOnlyTable";
-    CFE_TBL_Handle_t  SharedTblHandle;
-    const char *      SharedTblName = CFE_FT_Global.RegisteredTblName;
-    TBL_TEST_Table_t  TestTable     = {0xd00d, 0xdad};
-    TBL_TEST_Table_t *TablePtr;
-    CFE_TBL_Handle_t  OtherHandle;
-    void *            TempPtr;
+    CFE_TBL_Handle_t      BadTblHandle;
+    const char *          BadTblName = "BadTableName";
+    CFE_TBL_Handle_t      DumpTblHandle;
+    const char *          DumpTblName = "DumpOnlyTable";
+    CFE_TBL_Handle_t      SharedTblHandle;
+    const char *          SharedTblName = CFE_FT_Global.RegisteredTblName;
+    CFE_TEST_TestTable_t  TestTable     = {0xd00d, 0xdad};
+    CFE_TEST_TestTable_t *TablePtr;
+    CFE_TBL_Handle_t      OtherHandle;
+    void *                TempPtr;
 
     UtPrintf("Testing: CFE_TBL_Load");
 
     UtAssert_INT32_EQ(
-        CFE_TBL_Register(&BadTblHandle, BadTblName, sizeof(TBL_TEST_Table_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
+        CFE_TBL_Register(&BadTblHandle, BadTblName, sizeof(CFE_TEST_TestTable_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
         CFE_SUCCESS);
 
     /* Create a second table handle, to keep things interesting */
-    UtAssert_INT32_EQ(CFE_TBL_Register(&OtherHandle, TESTTBL_OTHER_NAME, sizeof(TBL_TEST_Table_t), 0, NULL),
+    UtAssert_INT32_EQ(CFE_TBL_Register(&OtherHandle, TESTTBL_OTHER_NAME, sizeof(CFE_TEST_TestTable_t), 0, NULL),
                       CFE_SUCCESS);
 
     /* Some basic failure checks */
@@ -127,8 +127,8 @@ void TestLoad(void)
     /* confirm content again (changed to alternate data) */
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, CFE_FT_Global.TblHandle), CFE_TBL_INFO_UPDATED);
     TablePtr = TempPtr;
-    UtAssert_UINT32_EQ(TablePtr->Int1, 0x1a1a);
-    UtAssert_UINT32_EQ(TablePtr->Int2, 0x1b1b);
+    UtAssert_UINT32_EQ(TablePtr->Int1, 0xdead);
+    UtAssert_UINT32_EQ(TablePtr->Int2, 0xbeef);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
 
     /* Load from file truncated */
@@ -138,8 +138,8 @@ void TestLoad(void)
     /* confirm content again (should not be changed) */
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, CFE_FT_Global.TblHandle), CFE_SUCCESS);
     TablePtr = TempPtr;
-    UtAssert_UINT32_EQ(TablePtr->Int1, 0x1a1a);
-    UtAssert_UINT32_EQ(TablePtr->Int2, 0x1b1b);
+    UtAssert_UINT32_EQ(TablePtr->Int1, 0xdead);
+    UtAssert_UINT32_EQ(TablePtr->Int2, 0xbeef);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
 
     /* Load the other table (nominal data) */
@@ -148,15 +148,15 @@ void TestLoad(void)
     /* confirm content of first table again (should not be changed) */
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, CFE_FT_Global.TblHandle), CFE_SUCCESS);
     TablePtr = TempPtr;
-    UtAssert_UINT32_EQ(TablePtr->Int1, 0x1a1a);
-    UtAssert_UINT32_EQ(TablePtr->Int2, 0x1b1b);
+    UtAssert_UINT32_EQ(TablePtr->Int1, 0xdead);
+    UtAssert_UINT32_EQ(TablePtr->Int2, 0xbeef);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
 
     /* confirm content of other table (boatload) */
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, OtherHandle), CFE_TBL_INFO_UPDATED);
     TablePtr = TempPtr;
-    UtAssert_UINT32_EQ(TablePtr->Int1, 0x2a2a);
-    UtAssert_UINT32_EQ(TablePtr->Int2, 0x2b2b);
+    UtAssert_UINT32_EQ(TablePtr->Int1, 0xb0a7);
+    UtAssert_UINT32_EQ(TablePtr->Int2, 0x10ad);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(OtherHandle), CFE_SUCCESS);
 
     /* Load from short file again (different response after successful load) */
@@ -166,8 +166,8 @@ void TestLoad(void)
     /* Should have updated the first word only */
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, CFE_FT_Global.TblHandle), CFE_TBL_INFO_UPDATED);
     TablePtr = TempPtr;
-    UtAssert_UINT32_EQ(TablePtr->Int1, 0x1a1a);
-    UtAssert_UINT32_EQ(TablePtr->Int2, 0x1b1b);
+    UtAssert_UINT32_EQ(TablePtr->Int1, 0x5555);
+    UtAssert_UINT32_EQ(TablePtr->Int2, 0xbeef);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
 
     /* Load from short file again (different response after successful load) */
@@ -177,8 +177,8 @@ void TestLoad(void)
     /* Should have updated the second word only */
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, CFE_FT_Global.TblHandle), CFE_TBL_INFO_UPDATED);
     TablePtr = TempPtr;
-    UtAssert_UINT32_EQ(TablePtr->Int1, 0x1a1a);
-    UtAssert_UINT32_EQ(TablePtr->Int2, 0x1b1b);
+    UtAssert_UINT32_EQ(TablePtr->Int1, 0x5555);
+    UtAssert_UINT32_EQ(TablePtr->Int2, 0x6666);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
 
     /* Table name mismatches */
@@ -200,7 +200,7 @@ void TestLoad(void)
 
     /* Attempt to load a dump only table */
     UtAssert_INT32_EQ(
-        CFE_TBL_Register(&DumpTblHandle, DumpTblName, sizeof(TBL_TEST_Table_t), CFE_TBL_OPT_DUMP_ONLY, NULL),
+        CFE_TBL_Register(&DumpTblHandle, DumpTblName, sizeof(CFE_TEST_TestTable_t), CFE_TBL_OPT_DUMP_ONLY, NULL),
         CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_TBL_Load(DumpTblHandle, CFE_TBL_SRC_FILE, TESTTBL_NOMINAL_FILE), CFE_TBL_ERR_DUMP_ONLY);
 
@@ -283,12 +283,12 @@ void TblTest_GenerateTblFiles(void)
     uint32    PartialSize;
     union
     {
-        uint8              u8;
-        uint16             u16;
-        uint32             u32;
-        CFE_FS_Header_t    FsHdr;
-        CFE_TBL_File_Hdr_t TblHdr;
-        TBL_TEST_Table_t   Content;
+        uint8                u8;
+        uint16               u16;
+        uint32               u32;
+        CFE_FS_Header_t      FsHdr;
+        CFE_TBL_File_Hdr_t   TblHdr;
+        CFE_TEST_TestTable_t Content;
     } buf;
 
     /* Open the original (correct) table image file for reference */
@@ -367,8 +367,8 @@ void TblTest_GenerateTblFiles(void)
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.TblHdr)), sizeof(buf.TblHdr));
 
     /* Identifiable content, different from original */
-    buf.Content.Int1 = 0x1a1a;
-    buf.Content.Int2 = 0x1b1b;
+    buf.Content.Int1 = 0xdead;
+    buf.Content.Int2 = 0xbeef;
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.Content)), sizeof(buf.Content));
 
     UtAssert_INT32_EQ(OS_close(fh2), OS_SUCCESS);
@@ -387,8 +387,8 @@ void TblTest_GenerateTblFiles(void)
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.TblHdr)), sizeof(buf.TblHdr));
 
     /* Identifiable content, different from original */
-    buf.Content.Int1 = 0x2a2a;
-    buf.Content.Int2 = 0x2b2b;
+    buf.Content.Int1 = 0xb0a7;
+    buf.Content.Int2 = 0x10ad;
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.Content)), sizeof(buf.Content));
 
     UtAssert_INT32_EQ(OS_close(fh2), OS_SUCCESS);
@@ -443,7 +443,7 @@ void TblTest_GenerateTblFiles(void)
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.FsHdr)), sizeof(buf.FsHdr));
     UtAssert_INT32_EQ(OS_read(fh1, &buf, sizeof(buf.TblHdr)), sizeof(buf.TblHdr));
     PartialOffset = 0;
-    PartialSize   = offsetof(TBL_TEST_Table_t, Int2);
+    PartialSize   = offsetof(CFE_TEST_TestTable_t, Int2);
     TblTest_UpdateOffset(&buf.TblHdr.Offset, PartialOffset);
     TblTest_UpdateOffset(&buf.TblHdr.NumBytes, PartialSize);
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.TblHdr)), sizeof(buf.TblHdr));
@@ -463,8 +463,8 @@ void TblTest_GenerateTblFiles(void)
     UtAssert_INT32_EQ(OS_read(fh1, &buf, sizeof(buf.FsHdr)), sizeof(buf.FsHdr));
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.FsHdr)), sizeof(buf.FsHdr));
     UtAssert_INT32_EQ(OS_read(fh1, &buf, sizeof(buf.TblHdr)), sizeof(buf.TblHdr));
-    PartialOffset = offsetof(TBL_TEST_Table_t, Int2);
-    PartialSize   = sizeof(buf.Content) - offsetof(TBL_TEST_Table_t, Int2);
+    PartialOffset = offsetof(CFE_TEST_TestTable_t, Int2);
+    PartialSize   = sizeof(buf.Content) - offsetof(CFE_TEST_TestTable_t, Int2);
     TblTest_UpdateOffset(&buf.TblHdr.Offset, PartialOffset);
     TblTest_UpdateOffset(&buf.TblHdr.NumBytes, PartialSize);
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.TblHdr)), sizeof(buf.TblHdr));
@@ -480,9 +480,13 @@ void TblTest_GenerateTblFiles(void)
 
 void TBLContentMangTestSetup(void)
 {
+    /* Note - the method used to generate these table files is not (yet) compatible with EDS */
+#ifndef CFE_EDS_ENABLED_BUILD
     TblTest_GenerateTblFiles();
 
     UtTest_Add(TestLoad, RegisterTestTable, UnregisterTestTable, "Test Table Load");
+#endif
+
     UtTest_Add(TestUpdate, RegisterTestTable, UnregisterTestTable, "Test Table Update");
     UtTest_Add(TestValidate, RegisterTestTable, UnregisterTestTable, "Test Table Validate");
     UtTest_Add(TestManage, RegisterTestTable, UnregisterTestTable, "Test Table Manage");

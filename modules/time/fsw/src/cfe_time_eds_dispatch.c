@@ -33,7 +33,7 @@
  * Define a lookup table for ES command codes
  */
 static const CFE_TIME_Application_Component_Telecommand_DispatchTable_t CFE_TIME_TC_DISPATCH_TABLE = {
-    .CMD       = {.Add1HZAdjustmentCmd_indication = CFE_TIME_Add1HZAdjustmentCmd,
+    .CMD       = {.AddOneHzAdjustmentCmd_indication = CFE_TIME_AddOneHzAdjustmentCmd,
             .AddAdjustCmd_indication        = CFE_TIME_AddAdjustCmd,
             .AddDelayCmd_indication         = CFE_TIME_AddDelayCmd,
             .SendDiagnosticCmd_indication   = CFE_TIME_SendDiagnosticTlm,
@@ -46,10 +46,10 @@ static const CFE_TIME_Application_Component_Telecommand_DispatchTable_t CFE_TIME
             .SetStateCmd_indication         = CFE_TIME_SetStateCmd,
             .SetSTCFCmd_indication          = CFE_TIME_SetSTCFCmd,
             .SetTimeCmd_indication          = CFE_TIME_SetTimeCmd,
-            .Sub1HZAdjustmentCmd_indication = CFE_TIME_Sub1HZAdjustmentCmd,
+            .SubOneHzAdjustmentCmd_indication = CFE_TIME_SubOneHzAdjustmentCmd,
             .SubAdjustCmd_indication        = CFE_TIME_SubAdjustCmd,
             .SubDelayCmd_indication         = CFE_TIME_SubDelayCmd},
-    .SEND_HK   = {.indication = CFE_TIME_HousekeepingCmd},
+    .SEND_HK   = {.indication = CFE_TIME_SendHkCmd},
     .ONEHZ_CMD = {.indication = CFE_TIME_OneHzCmd},
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     .SEND_CMD = {.indication = CFE_TIME_ToneSendCmd},

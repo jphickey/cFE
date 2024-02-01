@@ -18,18 +18,12 @@
 
 /**
  * @file
- *
- * Declarations and prototypes for cfe_tbl_extern_typedefs module
+ *   CFE Test app (CFE_TEST) Application Message Definitions
  */
+#ifndef CFE_TEST_MSG_H
+#define CFE_TEST_MSG_H
 
-#ifndef CFE_TBL_EXTERN_TYPEDEFS_H
-#define CFE_TBL_EXTERN_TYPEDEFS_H
+#include "cfe_test_msgdefs.h"
+#include "cfe_test_msgstruct.h"
 
-#include "common_types.h"
-#include "cfe_mission_cfg.h"
-#include "cfe_resourceid_typedef.h"
-
-/* Source the definitions from EDS */
-#include "cfe_tbl_eds_typedefs.h"
-
-#endif /* CFE_TBL_EXTERN_TYPEDEFS_H */
+#endif

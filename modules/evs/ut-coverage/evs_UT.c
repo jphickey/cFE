@@ -39,8 +39,6 @@
 #include "evs_UT.h"
 #include "cfe_evs.h"
 #include "utstubs.h"
-#include "cfe_evs_eds_interface.h"
-#include "cfe_msg_dispatcher.h"
 
 static const char *EVS_SYSLOG_MSGS[] = {
     NULL,
@@ -59,72 +57,85 @@ static const char *EVS_SYSLOG_MSGS[] = {
     "%s: Subscribing to Cmds Failed:RC=0x%08X\n",
     "%s: Subscribing to HK Request Failed:RC=0x%08X\n"};
 
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_NOOP_CC = {
-    .DispatchOffset = offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.NoopCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_COUNTERS_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.ResetCountersCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_EVENT_TYPE_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.EnableEventTypeCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_EVENT_TYPE_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.DisableEventTypeCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_SET_EVENT_FORMAT_MODE_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.SetEventFormatModeCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.EnableAppEventTypeCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENT_TYPE_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.DisableAppEventTypeCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENTS_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.EnableAppEventsCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENTS_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.DisableAppEventsCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_APP_COUNTER_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.ResetAppCounterCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_SET_FILTER_CC = {
-    .DispatchOffset = offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.SetFilterCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.EnablePortsCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.DisablePortsCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_FILTER_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.ResetFilterCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_ALL_FILTERS_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.ResetAllFiltersCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ADD_EVENT_FILTER_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.AddEventFilterCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DELETE_EVENT_FILTER_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.DeleteEventFilterCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.WriteAppDataFileCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_WRITE_LOG_DATA_FILE_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.WriteLogDataFileCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_SET_LOG_MODE_CC = {
-    .DispatchOffset =
-        offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.SetLogModeCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_CLEAR_LOG_CC = {
-    .DispatchOffset = offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, CMD.ClearLogCmd_indication)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_INVALID_MID    = {.DispatchOffset = -1,
-                                                                    .DispatchError  = CFE_STATUS_UNKNOWN_MSG_ID};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_INVALID_CC = {.DispatchOffset = -1,
-                                                                       .DispatchError  = CFE_STATUS_BAD_COMMAND_CODE};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_SEND_HK        = {
-    .DispatchOffset = offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, SEND_HK.indication)};
+#ifdef CFE_EDS_ENABLED_BUILD
+
+/* This is a generated header that defines the dispatch table */
+#include "cfe_evs_eds_interface.h"
+
+/* EDS dispatching uses a generic function based on a lookup table.
+ * This function is a stub so that stub just needs to know which entry to use. */
+#define EVS_UT_EDS_DISPATCH(intf,cmd) \
+    .Method = UT_TaskPipeDispatchMethod_TABLE_OFFSET, \
+    .TableOffset = offsetof(CFE_EVS_Application_Component_Telecommand_DispatchTable_t, intf.cmd)
+
+#define EVS_UT_MSG_DISPATCH(intf,cmd)      EVS_UT_EDS_DISPATCH(intf, indication), UT_TPD_SETSIZE(CFE_EVS_ ## cmd)
+#define EVS_UT_CC_DISPATCH(intf,cc,cmd)    EVS_UT_EDS_DISPATCH(intf, cmd ## _indication), UT_TPD_SETSIZE(CFE_EVS_ ## cmd), UT_TPD_SETCC(cc)
+#define EVS_UT_ERROR_DISPATCH(intf,cc,err) UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
+
+#else  /* CFE_EDS_ENABLED_BUILD */
+
+/* Normal dispatching registers the MsgID+CC in order to follow a
+ * certain path through a series of switch statements */
+#define EVS_UT_MID_DISPATCH(intf) \
+    .Method = UT_TaskPipeDispatchMethod_MSG_ID_CC, .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_##intf##_MID)
+
+#define EVS_UT_MSG_DISPATCH(intf, cmd)       EVS_UT_MID_DISPATCH(intf), UT_TPD_SETSIZE(CFE_EVS_##cmd)
+#define EVS_UT_CC_DISPATCH(intf, cc, cmd)    EVS_UT_MSG_DISPATCH(intf, cmd), UT_TPD_SETCC(cc)
+#define EVS_UT_ERROR_DISPATCH(intf, cc, err) EVS_UT_MID_DISPATCH(intf), UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
+
+#endif  /* CFE_EDS_ENABLED_BUILD */
+
+/* NOTE: Automatic formatting of this table tends to make it harder to read. */
+/* clang-format off */
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_NOOP_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_NOOP_CC, NoopCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_COUNTERS_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_RESET_COUNTERS_CC, ResetCountersCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_EVENT_TYPE_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_ENABLE_EVENT_TYPE_CC, EnableEventTypeCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_EVENT_TYPE_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_DISABLE_EVENT_TYPE_CC, DisableEventTypeCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_SET_EVENT_FORMAT_MODE_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_SET_EVENT_FORMAT_MODE_CC, SetEventFormatModeCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_ENABLE_APP_EVENT_TYPE_CC, EnableAppEventTypeCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENT_TYPE_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_DISABLE_APP_EVENT_TYPE_CC, DisableAppEventTypeCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENTS_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_ENABLE_APP_EVENTS_CC, EnableAppEventsCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENTS_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_DISABLE_APP_EVENTS_CC, DisableAppEventsCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_APP_COUNTER_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_RESET_APP_COUNTER_CC, ResetAppCounterCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_SET_FILTER_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_SET_FILTER_CC, SetFilterCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_ENABLE_PORTS_CC, EnablePortsCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_DISABLE_PORTS_CC, DisablePortsCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_FILTER_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_RESET_FILTER_CC, ResetFilterCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_ALL_FILTERS_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_RESET_ALL_FILTERS_CC, ResetAllFiltersCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ADD_EVENT_FILTER_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_ADD_EVENT_FILTER_CC, AddEventFilterCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DELETE_EVENT_FILTER_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_DELETE_EVENT_FILTER_CC, DeleteEventFilterCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_WRITE_APP_DATA_FILE_CC, WriteAppDataFileCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_WRITE_LOG_DATA_FILE_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_WRITE_LOG_DATA_FILE_CC, WriteLogDataFileCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_SET_LOG_MODE_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_SET_LOG_MODE_CC, SetLogModeCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_CLEAR_LOG_CC =
+    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_CLEAR_LOG_CC, ClearLogCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_SEND_HK =
+    { EVS_UT_MSG_DISPATCH(SEND_HK, SendHkCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_INVALID_MID =
+    { .Method = UT_TaskPipeDispatchMethod_MSG_ID_CC, UT_TPD_SETERR(CFE_STATUS_UNKNOWN_MSG_ID) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_INVALID_CC =
+    { EVS_UT_ERROR_DISPATCH(CMD, -1, CFE_STATUS_BAD_COMMAND_CODE) };
+/* clang-format on */
 
 static UT_SoftwareBusSnapshot_Entry_t UT_EVS_LONGFMT_SNAPSHOTDATA = {
     .MsgId          = CFE_SB_MSGID_WRAP_VALUE(0),

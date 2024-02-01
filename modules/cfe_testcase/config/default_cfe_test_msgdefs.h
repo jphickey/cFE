@@ -18,18 +18,23 @@
 
 /**
  * @file
- *
- * Declarations and prototypes for cfe_evs_extern_typedefs module
+ *   CFE Test app (CFE_TEST) Application Message Definitions
  */
-
-#ifndef CFE_EVS_EXTERN_TYPEDEFS_H
-#define CFE_EVS_EXTERN_TYPEDEFS_H
+#ifndef CFE_TEST_MSGDEFS_H
+#define CFE_TEST_MSGDEFS_H
 
 #include "common_types.h"
-#include "cfe_mission_cfg.h"
-#include "cfe_resourceid_typedef.h"
 
-/* Source the definitions from EDS */
-#include "cfe_evs_eds_typedefs.h"
+/* A 64-bit payload (worst case for alignment) */
+typedef struct CFE_TEST_TestPayload64
+{
+    uint64 Value;
+} CFE_TEST_TestPayload64_t;
 
-#endif /* CFE_EVS_EXTERN_TYPEDEFS_H */
+/* A 32-bit payload (most common case for alignment) */
+typedef struct CFE_TEST_TestPayload32
+{
+    uint32 Value;
+} CFE_TEST_TestPayload32_t;
+
+#endif

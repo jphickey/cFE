@@ -235,6 +235,53 @@ endfunction(setup_global_topicids)
 
 ##################################################################
 #
+# FUNCTION: export_variable_cache
+#
+# Export variables to a "mission_vars.cache" file so they can be
+# referenced by the target-specific builds.  This list is ingested
+# during the startup phase of all the subordinate cmake invocations.
+#
+# The passed-in USER_VARLIST should be the names of additional variables
+# to export.  These can be cache vars or normal vars.
+#
+function(export_variable_cache USER_VARLIST)
+
+  # The set of variables that should always be exported
+  set(FIXED_VARLIST
+    "MISSION_NAME"
+    "SIMULATION"
+    "MISSION_DEFS"
+    "MISSION_SOURCE_DIR"
+    "MISSION_BINARY_DIR"
+    "MISSIONCONFIG"
+    "MISSION_APPS"
+    "MISSION_PSPMODULES"
+    "MISSION_DEPS"
+    "MISSION_EDS_FILELIST"
+    "MISSION_EDS_SCRIPTLIST"
+    "ENABLE_UNIT_TESTS"
+  )
+
+  set(MISSION_VARCACHE)
+  foreach(VARL ${FIXED_VARLIST} ${USER_VARLIST} ${ARGN})
+    # It is important to avoid putting any blank lines in the output,
+    # This will cause the reader to misinterpret the data
+    if (NOT "${${VARL}}" STREQUAL "")
+      string(APPEND MISSION_VARCACHE "${VARL}\n${${VARL}}\n")
+    endif (NOT "${${VARL}}" STREQUAL "")
+  endforeach()
+
+  # Write the file -- the subprocess will read this file and re-create
+  # variables out of them.  The alternative to this is to specify many "-D"
+  # parameters to the subordinate build but that would not scale well to many vars,
+  # and it would go through the shell meaning quoting/escaping for safety becomes
+  # very difficult.  Using the file method avoids shell interpretation.
+  file(WRITE "${CMAKE_BINARY_DIR}/mission_vars.cache" "${MISSION_VARCACHE}")
+
+endfunction(export_variable_cache)
+
+##################################################################
+#
 # FUNCTION: prepare
 #
 # Called by the top-level CMakeLists.txt to set up prerequisites
@@ -246,15 +293,10 @@ function(prepare)
     add_definitions(-DSIMULATION=${SIMULATION})
   endif (SIMULATION)
 
-  # Prepare the table makefile - Ensure the list of tables is initially empty
-  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/tables")
-  file(WRITE "${MISSION_BINARY_DIR}/tables/Makefile"
-    "MISSION_BINARY_DIR := ${MISSION_BINARY_DIR}\n"
-    "TABLE_BINARY_DIR := ${MISSION_BINARY_DIR}/tables\n"
-    "MISSION_SOURCE_DIR := ${MISSION_SOURCE_DIR}\n"
-    "MISSION_DEFS := ${MISSION_DEFS}\n\n"
-    "include \$(wildcard ${CFE_SOURCE_DIR}/cmake/tables/*.mk) \$(wildcard *.d)\n"
-  )
+  # Certain runtime variables need to be "exported" to the subordinate build, such as
+  # the specific arch settings and the location of all the apps.  This list is collected
+  # during this function execution and exported at the end.
+  set(EXPORT_VARLIST)
 
   # Create custom targets for building and cleaning all architectures
   # This is required particularly for doing extra stuff in the clean step
@@ -318,59 +360,6 @@ function(prepare)
   foreach(DEP ${MISSION_DEPS})
      set(${DEP}_MISSION_DIR ${${DEP}_MISSION_DIR} PARENT_SCOPE)
   endforeach(DEP ${MISSION_DEPS})
-
-  # EDS-specific stuff
-
-  # Now that a complete list of mission dependencies is generated,
-  # check for the presence of additional special files under each app subdir:
-  #  - Electronic Data Sheet XML source files under eds/ subdirectory
-  #  - Electronic Data Sheet toolchain plugin scripts also under eds/ subdirectory
-  #  - The "functional-test" subdir will be installed to the host functional test dir
-  #  - The "ui" subdir will be installed to the UI pages install dir
-  file(GLOB_RECURSE MISSION_EDS_FILELIST FOLLOW_SYMLINKS
-    ${MISSION_DEFS}/eds/*.xml
-  )
-  file(GLOB_RECURSE MISSION_EDS_SCRIPTLIST FOLLOW_SYMLINKS
-    ${MISSION_DEFS}/eds/*.lua
-    ${MISSION_SOURCE_DIR}/tools/eds/tool/scripts/*.lua
-  )
-  foreach(APP ${MISSION_DEPS})
-    set(APPSRC ${${APP}_MISSION_DIR})
-    if (IS_DIRECTORY ${APPSRC}/functional-test AND DEFINED FT_INSTALL_SUBDIR)
-      install(DIRECTORY ${APPSRC}/functional-test/ DESTINATION ${FT_INSTALL_SUBDIR})
-    endif (IS_DIRECTORY ${APPSRC}/functional-test AND DEFINED FT_INSTALL_SUBDIR)
-
-    if (IS_DIRECTORY ${APPSRC}/ui AND DEFINED UI_INSTALL_SUBDIR)
-      install(DIRECTORY ${APPSRC}/ui/ DESTINATION ${UI_INSTALL_SUBDIR}/pages)
-    endif()
-
-    if (IS_DIRECTORY ${APPSRC}/eds)
-        file(GLOB_RECURSE APPXML FOLLOW_SYMLINKS ${APPSRC}/eds/*.xml)
-        file(GLOB_RECURSE APPSCRIPTS FOLLOW_SYMLINKS ${APPSRC}/eds/*.lua)
-        list(APPEND MISSION_EDS_FILELIST ${APPXML})
-        list(APPEND MISSION_EDS_SCRIPTLIST ${APPSCRIPTS})
-        unset(APPXML)
-        unset(APPSCRIPTS)
-    endif()
-  endforeach(APP ${MISSION_APPS} ${MISSION_DEPS})
-
-  # EDS toolchain plugin scripts may have ordering dependencies between them,
-  # so the assembled set of available scripts should be sorted by its filename
-  # This allows a numeric prefix (NN-) to be prepended in cases where
-  # the execution order is a concern (similar to UNIX SysV init system approach)
-  set(EDS_SCRIPT_BASENAMES)
-  foreach(SCRIPTFILE ${MISSION_EDS_SCRIPTLIST})
-    get_filename_component(BASENAME ${SCRIPTFILE} NAME_WE)
-    set(${BASENAME}_SCRIPT_LOCATION ${SCRIPTFILE})
-    list(APPEND EDS_SCRIPT_BASENAMES ${BASENAME})
-  endforeach(SCRIPTFILE ${MISSION_EDS_SCRIPTLIST})
-  list(SORT EDS_SCRIPT_BASENAMES)
-  set(MISSION_EDS_SCRIPTLIST)
-  foreach(BASENAME ${EDS_SCRIPT_BASENAMES})
-    list(APPEND MISSION_EDS_SCRIPTLIST ${${BASENAME}_SCRIPT_LOCATION})
-    unset(${BASENAME}_SCRIPT_LOCATION)
-  endforeach(BASENAME ${EDS_SCRIPT_BASENAMES})
-  unset(EDS_SCRIPT_BASENAMES)
 
   # Doxygen-based documentation generation targets
   # Create a directory for documentation output
@@ -481,97 +470,20 @@ function(prepare)
   # msgid definitions, or any other configuration/preparation that needs to
   # happen at mission/global scope.
   foreach(DEP_NAME ${MISSION_DEPS})
+    list(APPEND EXPORT_VARLIST "${DEP_NAME}_MISSION_DIR")
     include("${${DEP_NAME}_MISSION_DIR}/mission_build.cmake" OPTIONAL)
   endforeach(DEP_NAME ${MISSION_DEPS})
 
-  # Certain runtime variables need to be "exported" to the subordinate build, such as
-  # the specific arch settings and the location of all the apps.  This is done by creating
-  # a temporary file within the dir and then the subprocess will read that file and re-create
-  # variables out of them.  The alternative to this is to specify many "-D" parameters to the
-  # subordinate build but that would not scale well to many vars.
-  set(VARLIST
-    "MISSION_NAME"
-    "SIMULATION"
-    "MISSION_DEFS"
-    "MISSION_SOURCE_DIR"
-    "MISSION_BINARY_DIR"
-    "MISSIONCONFIG"
-    "MISSION_APPS"
-    "MISSION_PSPMODULES"
-    "MISSION_DEPS"
-    "ENABLE_UNIT_TESTS"
-    "MISSION_EDS_FILELIST"
-    "MISSION_EDS_SCRIPTLIST"
-  )
-  foreach(APP ${MISSION_DEPS})
-    list(APPEND VARLIST "${APP}_MISSION_DIR")
-  endforeach()
-
   foreach(SYSVAR ${TGTSYS_LIST})
-    list(APPEND VARLIST "BUILD_CONFIG_${SYSVAR}")
+    list(APPEND EXPORT_VARLIST "BUILD_CONFIG_${SYSVAR}")
   endforeach(SYSVAR ${TGTSYS_LIST})
-
-  set(MISSION_VARCACHE)
-  foreach(VARL ${VARLIST})
-    # It is important to avoid putting any blank lines in the output,
-    # This will cause the reader to misinterpret the data
-    if (NOT "${${VARL}}" STREQUAL "")
-      set(MISSION_VARCACHE "${MISSION_VARCACHE}${VARL}\n${${VARL}}\n")
-    endif (NOT "${${VARL}}" STREQUAL "")
-  endforeach(VARL ${VARLIST})
-  file(WRITE "${CMAKE_BINARY_DIR}/mission_vars.cache" "${MISSION_VARCACHE}")
-
-  # build the EDS tool set which is used later in the build
-  message(STATUS "Setting up EDS toolchain build...")
-  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/eds")
-  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/obj")
-  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/inc")
-  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/src")
-
-
-  # Include all the EDS libaries and tools which are built for the host system
-  include_directories(${MISSION_BINARY_DIR}/inc)
-  add_subdirectory(${MISSION_SOURCE_DIR}/tools/eds/edslib eds/edslib)
-  add_subdirectory(${MISSION_SOURCE_DIR}/tools/eds/tool   eds/tool)
-  add_subdirectory(${MISSION_SOURCE_DIR}/tools/eds/cfecfs eds/cfecfs)
-
-  add_custom_command(
-    OUTPUT
-        "${MISSION_BINARY_DIR}/edstool-complete.stamp"
-    COMMAND sedstool
-        -DBUILD_TOOL="${CMAKE_BUILD_TOOL}"
-        -DCFLAGS="${CMAKE_C_FLAGS}"
-        -DCC="${CMAKE_C_COMPILER}"
-        -DAR="${CMAKE_AR}"
-        -DOBJDIR="obj"
-        -DMISSION_BINARY_DIR="${MISSION_BINARY_DIR}"
-        -DMISSION_NAME="${MISSION_NAME}"
-        ${MISSION_EDS_FILELIST}
-        ${MISSION_EDS_SCRIPTLIST}
-    COMMAND ${CMAKE_COMMAND}
-        -E touch "edstool-complete.stamp"
-    WORKING_DIRECTORY
-        "${MISSION_BINARY_DIR}"
-    DEPENDS
-        sedstool
-        ${MISSION_EDS_FILELIST}
-        ${MISSION_EDS_SCRIPTLIST}
-  )
-
-  add_custom_target(edstool-execute
-    DEPENDS
-        "${MISSION_BINARY_DIR}/edstool-complete.stamp"
-  )
-
-  # Executing the EDS tool per above custom commands is hooked into
-  # the pre-build process so it is done before any CPU builds.
-  add_dependencies(mission-prebuild edstool-execute)
 
   generate_build_version_templates()
 
   # Generate the tools for the native (host) arch
   # Add all public include dirs for core components to include path for tools
   include_directories(
+    ${MISSION_BINARY_DIR}/inc
     ${core_api_MISSION_DIR}/fsw/inc
     ${osal_MISSION_DIR}/src/os/inc
     ${psp_MISSION_DIR}/fsw/inc
@@ -579,26 +491,25 @@ function(prepare)
   add_subdirectory(${MISSION_SOURCE_DIR}/tools tools)
 
   # Add a dependency on the table generator tool as this is required for table builds
-  # The "eds2cfetbl" target should have been added by the "tools" above
-  add_dependencies(mission-prebuild eds2cfetbl)
-  set(TABLETOOL_EXEC $<TARGET_FILE:eds2cfetbl>)
+  # The table tool target should have been added by the "tools" above
+  if (NOT DEFINED CFS_TABLETOOL_SCRIPT_DIR)
+    message(FATAL_ERROR "Table Tool missing: CFS_TABLETOOL_SCRIPT_DIR must be defined by the tools")
+  endif()
+  list(APPEND EXPORT_VARLIST CFS_TABLETOOL_SCRIPT_DIR)
 
-  add_custom_target(tabletool-execute
-    COMMAND $(MAKE)
-      CC="${CMAKE_C_COMPILER}"
-      CFLAGS="${CMAKE_C_FLAGS}"
-      AR="${CMAKE_AR}"
-      TBLTOOL="${TABLETOOL_EXEC}"
-      cfetables
-    WORKING_DIRECTORY
-      "${CMAKE_BINARY_DIR}/tables"
-    DEPENDS
-        mission-cfetables
+  # Prepare the table makefile - Ensure the list of tables is initially empty
+  file(REMOVE_RECURSE "${MISSION_BINARY_DIR}/tables")
+  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/tables")
+  file(WRITE "${MISSION_BINARY_DIR}/tables/Makefile"
+    "MISSION_BINARY_DIR := ${MISSION_BINARY_DIR}\n"
+    "TABLE_BINARY_DIR := ${MISSION_BINARY_DIR}/tables\n"
+    "TABLETOOL_SCRIPT_DIR := ${CFS_TABLETOOL_SCRIPT_DIR}\n"
+    "MISSION_SOURCE_DIR := ${MISSION_SOURCE_DIR}\n"
+    "MISSION_DEFS := ${MISSION_DEFS}\n\n"
+    "include \$(wildcard $(TABLETOOL_SCRIPT_DIR)/*.mk) \$(wildcard *.d)\n"
   )
-  add_dependencies(mission-all tabletool-execute)
-  add_dependencies(mission-install tabletool-execute)
+
   add_dependencies(mission-cfetables mission-prebuild)
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/tables/staging/ DESTINATION .)
 
   # Build version information should be generated as part of the pre-build process
   add_dependencies(mission-prebuild mission-version)
@@ -607,6 +518,10 @@ function(prepare)
   if (IS_DIRECTORY ${MISSION_DEFS}/functional-test AND DEFINED FT_INSTALL_SUBDIR)
     install(DIRECTORY ${MISSION_DEFS}/functional-test/ DESTINATION ${FT_INSTALL_SUBDIR})
   endif()
+
+  # Export the important state variables collected during this function.
+  # This is done last such that everything should have its correct value
+  export_variable_cache(${EXPORT_VARLIST})
 
 endfunction(prepare)
 
@@ -627,7 +542,7 @@ function(process_arch TARGETSYSTEM)
   # convert to a string which is safe for a directory name
   string(REGEX REPLACE "[^A-Za-z0-9]" "_" ARCH_CONFIG_NAME "${BUILD_CONFIG}")
   set(ARCH_BINARY_DIR "${CMAKE_BINARY_DIR}/${ARCH_TOOLCHAIN_NAME}/${ARCH_CONFIG_NAME}")
-  file(MAKE_DIRECTORY "${ARCH_BINARY_DIR}" "${ARCH_BINARY_DIR}/inc")
+  file(MAKE_DIRECTORY "${ARCH_BINARY_DIR}")
 
   message(STATUS "Configuring for system arch: ${ARCH_TOOLCHAIN_NAME}/${ARCH_CONFIG_NAME}")
 
@@ -657,6 +572,7 @@ function(process_arch TARGETSYSTEM)
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=${CMAKE_EXPORT_COMPILE_COMMANDS}
+        -DCFE_EDS_ENABLED_BUILD:BOOL=${CFE_EDS_ENABLED_BUILD}
         ${SELECTED_TOOLCHAIN_FILE}
         ${CFE_SOURCE_DIR}
     WORKING_DIRECTORY

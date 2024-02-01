@@ -31,7 +31,6 @@
 ** Includes
 */
 #include "ut_support.h"
-#include "cfe_msg_dispatcher.h"
 #include "cfe_core_resourceid_basevalues.h"
 
 #include <string.h>
@@ -69,6 +68,13 @@ static uint16 UT_SendTimedEventHistory[UT_EVENT_HISTORY_SIZE];
 static uint16 UT_SendEventAppIDHistory[UT_EVENT_HISTORY_SIZE * 10];
 
 int32 dummy_function(void);
+
+#ifdef CFE_EDS_ENABLED_BUILD
+#include "cfe_msg_dispatcher.h"
+static const UT_EntryKey_t UT_TABLE_DISPATCHER = UT_KEY(CFE_MSG_EdsDispatch);
+#else
+static const UT_EntryKey_t UT_TABLE_DISPATCHER = 0;
+#endif
 
 /*
 ** Functions
@@ -196,7 +202,7 @@ void UT_ResetPoolBufferIndex(void)
     UT_SetDataBuffer(UT_KEY(CFE_ES_GetPoolBuf), &UT_CFE_ES_MemoryPool, sizeof(UT_CFE_ES_MemoryPool), false);
 }
 
-void UT_DispatchHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+void UT_DispatchTableHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     UT_TaskPipeDispatchId_t *DispatchId    = UserObj;
     const CFE_SB_Buffer_t *  Buffer        = UT_Hook_GetArgValueByName(Context, "Buffer", const CFE_SB_Buffer_t *);
@@ -212,10 +218,10 @@ void UT_DispatchHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubConte
     {
         Status = DispatchId->DispatchError;
 
-        if (DispatchId->DispatchOffset >= 0 && DispatchTable != NULL)
+        if (DispatchId->Method == UT_TaskPipeDispatchMethod_TABLE_OFFSET && DispatchTable != NULL)
         {
             Addr = DispatchTable;
-            Addr += DispatchId->DispatchOffset;
+            Addr += DispatchId->TableOffset;
             memcpy(&MsgHandler, Addr, sizeof(void *));
         }
     }
@@ -238,8 +244,33 @@ void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MS
                               bool ExpectFailureEvent)
 {
     CFE_Status_t ErrorCode;
+
     if (DispatchReq != NULL)
     {
+        if (DispatchReq->Method == UT_TaskPipeDispatchMethod_MSG_ID_CC)
+        {
+            /* Set up for the typical task pipe related calls */
+            UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), (void *)&DispatchReq->MsgId, sizeof(DispatchReq->MsgId), true);
+            UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), true);
+            UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), (void *)&DispatchReq->CommandCode,
+                             sizeof(DispatchReq->CommandCode), true);
+        }
+
+        if (DispatchReq->Method == UT_TaskPipeDispatchMethod_TABLE_OFFSET)
+        {
+            /* If the code uses EDS dispatch, this will invoke the right member function from the table (based on
+             * offset).  This requires setting up the function used for table dispatching first. */
+            if (UT_TABLE_DISPATCHER == 0)
+            {
+                UtAssert_Failed(
+                    "Setup error: Method set to TABLE_OFFSET but table dispatcher function is not configured");
+            }
+            else
+            {
+                UT_SetHandlerFunction(UT_TABLE_DISPATCHER, UT_DispatchTableHandler, (void *)DispatchReq);
+            }
+        }
+
         /* If a failure event is being set up, set for MsgId/FcnCode retrieval as part of failure event reporting  */
         if (ExpectFailureEvent || DispatchReq->DispatchError != CFE_SUCCESS)
         {
@@ -248,25 +279,22 @@ void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MS
             UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), (void *)&DispatchReq->CommandCode,
                              sizeof(DispatchReq->CommandCode), true);
 
-            /* If the code uses EDS dispatch, this will cause it to return the specified error */
-            if (DispatchReq->DispatchError != CFE_SUCCESS)
+            if (UT_TABLE_DISPATCHER != 0)
             {
-                ErrorCode = DispatchReq->DispatchError;
-            }
-            else
-            {
-                /* If not specified, default to WRONG_MSG_LENGTH as this feature was historically used for testing bad
-                 * length */
-                ErrorCode = CFE_STATUS_WRONG_MSG_LENGTH;
-            }
+                /* If the code uses EDS dispatch, this will cause it to return the specified error */
+                if (DispatchReq->DispatchError != CFE_SUCCESS)
+                {
+                    ErrorCode = DispatchReq->DispatchError;
+                }
+                else
+                {
+                    /* If not specified, default to WRONG_MSG_LENGTH as this feature was historically used for testing
+                     * bad length */
+                    ErrorCode = CFE_STATUS_WRONG_MSG_LENGTH;
+                }
 
-            UT_SetDefaultReturnValue(UT_KEY(CFE_MSG_EdsDispatch), ErrorCode);
-        }
-        else
-        {
-            /* If the code uses EDS dispatch, this will invoke the right member function from the table (based on
-             * offset) */
-            UT_SetHandlerFunction(UT_KEY(CFE_MSG_EdsDispatch), UT_DispatchHandler, (void *)DispatchReq);
+                UT_SetDefaultReturnValue(UT_TABLE_DISPATCHER, ErrorCode);
+            }
         }
     }
     else
@@ -275,7 +303,10 @@ void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MS
         UT_ResetState(UT_KEY(CFE_MSG_GetMsgId));
         UT_ResetState(UT_KEY(CFE_MSG_GetSize));
         UT_ResetState(UT_KEY(CFE_MSG_GetFcnCode));
-        UT_ResetState(UT_KEY(CFE_MSG_EdsDispatch));
+        if (UT_TABLE_DISPATCHER != 0)
+        {
+            UT_ResetState(UT_TABLE_DISPATCHER);
+        }
     }
 }
 

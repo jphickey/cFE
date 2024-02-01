@@ -26,6 +26,15 @@
 #define CFE_EVS_EXTERN_TYPEDEFS_H
 
 #include "common_types.h"
+#include "cfe_mission_cfg.h"
+#include "cfe_resourceid_typedef.h"
+
+#ifdef CFE_EDS_ENABLED_BUILD
+
+/* Source the definitions from EDS */
+#include "cfe_evs_eds_typedefs.h"
+
+#else /* CFE_EDS_ENABLED_BUILD */
 
 /**
  * @brief Label definitions associated with CFE_EVS_MsgFormat_Enum_t
@@ -156,5 +165,8 @@ enum CFE_EVS_EventOutput
  * @sa enum CFE_EVS_EventOutput
  */
 typedef uint8 CFE_EVS_EventOutput_Enum_t;
+
+#endif /* CFE_EDS_ENABLED_BUILD */
+
 
 #endif /* CFE_EVS_EXTERN_TYPEDEFS_H */

@@ -25,7 +25,10 @@
 #ifndef CFE_FS_EXTERN_TYPEDEFS_H
 #define CFE_FS_EXTERN_TYPEDEFS_H
 
+#include "common_types.h"
 #include "cfe_mission_cfg.h"
+#include "cfe_resourceid_typedef.h"
+
 #include "cfe_fs_filedef.h"
 
 #endif /* CFE_FS_EXTERN_TYPEDEFS_H */

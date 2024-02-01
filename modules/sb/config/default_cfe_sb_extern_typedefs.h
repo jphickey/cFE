@@ -29,6 +29,22 @@
 #include "cfe_mission_cfg.h"
 #include "cfe_resourceid_typedef.h"
 
+#ifdef CFE_EDS_ENABLED_BUILD
+
+/* Source the definitions from EDS */
+#include "cfe_sb_eds_typedefs.h"
+
+/**
+ * @brief  CFE_SB_MsgId_Atom_t primitive type definition
+ *
+ * Due to the way EDS toolchain works, this type name in the
+ * generated header does not match.
+ */
+typedef CFE_SB_MsgIdValue_Atom_t CFE_SB_MsgId_Atom_t;
+
+#else /* CFE_EDS_ENABLED_BUILD */
+
+
 #define CFE_SB_SUB_ENTRIES_PER_PKT 20 /**< \brief Configuration parameter used by SBN App */
 
 /**
@@ -124,5 +140,7 @@ typedef struct
     uint8 Reliability; /**< \brief  Specify high(1) or low(0) message transfer reliability for off-board routing,
                           currently unused */
 } CFE_SB_Qos_t;
+
+#endif /* CFE_EDS_ENABLED_BUILD */
 
 #endif /* CFE_SB_EXTERN_TYPEDEFS_H */

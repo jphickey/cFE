@@ -25,11 +25,6 @@
 #ifndef CFE_TEST_TBL_H
 #define CFE_TEST_TBL_H
 
-#include "cfe_testcase_eds_typedefs.h"
-
-/*
- * typedef to handle the naming discrepancy between table type names
- */
-typedef CFE_TEST_TestTable_t TBL_TEST_Table_t;
+#include "cfe_test_tblstruct.h"
 
 #endif /* CFE_TEST_TBL_H */

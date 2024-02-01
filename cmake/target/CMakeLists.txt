@@ -134,7 +134,6 @@ target_compile_definitions(core-${TGTNAME} PRIVATE
 
 target_include_directories(core-${TGTNAME} PRIVATE
     "${CMAKE_BINARY_DIR}/${CFE_CORE_TARGET}/inc"
-    "${edslib_MISSION_DIR}/fsw/inc"
 )
 
 # This next section provides a method for adding the "-u" switch to the
@@ -194,34 +193,36 @@ set(CFE_LINK_NORMAL_LIBS
     ${${TGTNAME}_STATIC_APPLIST}
 )
 
-# Determine EDS object linking mode for final executable.
-# This should be configured via the toolchain file,
-# with the default being FALSE (static link)
-if (CFE_SYSTEM_EDSDB_DYNAMIC_LINK)
+# If EDS is enabled, then the generated dictionary objects are linked with CFE.
+# This can be done statically or dynamically, depending on user preferences.
+if (CFE_EDS_ENABLED_BUILD)
 
-    # In this mode no static EDS object is linked
-    # The CFE_STATIC_EDSDB_OBJECT macro will be undefined
-    add_definitions(-UCFE_STATIC_EDSDB_OBJECT)
+    # Determine EDS object linking mode for final executable.
+    # This should be configured via the toolchain file,
+    # with the default being FALSE (static link)
+    if (CFE_EDS_LINK_MODE STREQUAL GLOBAL)
 
-else(CFE_SYSTEM_EDSDB_DYNAMIC_LINK)
+        # In this mode the full EDS object is statically linked
+        # In addition, also pull in the runtime lib, which
+        # supports script language bindings and UI display
+        list(APPEND CFE_LINK_WHOLE_LIBS
+            cfe_edsdb_static
+            edslib_runtime_static
+        )
 
-    # In this mode the full EDS object is statically linked
-    # The CFE_STATIC_EDSDB_OBJECT macro will be defined
-    add_definitions(-DCFE_STATIC_EDSDB_OBJECT=EDS_DATABASE)
+    endif()
 
-    # In addition, also pull in the runtime lib, which
-    # supports script language bindings and UI display
     list(APPEND CFE_LINK_WHOLE_LIBS
-        edslib_runtime_static
+        cfe_missionlib_runtime_static
+        cfe_missionlib_interfacedb_static
     )
 
-endif(CFE_SYSTEM_EDSDB_DYNAMIC_LINK)
+    # Set a preprocessor define so the source will reference the right thing
+    target_compile_definitions(core-${TGTNAME} PRIVATE
+        CFE_EDS_LINK_MODE_${CFE_EDS_LINK_MODE}
+    )
 
-list(APPEND CFE_LINK_WHOLE_LIBS
-    cfe_edsdb_static
-    cfe_missionlib_runtime_static
-    cfe_missionlib_interfacedb_static
-)
+endif(CFE_EDS_ENABLED_BUILD)
 
 # Handle the list of "embedded files" that should be linked into CFE.
 # These are arbitrary files in the mission config that are converted
@@ -306,4 +307,3 @@ target_link_libraries(core-${TGTNAME}
 # This is implemented in a separate function so
 # it may be overridden in an OS-specific manner if necessary.
 cfe_exec_do_install(${TGTNAME})
-

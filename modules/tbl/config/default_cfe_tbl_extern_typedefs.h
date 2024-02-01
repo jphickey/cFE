@@ -28,6 +28,14 @@
 #include "common_types.h"
 #include "cfe_es_extern_typedefs.h"
 #include "cfe_mission_cfg.h" /* for CFE_MISSION_TBL_MAX_FULL_NAME_LEN */
+#include "cfe_resourceid_typedef.h"
+
+#ifdef CFE_EDS_ENABLED_BUILD
+
+/* Source the definitions from EDS */
+#include "cfe_tbl_eds_typedefs.h"
+
+#else /* CFE_EDS_ENABLED_BUILD */
 
 /**
  * @brief Label definitions associated with CFE_TBL_BufferSelect_Enum_t
@@ -68,5 +76,7 @@ typedef struct CFE_TBL_File_Hdr
     uint32 NumBytes;                                     /**< Number of bytes to load into table */
     char   TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< Fully qualified name of table to load */
 } CFE_TBL_File_Hdr_t;
+
+#endif /* CFE_EDS_ENABLED_BUILD */
 
 #endif /* CFE_TBL_EXTERN_TYPEDEFS_H */

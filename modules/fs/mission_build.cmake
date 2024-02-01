@@ -21,7 +21,6 @@ if (CFE_EDS_ENABLED_BUILD)
   # In an EDS-based build, these files come generated from the EDS tool
   set(FS_CFGFILE_SRC_cfe_fs_interface_cfg   "cfe_fs_eds_designparameters.h")
   set(FS_CFGFILE_SRC_cfe_fs_filedef         "cfe_fs_eds_typedefs.h")
-  set(FS_CFGFILE_SRC_cfe_fs_extern_typedefs "${CMAKE_CURRENT_LIST_DIR}/config/cfe_fs_extern_typedefs_eds_adapter.h")
 
 endif(CFE_EDS_ENABLED_BUILD)
 

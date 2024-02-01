@@ -18,22 +18,40 @@
 
 /**
  * @file
- *   CFE Test app (CFE_TEST) Application Message IDs
+ *   CFE Test app (CFE_TEST) Application Message Definitions
  */
-#ifndef CFE_TEST_MSGIDS_H
-#define CFE_TEST_MSGIDS_H
+#ifndef CFE_TEST_MSGSTRUCT_H
+#define CFE_TEST_MSGSTRUCT_H
 
-#include "cfe_core_api_base_msgids.h"
-#include "cfe_test_topicids.h"
+#include "cfe_msg_hdr.h"
+#include "cfe_test_msgdefs.h"
 
-/*
-** cFE Command Message Id's
-*/
-#define CFE_TEST_CMD_MID CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_TEST_CMD_MSG /* 0x1802 */
+/* A simple command message with a 64 bit payload */
+typedef struct CFE_TEST_TestCmdMessage
+{
+    CFE_MSG_CommandHeader_t  CommandHeader;
+    CFE_TEST_TestPayload64_t Payload;
+} CFE_TEST_TestCmdMessage64_t;
 
-/*
-** CFE Telemetry Message Id's
-*/
-#define CFE_TEST_HK_TLM_MID CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_TEST_HK_TLM_MSG /* 0x0802 */
+/* A simple telemetry message with a 64 bit payload */
+typedef struct CFE_TEST_TestTlmMessage
+{
+    CFE_MSG_TelemetryHeader_t TelemetryHeader;
+    CFE_TEST_TestPayload64_t  Payload;
+} CFE_TEST_TestTlmMessage64_t;
+
+/* A simple command message with a 32 bit payload */
+typedef struct
+{
+    CFE_MSG_CommandHeader_t  CommandHeader;
+    CFE_TEST_TestPayload32_t Payload;
+} CFE_TEST_TestCmdMessage32_t;
+
+/* A simple telemetry message with a 32 bit payload */
+typedef struct
+{
+    CFE_MSG_TelemetryHeader_t TelemetryHeader;
+    CFE_TEST_TestPayload32_t  Payload;
+} CFE_TEST_TestTlmMessage32_t;
 
 #endif
