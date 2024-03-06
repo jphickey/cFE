@@ -32,32 +32,52 @@
 /*
  * Define a lookup table for ES command codes
  */
-static const CFE_TIME_Application_Component_Telecommand_DispatchTable_t CFE_TIME_TC_DISPATCH_TABLE = {
-    .CMD       = {.AddOneHzAdjustmentCmd_indication = CFE_TIME_AddOneHzAdjustmentCmd,
-            .AddAdjustCmd_indication        = CFE_TIME_AddAdjustCmd,
-            .AddDelayCmd_indication         = CFE_TIME_AddDelayCmd,
-            .SendDiagnosticCmd_indication   = CFE_TIME_SendDiagnosticTlm,
-            .NoopCmd_indication             = CFE_TIME_NoopCmd,
-            .ResetCountersCmd_indication    = CFE_TIME_ResetCountersCmd,
-            .SetLeapSecondsCmd_indication   = CFE_TIME_SetLeapSecondsCmd,
-            .SetMETCmd_indication           = CFE_TIME_SetMETCmd,
-            .SetSignalCmd_indication        = CFE_TIME_SetSignalCmd,
-            .SetSourceCmd_indication        = CFE_TIME_SetSourceCmd,
-            .SetStateCmd_indication         = CFE_TIME_SetStateCmd,
-            .SetSTCFCmd_indication          = CFE_TIME_SetSTCFCmd,
-            .SetTimeCmd_indication          = CFE_TIME_SetTimeCmd,
-            .SubOneHzAdjustmentCmd_indication = CFE_TIME_SubOneHzAdjustmentCmd,
-            .SubAdjustCmd_indication        = CFE_TIME_SubAdjustCmd,
-            .SubDelayCmd_indication         = CFE_TIME_SubDelayCmd},
-    .SEND_HK   = {.indication = CFE_TIME_SendHkCmd},
-    .ONEHZ_CMD = {.indication = CFE_TIME_OneHzCmd},
+/* clang-format off */
+static const EdsDispatchTable_CFE_TIME_Application_CFE_SB_Telecommand_t CFE_TIME_TC_DISPATCH_TABLE =
+{
+    .CMD =
+    {
+        .AddOneHzAdjustmentCmd_indication = CFE_TIME_AddOneHzAdjustmentCmd,
+        .AddAdjustCmd_indication          = CFE_TIME_AddAdjustCmd,
+        .AddDelayCmd_indication           = CFE_TIME_AddDelayCmd,
+        .SendDiagnosticCmd_indication     = CFE_TIME_SendDiagnosticTlm,
+        .NoopCmd_indication               = CFE_TIME_NoopCmd,
+        .ResetCountersCmd_indication      = CFE_TIME_ResetCountersCmd,
+        .SetLeapSecondsCmd_indication     = CFE_TIME_SetLeapSecondsCmd,
+        .SetMETCmd_indication             = CFE_TIME_SetMETCmd,
+        .SetSignalCmd_indication          = CFE_TIME_SetSignalCmd,
+        .SetSourceCmd_indication          = CFE_TIME_SetSourceCmd,
+        .SetStateCmd_indication           = CFE_TIME_SetStateCmd,
+        .SetSTCFCmd_indication            = CFE_TIME_SetSTCFCmd,
+        .SetTimeCmd_indication            = CFE_TIME_SetTimeCmd,
+        .SubOneHzAdjustmentCmd_indication = CFE_TIME_SubOneHzAdjustmentCmd,
+        .SubAdjustCmd_indication          = CFE_TIME_SubAdjustCmd,
+        .SubDelayCmd_indication           = CFE_TIME_SubDelayCmd
+    },
+    .SEND_HK =
+    {
+        .indication = CFE_TIME_SendHkCmd
+    },
+    .ONEHZ_CMD =
+    {
+        .indication = CFE_TIME_OneHzCmd
+    },
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    .SEND_CMD = {.indication = CFE_TIME_ToneSendCmd},
+    .SEND_CMD =
+    {
+        .indication = CFE_TIME_ToneSendCmd
+    },
 #endif
-    .TONE_CMD = {.indication = CFE_TIME_ToneSignalCmd},
-    .DATA_CMD = {.indication = CFE_TIME_ToneDataCmd}
-
+    .TONE_CMD =
+    {
+        .indication = CFE_TIME_ToneSignalCmd
+    },
+    .DATA_CMD =
+    {
+        .indication = CFE_TIME_ToneDataCmd
+    }
 };
+/* clang-format on */
 
 /*----------------------------------------------------------------
  *
@@ -71,8 +91,7 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
     CFE_SB_MsgId_t    MsgId;
     CFE_MSG_FcnCode_t MsgFc;
 
-    Status = CFE_TIME_Application_Component_Telecommand_Dispatch(CFE_SB_Telecommand_indication_Command_ID, SBBufPtr,
-                                                                 &CFE_TIME_TC_DISPATCH_TABLE);
+    Status = EdsDispatch_CFE_TIME_Application_Telecommand(SBBufPtr, &CFE_TIME_TC_DISPATCH_TABLE);
 
     /* These specific status codes require sending an event with the details */
     if (Status == CFE_STATUS_BAD_COMMAND_CODE || Status == CFE_STATUS_WRONG_MSG_LENGTH ||

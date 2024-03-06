@@ -30,29 +30,39 @@
 /*
  * Define a lookup table for EVS command codes
  */
-static const CFE_EVS_Application_Component_Telecommand_DispatchTable_t CFE_EVS_TC_DISPATCH_TABLE = {
-    .CMD     = {.AddEventFilterCmd_indication      = CFE_EVS_AddEventFilterCmd,
-            .ClearLogCmd_indication            = CFE_EVS_ClearLogCmd,
-            .DeleteEventFilterCmd_indication   = CFE_EVS_DeleteEventFilterCmd,
-            .DisableAppEventTypeCmd_indication = CFE_EVS_DisableAppEventTypeCmd,
-            .DisableAppEventsCmd_indication    = CFE_EVS_DisableAppEventsCmd,
-            .DisableEventTypeCmd_indication    = CFE_EVS_DisableEventTypeCmd,
-            .DisablePortsCmd_indication        = CFE_EVS_DisablePortsCmd,
-            .EnableAppEventTypeCmd_indication  = CFE_EVS_EnableAppEventTypeCmd,
-            .EnableAppEventsCmd_indication     = CFE_EVS_EnableAppEventsCmd,
-            .EnableEventTypeCmd_indication     = CFE_EVS_EnableEventTypeCmd,
-            .EnablePortsCmd_indication         = CFE_EVS_EnablePortsCmd,
-            .WriteAppDataFileCmd_indication    = CFE_EVS_WriteAppDataFileCmd,
-            .WriteLogDataFileCmd_indication    = CFE_EVS_WriteLogDataFileCmd,
-            .NoopCmd_indication                = CFE_EVS_NoopCmd,
-            .ResetAllFiltersCmd_indication     = CFE_EVS_ResetAllFiltersCmd,
-            .ResetAppCounterCmd_indication     = CFE_EVS_ResetAppCounterCmd,
-            .ResetCountersCmd_indication       = CFE_EVS_ResetCountersCmd,
-            .ResetFilterCmd_indication         = CFE_EVS_ResetFilterCmd,
-            .SetEventFormatModeCmd_indication  = CFE_EVS_SetEventFormatModeCmd,
-            .SetFilterCmd_indication           = CFE_EVS_SetFilterCmd,
-            .SetLogModeCmd_indication          = CFE_EVS_SetLogModeCmd},
-    .SEND_HK = {.indication = CFE_EVS_ReportHousekeepingCmd}};
+/* clang-format off */
+static const EdsDispatchTable_CFE_EVS_Application_CFE_SB_Telecommand_t CFE_EVS_TC_DISPATCH_TABLE =
+{
+    .CMD =
+    {
+        .AddEventFilterCmd_indication      = CFE_EVS_AddEventFilterCmd,
+        .ClearLogCmd_indication            = CFE_EVS_ClearLogCmd,
+        .DeleteEventFilterCmd_indication   = CFE_EVS_DeleteEventFilterCmd,
+        .DisableAppEventTypeCmd_indication = CFE_EVS_DisableAppEventTypeCmd,
+        .DisableAppEventsCmd_indication    = CFE_EVS_DisableAppEventsCmd,
+        .DisableEventTypeCmd_indication    = CFE_EVS_DisableEventTypeCmd,
+        .DisablePortsCmd_indication        = CFE_EVS_DisablePortsCmd,
+        .EnableAppEventTypeCmd_indication  = CFE_EVS_EnableAppEventTypeCmd,
+        .EnableAppEventsCmd_indication     = CFE_EVS_EnableAppEventsCmd,
+        .EnableEventTypeCmd_indication     = CFE_EVS_EnableEventTypeCmd,
+        .EnablePortsCmd_indication         = CFE_EVS_EnablePortsCmd,
+        .WriteAppDataFileCmd_indication    = CFE_EVS_WriteAppDataFileCmd,
+        .WriteLogDataFileCmd_indication    = CFE_EVS_WriteLogDataFileCmd,
+        .NoopCmd_indication                = CFE_EVS_NoopCmd,
+        .ResetAllFiltersCmd_indication     = CFE_EVS_ResetAllFiltersCmd,
+        .ResetAppCounterCmd_indication     = CFE_EVS_ResetAppCounterCmd,
+        .ResetCountersCmd_indication       = CFE_EVS_ResetCountersCmd,
+        .ResetFilterCmd_indication         = CFE_EVS_ResetFilterCmd,
+        .SetEventFormatModeCmd_indication  = CFE_EVS_SetEventFormatModeCmd,
+        .SetFilterCmd_indication           = CFE_EVS_SetFilterCmd,
+        .SetLogModeCmd_indication          = CFE_EVS_SetLogModeCmd
+    },
+    .SEND_HK = 
+    {
+        .indication = CFE_EVS_ReportHousekeepingCmd
+    }
+};
+/* clang-format on */
 
 /*----------------------------------------------------------------
  *
@@ -67,8 +77,7 @@ void CFE_EVS_ProcessCommandPacket(const CFE_SB_Buffer_t *SBBufPtr)
     CFE_MSG_Size_t    MsgSize;
     CFE_MSG_FcnCode_t MsgFc;
 
-    Status = CFE_EVS_Application_Component_Telecommand_Dispatch(CFE_SB_Telecommand_indication_Command_ID, SBBufPtr,
-                                                                &CFE_EVS_TC_DISPATCH_TABLE);
+    Status = EdsDispatch_CFE_EVS_Application_Telecommand(SBBufPtr, &CFE_EVS_TC_DISPATCH_TABLE);
 
     /* These specific status codes require sending an event with the details */
     if (Status == CFE_STATUS_BAD_COMMAND_CODE || Status == CFE_STATUS_WRONG_MSG_LENGTH ||

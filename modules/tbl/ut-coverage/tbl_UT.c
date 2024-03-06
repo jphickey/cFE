@@ -82,15 +82,16 @@ void **ArrayOfPtrsToTblPtrs[2];
 
 /* EDS dispatching uses a generic function based on a lookup table.
  * This function is a stub so that stub just needs to know which entry to use. */
-#define TBL_UT_EDS_DISPATCH(intf,cmd) \
-    .Method = UT_TaskPipeDispatchMethod_TABLE_OFFSET, \
-    .TableOffset = offsetof(CFE_TBL_Application_Component_Telecommand_DispatchTable_t, intf.cmd)
+#define TBL_UT_EDS_DISPATCH(intf, cmd)                     \
+    .Method      = UT_TaskPipeDispatchMethod_TABLE_OFFSET, \
+    .TableOffset = offsetof(EdsDispatchTable_CFE_TBL_Application_CFE_SB_Telecommand_t, intf.cmd)
 
-#define TBL_UT_MSG_DISPATCH(intf,cmd)      TBL_UT_EDS_DISPATCH(intf, indication), UT_TPD_SETSIZE(CFE_TBL_ ## cmd)
-#define TBL_UT_CC_DISPATCH(intf,cc,cmd)    TBL_UT_EDS_DISPATCH(intf, cmd ## _indication), UT_TPD_SETSIZE(CFE_TBL_ ## cmd), UT_TPD_SETCC(cc)
-#define TBL_UT_ERROR_DISPATCH(intf,cc,err) UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
+#define TBL_UT_MSG_DISPATCH(intf, cmd) TBL_UT_EDS_DISPATCH(intf, indication), UT_TPD_SETSIZE(CFE_TBL_##cmd)
+#define TBL_UT_CC_DISPATCH(intf, cc, cmd) \
+    TBL_UT_EDS_DISPATCH(intf, cmd##_indication), UT_TPD_SETSIZE(CFE_TBL_##cmd), UT_TPD_SETCC(cc)
+#define TBL_UT_ERROR_DISPATCH(intf, cc, err) UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
 
-#else  /* CFE_EDS_ENABLED_BUILD */
+#else /* CFE_EDS_ENABLED_BUILD */
 
 /* Normal dispatching registers the MsgID+CC in order to follow a
  * certain path through a series of switch statements */
@@ -101,7 +102,7 @@ void **ArrayOfPtrsToTblPtrs[2];
 #define TBL_UT_CC_DISPATCH(intf, cc, cmd)    TBL_UT_MSG_DISPATCH(intf, cmd), UT_TPD_SETCC(cc)
 #define TBL_UT_ERROR_DISPATCH(intf, cc, err) TBL_UT_MID_DISPATCH(intf), UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
 
-#endif  /* CFE_EDS_ENABLED_BUILD */
+#endif /* CFE_EDS_ENABLED_BUILD */
 
 /* NOTE: Automatic formatting of this table tends to make it harder to read. */
 /* clang-format off */
@@ -153,7 +154,7 @@ static void UT_TBL_SetEdsLibTypeInfo(void *UserObj, UT_EntryKey_t FuncKey, const
         switch (EdsLib_Get_FormatIdx(EdsId))
         {
             case CFE_TBL_File_Hdr_DATADICTIONARY:
-                TypeInfo->Size.Bits  = sizeof(CFE_TBL_File_Hdr_PackedBuffer_t);
+                TypeInfo->Size.Bits  = sizeof(EdsPackedBuffer_CFE_TBL_File_Hdr_t);
                 TypeInfo->Size.Bytes = sizeof(CFE_TBL_File_Hdr_t);
                 break;
 
@@ -188,9 +189,9 @@ void UT_TBL_SetupHeader(CFE_TBL_File_Hdr_t *TblFileHeader, size_t Offset, size_t
 void UT_TBL_SetupReadHeader(CFE_TBL_File_Hdr_t *TblFileHeader, size_t NumBytes)
 {
     EdsLib_Id_t                            EdsId = EDSLIB_MAKE_ID(EDS_INDEX(CFE_TBL), CFE_TBL_File_Hdr_DATADICTIONARY);
-    static CFE_TBL_File_Hdr_PackedBuffer_t LocalBuffer = {0};
+    static EdsPackedBuffer_CFE_TBL_File_Hdr_t LocalBuffer = {0};
 
-    UT_SetDataBuffer(UT_KEY(OS_read), LocalBuffer, sizeof(CFE_TBL_File_Hdr_PackedBuffer_t), false);
+    UT_SetDataBuffer(UT_KEY(OS_read), LocalBuffer, sizeof(EdsPackedBuffer_CFE_TBL_File_Hdr_t), false);
     UT_SetDataBuffer(UT_KEY(EdsLib_DataTypeDB_UnpackCompleteObject) ^ EdsId, TblFileHeader, NumBytes, true);
     UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_UnpackCompleteObject), UT_TBL_SetEdsLibUnpackData, NULL);
     UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetTypeInfo), UT_TBL_SetEdsLibTypeInfo, NULL);
@@ -238,7 +239,7 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_CFE_TBL_DumpRegCmd);
     UT_ADD_TEST(Test_CFE_TBL_DumpCmd);
     UT_ADD_TEST(Test_CFE_TBL_LoadCmd);
-    UT_ADD_TEST(Test_CFE_TBL_HousekeepingCmd);
+    UT_ADD_TEST(Test_CFE_TBL_SendHkCmd);
 
     /* cfe_tbl_api.c and cfe_tbl_internal.c functions */
     UT_ADD_TEST(Test_CFE_TBL_ApiInit);
@@ -1389,7 +1390,7 @@ void Test_CFE_TBL_LoadCmd(void)
 /*
 ** Test the function that processes housekeeping request message
 */
-void Test_CFE_TBL_HousekeepingCmd(void)
+void Test_CFE_TBL_SendHkCmd(void)
 {
     int                   i;
     CFE_TBL_LoadBuff_t    DumpBuff;
@@ -1431,7 +1432,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
 
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SUCCESS - 1);
     CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND + 1;
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     for (i = 1; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
@@ -1446,26 +1447,26 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     CFE_TBL_Global.HkTlmTblRegIndex           = CFE_TBL_NOT_FOUND + 1;
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to an invalid table and a dump file create failure */
     UT_InitData();
     CFE_TBL_Global.HkTlmTblRegIndex           = CFE_TBL_NOT_FOUND;
     CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to a file time stamp failure */
     UT_InitData();
     CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_SetTimestamp), 1, OS_SUCCESS - 1);
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to OS_OpenCreate failure */
     UT_InitData();
     CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 3, -1);
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 }
 
 /*

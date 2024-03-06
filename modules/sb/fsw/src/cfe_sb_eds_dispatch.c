@@ -24,22 +24,32 @@
 /*
  * Define a lookup table for SB command codes
  */
-const CFE_SB_Application_Component_Telecommand_DispatchTable_t CFE_SB_TC_DISPATCH_TABLE = {
-    .CMD = {.DisableRouteCmd_indication     = CFE_SB_DisableRouteCmd,
-            .EnableRouteCmd_indication      = CFE_SB_EnableRouteCmd,
-            .NoopCmd_indication             = CFE_SB_NoopCmd,
-            .ResetCountersCmd_indication    = CFE_SB_ResetCountersCmd,
-            .WriteMapInfoCmd_indication     = CFE_SB_WriteMapInfoCmd,
-            .WritePipeInfoCmd_indication    = CFE_SB_WritePipeInfoCmd,
-            .WriteRoutingInfoCmd_indication = CFE_SB_WriteRoutingInfoCmd,
-            .SendSbStatsCmd_indication      = CFE_SB_SendStatsCmd},
+/* clang-format off */
+const EdsDispatchTable_CFE_SB_Application_CFE_SB_Telecommand_t CFE_SB_TC_DISPATCH_TABLE =
+{
+    .CMD =
+    {
+        .DisableRouteCmd_indication     = CFE_SB_DisableRouteCmd,
+        .EnableRouteCmd_indication      = CFE_SB_EnableRouteCmd,
+        .NoopCmd_indication             = CFE_SB_NoopCmd,
+        .ResetCountersCmd_indication    = CFE_SB_ResetCountersCmd,
+        .WriteMapInfoCmd_indication     = CFE_SB_WriteMapInfoCmd,
+        .WritePipeInfoCmd_indication    = CFE_SB_WritePipeInfoCmd,
+        .WriteRoutingInfoCmd_indication = CFE_SB_WriteRoutingInfoCmd,
+        .SendSbStatsCmd_indication      = CFE_SB_SendStatsCmd
+    },
     .SUB_RPT_CTRL =
-        {
-            .DisableSubReportingCmd_indication = CFE_SB_DisableSubReportingCmd,
-            .EnableSubReportingCmd_indication  = CFE_SB_EnableSubReportingCmd,
-            .SendPrevSubsCmd_indication        = CFE_SB_SendPrevSubsCmd,
-        },
-    .SEND_HK = {.indication = CFE_SB_SendHKTlmCmd}};
+    {
+        .DisableSubReportingCmd_indication = CFE_SB_DisableSubReportingCmd,
+        .EnableSubReportingCmd_indication  = CFE_SB_EnableSubReportingCmd,
+        .SendPrevSubsCmd_indication        = CFE_SB_SendPrevSubsCmd,
+    },
+    .SEND_HK =
+    {
+        .indication = CFE_SB_SendHKTlmCmd
+    }
+};
+/* clang-format on */
 
 /*----------------------------------------------------------------
  *
@@ -53,8 +63,7 @@ void CFE_SB_ProcessCmdPipePkt(const CFE_SB_Buffer_t *SBBufPtr)
     CFE_SB_MsgId_t    MsgId;
     CFE_MSG_FcnCode_t MsgFc;
 
-    Status = CFE_SB_Application_Component_Telecommand_Dispatch(CFE_SB_Telecommand_indication_Command_ID, SBBufPtr,
-                                                               &CFE_SB_TC_DISPATCH_TABLE);
+    Status = EdsDispatch_CFE_SB_Application_Telecommand(SBBufPtr, &CFE_SB_TC_DISPATCH_TABLE);
 
     /* These specific status codes require sending an event with the details */
     if (Status == CFE_STATUS_BAD_COMMAND_CODE || Status == CFE_STATUS_WRONG_MSG_LENGTH ||

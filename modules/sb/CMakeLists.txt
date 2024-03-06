@@ -11,7 +11,6 @@ set(sb_SOURCES
     fsw/src/cfe_sb_api.c
     fsw/src/cfe_sb_buf.c
     fsw/src/cfe_sb_init.c
-    fsw/src/cfe_sb_msg_id_util.c
     fsw/src/cfe_sb_priv.c
     fsw/src/cfe_sb_task.c
     fsw/src/cfe_sb_util.c
@@ -19,10 +18,16 @@ set(sb_SOURCES
 
 if (CFE_EDS_ENABLED_BUILD)
   # Use EDS-based message dispatch
-  list(APPEND sb_SOURCES fsw/src/cfe_sb_eds_dispatch.c)
+  list(APPEND sb_SOURCES
+    fsw/src/cfe_sb_eds_dispatch.c
+    fsw/src/cfe_sb_eds_msg_id_util.c
+  )
 else()
   # Use hardcoded message dispatch
-  list(APPEND sb_SOURCES fsw/src/cfe_sb_dispatch.c)
+  list(APPEND sb_SOURCES
+    fsw/src/cfe_sb_dispatch.c
+    fsw/src/cfe_sb_msg_id_util.c
+  )
 endif()
 
 add_library(sb STATIC ${sb_SOURCES})

@@ -168,5 +168,4 @@ typedef uint8 CFE_EVS_EventOutput_Enum_t;
 
 #endif /* CFE_EDS_ENABLED_BUILD */
 
-
 #endif /* CFE_EVS_EXTERN_TYPEDEFS_H */

@@ -26,12 +26,15 @@
 #include "utgenstub.h"
 
 void UT_DefaultHandler_CFE_SB_AllocateMessageBuffer(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_CmdTopicIdToMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_CreatePipe(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_DeletePipe(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_GetPipeIdByName(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_GetPipeName(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_GetUserData(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_GetUserDataLength(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_GlobalCmdTopicIdToMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_GlobalTlmTopicIdToMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_IsValidMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_LocalCmdTopicIdToMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_LocalTlmTopicIdToMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
@@ -40,6 +43,7 @@ void UT_DefaultHandler_CFE_SB_MessageStringSet(void *, UT_EntryKey_t, const UT_S
 void UT_DefaultHandler_CFE_SB_ReceiveBuffer(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_SetUserDataLength(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_TimeStampMsg(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_TlmTopicIdToMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_TransmitBuffer(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_SB_TransmitMsg(void *, UT_EntryKey_t, const UT_StubContext_t *);
 
@@ -71,7 +75,7 @@ CFE_SB_MsgId_Atom_t CFE_SB_CmdTopicIdToMsgId(uint16 TopicId, uint16 InstanceNum)
     UT_GenStub_AddParam(CFE_SB_CmdTopicIdToMsgId, uint16, TopicId);
     UT_GenStub_AddParam(CFE_SB_CmdTopicIdToMsgId, uint16, InstanceNum);
 
-    UT_GenStub_Execute(CFE_SB_CmdTopicIdToMsgId, Basic, NULL);
+    UT_GenStub_Execute(CFE_SB_CmdTopicIdToMsgId, Basic, UT_DefaultHandler_CFE_SB_CmdTopicIdToMsgId);
 
     return UT_GenStub_GetReturnValue(CFE_SB_CmdTopicIdToMsgId, CFE_SB_MsgId_Atom_t);
 }
@@ -205,7 +209,7 @@ CFE_SB_MsgId_Atom_t CFE_SB_GlobalCmdTopicIdToMsgId(uint16 TopicId)
 
     UT_GenStub_AddParam(CFE_SB_GlobalCmdTopicIdToMsgId, uint16, TopicId);
 
-    UT_GenStub_Execute(CFE_SB_GlobalCmdTopicIdToMsgId, Basic, NULL);
+    UT_GenStub_Execute(CFE_SB_GlobalCmdTopicIdToMsgId, Basic, UT_DefaultHandler_CFE_SB_GlobalCmdTopicIdToMsgId);
 
     return UT_GenStub_GetReturnValue(CFE_SB_GlobalCmdTopicIdToMsgId, CFE_SB_MsgId_Atom_t);
 }
@@ -221,7 +225,7 @@ CFE_SB_MsgId_Atom_t CFE_SB_GlobalTlmTopicIdToMsgId(uint16 TopicId)
 
     UT_GenStub_AddParam(CFE_SB_GlobalTlmTopicIdToMsgId, uint16, TopicId);
 
-    UT_GenStub_Execute(CFE_SB_GlobalTlmTopicIdToMsgId, Basic, NULL);
+    UT_GenStub_Execute(CFE_SB_GlobalTlmTopicIdToMsgId, Basic, UT_DefaultHandler_CFE_SB_GlobalTlmTopicIdToMsgId);
 
     return UT_GenStub_GetReturnValue(CFE_SB_GlobalTlmTopicIdToMsgId, CFE_SB_MsgId_Atom_t);
 }
@@ -474,7 +478,7 @@ CFE_SB_MsgId_Atom_t CFE_SB_TlmTopicIdToMsgId(uint16 TopicId, uint16 InstanceNum)
     UT_GenStub_AddParam(CFE_SB_TlmTopicIdToMsgId, uint16, TopicId);
     UT_GenStub_AddParam(CFE_SB_TlmTopicIdToMsgId, uint16, InstanceNum);
 
-    UT_GenStub_Execute(CFE_SB_TlmTopicIdToMsgId, Basic, NULL);
+    UT_GenStub_Execute(CFE_SB_TlmTopicIdToMsgId, Basic, UT_DefaultHandler_CFE_SB_TlmTopicIdToMsgId);
 
     return UT_GenStub_GetReturnValue(CFE_SB_TlmTopicIdToMsgId, CFE_SB_MsgId_Atom_t);
 }

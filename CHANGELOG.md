@@ -1,5 +1,19 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev100
+- Add runtime TopicId conversion routines to SB
+- See <https://github.com/nasa/cFE/pull/2520>
+
+## Development Build: equuleus-rc1+dev96
+- change CFE_MSG_Message from union to struct
+- Remove unreachable/dead branch in CFE_ES_RunPerfLogDump()
+- See <https://github.com/nasa/cFE/pull/2515> and <https://github.com/nasa/cFE/pull/2330>
+
+## Development Build: equuleus-rc1+dev90
+- EDS XML file updates
+- add EDS cmake hooks
+- See <https://github.com/nasa/cFE/pull/2510> and <https://github.com/nasa/cFE/pull/2511>
+
 ## Development Build: equuleus-rc1+dev84
 - CFE updates needed for generated header compatibility (EDS)
 - See <https://github.com/nasa/cFE/pull/2505>

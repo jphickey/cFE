@@ -573,5 +573,4 @@ typedef struct CFE_ES_MemPoolStats
  */
 #define CFE_ES_MEMADDRESS_TO_PTR(x) ((void *)(cpuaddr)(x))
 
-
 #endif /* CFE_ES_EXTERN_TYPEDEFS_H */

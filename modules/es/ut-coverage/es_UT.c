@@ -95,13 +95,14 @@ char StartupScript[MAX_STARTUP_SCRIPT];
 
 /* EDS dispatching uses a generic function based on a lookup table.
  * This function is a stub so that stub just needs to know which entry to use. */
-#define ES_UT_EDS_DISPATCH(intf,cmd) \
-    .Method = UT_TaskPipeDispatchMethod_TABLE_OFFSET, \
-    .TableOffset = offsetof(CFE_ES_Application_Component_Telecommand_DispatchTable_t, intf.cmd)
+#define ES_UT_EDS_DISPATCH(intf, cmd)                      \
+    .Method      = UT_TaskPipeDispatchMethod_TABLE_OFFSET, \
+    .TableOffset = offsetof(EdsDispatchTable_CFE_ES_Application_CFE_SB_Telecommand_t, intf.cmd)
 
-#define ES_UT_MSG_DISPATCH(intf,cmd)      ES_UT_EDS_DISPATCH(intf, indication), UT_TPD_SETSIZE(CFE_ES_ ## cmd)
-#define ES_UT_CC_DISPATCH(intf,cc,cmd)    ES_UT_EDS_DISPATCH(intf, cmd ## _indication), UT_TPD_SETSIZE(CFE_ES_ ## cmd), UT_TPD_SETCC(cc)
-#define ES_UT_ERROR_DISPATCH(intf,cc,err) UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
+#define ES_UT_MSG_DISPATCH(intf, cmd) ES_UT_EDS_DISPATCH(intf, indication), UT_TPD_SETSIZE(CFE_ES_##cmd)
+#define ES_UT_CC_DISPATCH(intf, cc, cmd) \
+    ES_UT_EDS_DISPATCH(intf, cmd##_indication), UT_TPD_SETSIZE(CFE_ES_##cmd), UT_TPD_SETCC(cc)
+#define ES_UT_ERROR_DISPATCH(intf, cc, err) UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
 
 #else /* CFE_EDS_ENABLED_BUILD */
 

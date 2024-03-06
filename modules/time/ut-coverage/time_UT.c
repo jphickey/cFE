@@ -56,15 +56,16 @@ const char *TIME_SYSLOG_MSGS[] = {NULL,
 
 /* EDS dispatching uses a generic function based on a lookup table.
  * This function is a stub so that stub just needs to know which entry to use. */
-#define TIME_UT_EDS_DISPATCH(intf,cmd) \
-    .Method = UT_TaskPipeDispatchMethod_TABLE_OFFSET, \
-    .TableOffset = offsetof(CFE_TIME_Application_Component_Telecommand_DispatchTable_t, intf.cmd)
+#define TIME_UT_EDS_DISPATCH(intf, cmd)                    \
+    .Method      = UT_TaskPipeDispatchMethod_TABLE_OFFSET, \
+    .TableOffset = offsetof(EdsDispatchTable_CFE_TIME_Application_CFE_SB_Telecommand_t, intf.cmd)
 
-#define TIME_UT_MSG_DISPATCH(intf,cmd)      TIME_UT_EDS_DISPATCH(intf, indication), UT_TPD_SETSIZE(CFE_TIME_ ## cmd)
-#define TIME_UT_CC_DISPATCH(intf,cc,cmd)    TIME_UT_EDS_DISPATCH(intf, cmd ## _indication), UT_TPD_SETSIZE(CFE_TIME_ ## cmd), UT_TPD_SETCC(cc)
-#define TIME_UT_ERROR_DISPATCH(intf,cc,err) UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
+#define TIME_UT_MSG_DISPATCH(intf, cmd) TIME_UT_EDS_DISPATCH(intf, indication), UT_TPD_SETSIZE(CFE_TIME_##cmd)
+#define TIME_UT_CC_DISPATCH(intf, cc, cmd) \
+    TIME_UT_EDS_DISPATCH(intf, cmd##_indication), UT_TPD_SETSIZE(CFE_TIME_##cmd), UT_TPD_SETCC(cc)
+#define TIME_UT_ERROR_DISPATCH(intf, cc, err) UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
 
-#else  /* CFE_EDS_ENABLED_BUILD */
+#else /* CFE_EDS_ENABLED_BUILD */
 
 /* Normal dispatching registers the MsgID+CC in order to follow a
  * certain path through a series of switch statements */
@@ -75,7 +76,7 @@ const char *TIME_SYSLOG_MSGS[] = {NULL,
 #define TIME_UT_CC_DISPATCH(intf, cc, cmd)    TIME_UT_MSG_DISPATCH(intf, cmd), UT_TPD_SETCC(cc)
 #define TIME_UT_ERROR_DISPATCH(intf, cc, err) TIME_UT_MID_DISPATCH(intf), UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
 
-#endif  /* CFE_EDS_ENABLED_BUILD */
+#endif /* CFE_EDS_ENABLED_BUILD */
 
 /* NOTE: Automatic formatting of this table tends to make it harder to read. */
 /* clang-format off */

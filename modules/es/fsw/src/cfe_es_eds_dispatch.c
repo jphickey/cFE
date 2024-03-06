@@ -28,39 +28,47 @@
 #include "cfe_es_module_all.h"
 #include "cfe_es_eds_dictionary.h"
 #include "cfe_es_eds_dispatcher.h"
+#include "cfe_mission_eds_interface_parameters.h"
 
 /*
  * Define a lookup table for ES command codes
  */
-static const CFE_ES_Application_Component_Telecommand_DispatchTable_t CFE_ES_TC_DISPATCH_TABLE = {
+/* clang-format off */
+static const EdsDispatchTable_CFE_ES_Application_CFE_SB_Telecommand_t CFE_ES_TC_DISPATCH_TABLE =
+{
     .CMD =
-        {
-            .NoopCmd_indication               = CFE_ES_NoopCmd,
-            .ResetCountersCmd_indication      = CFE_ES_ResetCountersCmd,
-            .RestartCmd_indication            = CFE_ES_RestartCmd,
-            .StartAppCmd_indication           = CFE_ES_StartAppCmd,
-            .StopAppCmd_indication            = CFE_ES_StopAppCmd,
-            .RestartAppCmd_indication         = CFE_ES_RestartAppCmd,
-            .ReloadAppCmd_indication          = CFE_ES_ReloadAppCmd,
-            .QueryOneCmd_indication           = CFE_ES_QueryOneCmd,
-            .QueryAllCmd_indication           = CFE_ES_QueryAllCmd,
-            .QueryAllTasksCmd_indication      = CFE_ES_QueryAllTasksCmd,
-            .ClearSysLogCmd_indication        = CFE_ES_ClearSysLogCmd,
-            .WriteSysLogCmd_indication        = CFE_ES_WriteSysLogCmd,
-            .OverWriteSysLogCmd_indication    = CFE_ES_OverWriteSysLogCmd,
-            .ClearERLogCmd_indication         = CFE_ES_ClearERLogCmd,
-            .WriteERLogCmd_indication         = CFE_ES_WriteERLogCmd,
-            .StartPerfDataCmd_indication      = CFE_ES_StartPerfDataCmd,
-            .StopPerfDataCmd_indication       = CFE_ES_StopPerfDataCmd,
-            .SetPerfFilterMaskCmd_indication  = CFE_ES_SetPerfFilterMaskCmd,
-            .SetPerfTriggerMaskCmd_indication = CFE_ES_SetPerfTriggerMaskCmd,
-            .ResetPRCountCmd_indication       = CFE_ES_ResetPRCountCmd,
-            .SetMaxPRCountCmd_indication      = CFE_ES_SetMaxPRCountCmd,
-            .DeleteCDSCmd_indication          = CFE_ES_DeleteCDSCmd,
-            .SendMemPoolStatsCmd_indication   = CFE_ES_SendMemPoolStatsCmd,
-            .DumpCDSRegistryCmd_indication    = CFE_ES_DumpCDSRegistryCmd,
-        },
-    .SEND_HK = {.indication = CFE_ES_HousekeepingCmd}};
+    {
+        .NoopCmd_indication               = CFE_ES_NoopCmd,
+        .ResetCountersCmd_indication      = CFE_ES_ResetCountersCmd,
+        .RestartCmd_indication            = CFE_ES_RestartCmd,
+        .StartAppCmd_indication           = CFE_ES_StartAppCmd,
+        .StopAppCmd_indication            = CFE_ES_StopAppCmd,
+        .RestartAppCmd_indication         = CFE_ES_RestartAppCmd,
+        .ReloadAppCmd_indication          = CFE_ES_ReloadAppCmd,
+        .QueryOneCmd_indication           = CFE_ES_QueryOneCmd,
+        .QueryAllCmd_indication           = CFE_ES_QueryAllCmd,
+        .QueryAllTasksCmd_indication      = CFE_ES_QueryAllTasksCmd,
+        .ClearSysLogCmd_indication        = CFE_ES_ClearSysLogCmd,
+        .WriteSysLogCmd_indication        = CFE_ES_WriteSysLogCmd,
+        .OverWriteSysLogCmd_indication    = CFE_ES_OverWriteSysLogCmd,
+        .ClearERLogCmd_indication         = CFE_ES_ClearERLogCmd,
+        .WriteERLogCmd_indication         = CFE_ES_WriteERLogCmd,
+        .StartPerfDataCmd_indication      = CFE_ES_StartPerfDataCmd,
+        .StopPerfDataCmd_indication       = CFE_ES_StopPerfDataCmd,
+        .SetPerfFilterMaskCmd_indication  = CFE_ES_SetPerfFilterMaskCmd,
+        .SetPerfTriggerMaskCmd_indication = CFE_ES_SetPerfTriggerMaskCmd,
+        .ResetPRCountCmd_indication       = CFE_ES_ResetPRCountCmd,
+        .SetMaxPRCountCmd_indication      = CFE_ES_SetMaxPRCountCmd,
+        .DeleteCDSCmd_indication          = CFE_ES_DeleteCDSCmd,
+        .SendMemPoolStatsCmd_indication   = CFE_ES_SendMemPoolStatsCmd,
+        .DumpCDSRegistryCmd_indication    = CFE_ES_DumpCDSRegistryCmd,
+    },
+    .SEND_HK =
+    {
+        .indication = CFE_ES_HousekeepingCmd
+    }
+};
+/* clang-format on */
 
 /*----------------------------------------------------------------
  *
@@ -75,8 +83,7 @@ void CFE_ES_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
     CFE_MSG_Size_t    MsgSize;
     CFE_MSG_FcnCode_t MsgFc;
 
-    Status = CFE_ES_Application_Component_Telecommand_Dispatch(CFE_SB_Telecommand_indication_Command_ID, SBBufPtr,
-                                                               &CFE_ES_TC_DISPATCH_TABLE);
+    Status = EdsDispatch_CFE_ES_Application_Telecommand(SBBufPtr, &CFE_ES_TC_DISPATCH_TABLE);
 
     /* These specific status codes require sending an event with the details */
     if (Status == CFE_STATUS_BAD_COMMAND_CODE || Status == CFE_STATUS_WRONG_MSG_LENGTH ||

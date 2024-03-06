@@ -363,5 +363,4 @@ typedef uint8 CFE_TIME_SetState_Enum_t;
 
 /** \} */
 
-
 #endif /* CFE_TIME_EXTERN_TYPEDEFS_H */

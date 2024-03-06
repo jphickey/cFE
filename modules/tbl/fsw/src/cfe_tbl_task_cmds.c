@@ -44,7 +44,7 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
+int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
 {
     int32                  Status;
     int32                  OsStatus;
@@ -316,8 +316,8 @@ int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data)
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     /* Acknowledge receipt of NOOP with Event Message */
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
-        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
     CFE_EVS_SendEvent(CFE_TBL_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
 
     return CFE_TBL_INC_CMD_CTR;
@@ -699,8 +699,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
     ReturnCode = CFE_TBL_EncodeFromMemory(WorkingBufferPtr->BufferPtr, SrcBufferPtr, RegRecPtr);
     if (ReturnCode != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(CFE_TBL_CODEC_ERROR_ERR_EID, CFE_EVS_EventType_ERROR, "Cannot encode table '%s'",
-                          TableName);
+        CFE_EVS_SendEvent(CFE_TBL_CODEC_ERROR_ERR_EID, CFE_EVS_EventType_ERROR, "Cannot encode table '%s'", TableName);
 
         /* Free the working buffer + dump control buffer too */
         WorkingBufferPtr->Taken = false;
@@ -749,10 +748,10 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
     int32                OsStatus;
     size_t               TblSizeInBytes;
 
-    EdsLib_Id_t                     EdsId;
-    EdsLib_DataTypeDB_TypeInfo_t    TypeInfo;
-    CFE_TBL_File_Hdr_PackedBuffer_t LocalBuffer;
-    int32                           EdsStatus;
+    EdsLib_Id_t                        EdsId;
+    EdsLib_DataTypeDB_TypeInfo_t       TypeInfo;
+    EdsPackedBuffer_CFE_TBL_File_Hdr_t LocalBuffer;
+    int32                              EdsStatus;
 
     const EdsLib_DatabaseObject_t *EDS_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
 

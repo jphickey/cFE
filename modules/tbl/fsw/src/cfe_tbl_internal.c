@@ -1226,10 +1226,10 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
 int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHeaderPtr,
                           CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename)
 {
-    EdsLib_Id_t                     EdsId;
-    CFE_TBL_File_Hdr_PackedBuffer_t LocalBuffer;
-    int32                           Status;
-    int32                           OsStatus;
+    EdsLib_Id_t                        EdsId;
+    EdsPackedBuffer_CFE_TBL_File_Hdr_t LocalBuffer;
+    int32                              Status;
+    int32                              OsStatus;
 
     const EdsLib_DatabaseObject_t *EDS_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
 

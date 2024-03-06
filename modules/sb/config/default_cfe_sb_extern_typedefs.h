@@ -44,7 +44,6 @@ typedef CFE_SB_MsgIdValue_Atom_t CFE_SB_MsgId_Atom_t;
 
 #else /* CFE_EDS_ENABLED_BUILD */
 
-
 #define CFE_SB_SUB_ENTRIES_PER_PKT 20 /**< \brief Configuration parameter used by SBN App */
 
 /**

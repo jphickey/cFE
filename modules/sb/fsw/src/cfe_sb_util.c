@@ -33,235 +33,7 @@
 
 #include "cfe_sb_module_all.h"
 
-#include "cfe_config.h"
-#include "edslib_datatypedb.h"
-#include "cfe_missionlib_runtime.h"
-#include "cfe_missionlib_api.h"
-#include "cfe_mission_eds_parameters.h"
-#include "cfe_mission_eds_interface_parameters.h"
-
 #include <string.h>
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr)
-{
-    size_t         size      = 0;
-    bool           hassechdr = false;
-    CFE_MSG_Type_t type      = CFE_MSG_Type_Invalid;
-
-    if (MsgPtr == NULL)
-    {
-        return size;
-    }
-
-    CFE_MSG_GetHasSecondaryHeader(MsgPtr, &hassechdr);
-    CFE_MSG_GetType(MsgPtr, &type);
-
-    /* if secondary hdr is not present... */
-    /* Since all cFE messages must have a secondary hdr this check is not needed */
-    if (!hassechdr)
-    {
-        size = sizeof(CFE_MSG_Message_t);
-    }
-    else if (type == CFE_MSG_Type_Cmd)
-    {
-        size = sizeof(CFE_MSG_CommandHeader_t);
-    }
-    else if (type == CFE_MSG_Type_Tlm)
-    {
-        size = sizeof(CFE_MSG_TelemetryHeader_t);
-    }
-
-    return size;
-}
-
-/*----------------------------------------------------------------
- *
- * Implemented per public API
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_Status_t CFE_SB_GetUserPayloadInfo(const CFE_MSG_Message_t *MsgPtr, EdsLib_DataTypeDB_EntityInfo_t *PayloadInfo)
-{
-    union
-    {
-        CFE_SB_Listener_Component_t  Listener;
-        CFE_SB_Publisher_Component_t Publisher;
-
-    } FuncParams;
-    CFE_MSG_Type_t                           MsgType;
-    int32                                    EdsStatus;
-    EdsLib_Id_t                              EdsId;
-    EdsLib_DataTypeDB_DerivativeObjectInfo_t DerivObjInfo;
-    CFE_SB_SoftwareBus_PubSub_Interface_t    PubSubParams;
-
-    const EdsLib_DatabaseObject_t *               EDS_DB    = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
-    const CFE_MissionLib_SoftwareBus_Interface_t *SBINTF_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_SBINTF_DB);
-
-    MsgType   = CFE_MSG_Type_Invalid;
-    EdsStatus = CFE_MISSIONLIB_FAILURE;
-    if (MsgPtr != NULL)
-    {
-        CFE_MissionLib_Get_PubSub_Parameters(&PubSubParams, &MsgPtr->BaseMsg);
-
-        if (CFE_MissionLib_PubSub_IsListenerComponent(&PubSubParams))
-        {
-            MsgType = CFE_MSG_Type_Cmd;
-            CFE_MissionLib_UnmapListenerComponent(&FuncParams.Listener, &PubSubParams);
-
-            EdsStatus = CFE_MissionLib_GetArgumentType(SBINTF_DB, CFE_SB_Telecommand_Interface_ID,
-                                                       FuncParams.Listener.Telecommand.TopicId, 1, 1, &EdsId);
-        }
-        else if (CFE_MissionLib_PubSub_IsPublisherComponent(&PubSubParams))
-        {
-            MsgType = CFE_MSG_Type_Tlm;
-            CFE_MissionLib_UnmapPublisherComponent(&FuncParams.Publisher, &PubSubParams);
-
-            EdsStatus = CFE_MissionLib_GetArgumentType(SBINTF_DB, CFE_SB_Telemetry_Interface_ID,
-                                                       FuncParams.Publisher.Telemetry.TopicId, 1, 1, &EdsId);
-        }
-    }
-
-    /*
-     * The above code yields an interface base type.  Need to potentially interpret
-     * value constraints within the headers to determine final/real type.
-     */
-    if (EdsStatus == CFE_MISSIONLIB_SUCCESS)
-    {
-        EdsStatus = EdsLib_DataTypeDB_IdentifyBuffer(EDS_DB, EdsId, MsgPtr, &DerivObjInfo);
-        if (EdsStatus == EDSLIB_SUCCESS)
-        {
-            /* Use the derived type as the actual EdsId */
-            EdsId = DerivObjInfo.EdsId;
-        }
-        else if (EdsStatus == EDSLIB_NO_MATCHING_VALUE)
-        {
-            /* This is OK if the struct is not derived or has no additional value constraints */
-            EdsStatus = EDSLIB_SUCCESS;
-        }
-    }
-
-    /*
-     * Index 0 is always the header, and index 1 should always be the first element of real data
-     */
-    if (EdsStatus == EDSLIB_SUCCESS)
-    {
-        EdsStatus = EdsLib_DataTypeDB_GetMemberByIndex(EDS_DB, EdsId, 1, PayloadInfo);
-    }
-
-    /*
-     * Back up: Not all messages are necessarily defined in EDS.  If the above lookup didn't work,
-     * then it means the content is not EDS-defined.  Revert to the traditional method of locating
-     * the payload by simply adding the header size to the base pointer.
-     */
-    if (EdsStatus != CFE_MISSIONLIB_SUCCESS)
-    {
-        memset(PayloadInfo, 0, sizeof(*PayloadInfo));
-
-        if (MsgType == CFE_MSG_Type_Cmd)
-        {
-            PayloadInfo->Offset.Bytes = sizeof(CFE_MSG_CommandHeader_t);
-            EdsStatus                 = CFE_MISSIONLIB_SUCCESS;
-        }
-        else if (MsgType == CFE_MSG_Type_Tlm)
-        {
-            PayloadInfo->Offset.Bytes = sizeof(CFE_MSG_TelemetryHeader_t);
-            EdsStatus                 = CFE_MISSIONLIB_SUCCESS;
-        }
-    }
-
-    if (EdsStatus != CFE_MISSIONLIB_SUCCESS)
-    {
-        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
-    }
-
-    return CFE_SUCCESS;
-}
-
-/*----------------------------------------------------------------
- *
- * Implemented per public API
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_SB_MsgId_Atom_t CFE_SB_CmdTopicIdToMsgId(uint16 TopicId, uint16 InstanceNum)
-{
-    const CFE_SB_Listener_Component_t     Params = {{.InstanceNumber = InstanceNum, .TopicId = TopicId}};
-    CFE_SB_SoftwareBus_PubSub_Interface_t Output;
-
-    CFE_MissionLib_MapListenerComponent(&Output, &Params);
-
-    return CFE_SB_MsgIdToValue(Output.MsgId);
-}
-
-/*----------------------------------------------------------------
- *
- * Implemented per public API
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_SB_MsgId_Atom_t CFE_SB_TlmTopicIdToMsgId(uint16 TopicId, uint16 InstanceNum)
-{
-    const CFE_SB_Publisher_Component_t    Params = {{.InstanceNumber = InstanceNum, .TopicId = TopicId}};
-    CFE_SB_SoftwareBus_PubSub_Interface_t Output;
-
-    CFE_MissionLib_MapPublisherComponent(&Output, &Params);
-
-    return CFE_SB_MsgIdToValue(Output.MsgId);
-}
-
-/*----------------------------------------------------------------
- *
- * Implemented per public API
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_SB_MsgId_Atom_t CFE_SB_GlobalCmdTopicIdToMsgId(uint16 TopicId)
-{
-    /* Instance number 0 is used for globals */
-    return CFE_SB_CmdTopicIdToMsgId(TopicId, 0);
-}
-
-/*----------------------------------------------------------------
- *
- * Implemented per public API
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_SB_MsgId_Atom_t CFE_SB_GlobalTlmTopicIdToMsgId(uint16 TopicId)
-{
-    /* Instance number 0 is used for globals */
-    return CFE_SB_TlmTopicIdToMsgId(TopicId, 0);
-}
-
-/*----------------------------------------------------------------
- *
- * Implemented per public API
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_SB_MsgId_Atom_t CFE_SB_LocalCmdTopicIdToMsgId(uint16 TopicId)
-{
-    /* PSP-reported Instance number is used for locals */
-    return CFE_SB_CmdTopicIdToMsgId(TopicId, CFE_PSP_GetProcessorId());
-}
-
-/*----------------------------------------------------------------
- *
- * Implemented per public API
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_SB_MsgId_Atom_t CFE_SB_LocalTlmTopicIdToMsgId(uint16 TopicId)
-{
-    /* PSP-reported Instance number is used for locals */
-    return CFE_SB_TlmTopicIdToMsgId(TopicId, CFE_PSP_GetProcessorId());
-}
 
 /*----------------------------------------------------------------
  *
@@ -271,16 +43,19 @@ CFE_SB_MsgId_Atom_t CFE_SB_LocalTlmTopicIdToMsgId(uint16 TopicId)
  *-----------------------------------------------------------------*/
 void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr)
 {
-    CFE_Status_t                   Status;
-    EdsLib_DataTypeDB_EntityInfo_t PayloadInfo;
+    uint8 *BytePtr;
+    size_t HdrSize;
 
-    Status = CFE_SB_GetUserPayloadInfo(MsgPtr, &PayloadInfo);
-    if (Status != CFE_SUCCESS)
+    if (MsgPtr == NULL)
     {
-        return NULL;
+        CFE_ES_WriteToSysLog("%s: Failed invalid arguments\n", __func__);
+        return 0;
     }
 
-    return &MsgPtr->Byte[PayloadInfo.Offset.Bytes];
+    BytePtr = (uint8 *)MsgPtr;
+    HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
+
+    return (BytePtr + HdrSize);
 }
 
 /*----------------------------------------------------------------
@@ -291,23 +66,18 @@ void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr)
  *-----------------------------------------------------------------*/
 size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr)
 {
-    CFE_Status_t                   Status;
-    CFE_MSG_Size_t                 TotalSize;
-    EdsLib_DataTypeDB_EntityInfo_t PayloadInfo;
+    CFE_MSG_Size_t TotalMsgSize = 0;
+    size_t         HdrSize;
 
-    Status = CFE_SB_GetUserPayloadInfo(MsgPtr, &PayloadInfo);
-    if (Status != CFE_SUCCESS)
+    if (MsgPtr == NULL)
     {
-        return 0;
+        return TotalMsgSize;
     }
 
-    Status = CFE_MSG_GetSize(MsgPtr, &TotalSize);
-    if (Status != CFE_SUCCESS || TotalSize < PayloadInfo.Offset.Bytes)
-    {
-        return 0;
-    }
+    CFE_MSG_GetSize(MsgPtr, &TotalMsgSize);
+    HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
 
-    return TotalSize - PayloadInfo.Offset.Bytes;
+    return TotalMsgSize - HdrSize;
 }
 
 /*----------------------------------------------------------------
@@ -318,8 +88,8 @@ size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr)
  *-----------------------------------------------------------------*/
 void CFE_SB_SetUserDataLength(CFE_MSG_Message_t *MsgPtr, size_t DataLength)
 {
-    EdsLib_DataTypeDB_EntityInfo_t PayloadInfo;
-    CFE_Status_t                   Status;
+    CFE_MSG_Size_t TotalMsgSize;
+    size_t         HdrSize;
 
     if (MsgPtr == NULL)
     {
@@ -327,14 +97,16 @@ void CFE_SB_SetUserDataLength(CFE_MSG_Message_t *MsgPtr, size_t DataLength)
     }
     else
     {
-        Status = CFE_SB_GetUserPayloadInfo(MsgPtr, &PayloadInfo);
-        if (Status != CFE_SUCCESS)
+        HdrSize      = CFE_SB_MsgHdrSize(MsgPtr);
+        TotalMsgSize = HdrSize + DataLength;
+
+        if (TotalMsgSize <= CFE_MISSION_SB_MAX_SB_MSG_SIZE)
         {
-            CFE_ES_WriteToSysLog("%s: Failed unknown payload location\n", __func__);
+            CFE_MSG_SetSize(MsgPtr, TotalMsgSize);
         }
         else
         {
-            CFE_MSG_SetSize(MsgPtr, DataLength + PayloadInfo.Offset.Bytes);
+            CFE_ES_WriteToSysLog("%s: Failed TotalMsgSize too large\n", __func__);
         }
     }
 }

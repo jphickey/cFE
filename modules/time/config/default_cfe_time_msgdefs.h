@@ -31,7 +31,6 @@
 #include "cfe_time_extern_typedefs.h"
 #include "cfe_time_fcncodes.h"
 
-
 /**
  * \brief Set leap seconds command payload
  */

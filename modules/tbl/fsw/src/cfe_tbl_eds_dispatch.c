@@ -21,25 +21,30 @@
 #include "cfe_tbl_eds_dispatcher.h"
 
 /*
-** Table task const data
-*/
-/*
  * Define a lookup table for TBL command codes
  */
-static const CFE_TBL_Application_Component_Telecommand_DispatchTable_t CFE_TBL_TC_DISPATCH_TABLE = {
-    .CMD     = {.AbortLoadCmd_indication     = CFE_TBL_AbortLoadCmd,
-            .ActivateCmd_indication      = CFE_TBL_ActivateCmd,
-            .DeleteCDSCmd_indication     = CFE_TBL_DeleteCDSCmd,
-            .DumpCmd_indication          = CFE_TBL_DumpCmd,
-            .DumpRegistryCmd_indication  = CFE_TBL_DumpRegistryCmd,
-            .LoadCmd_indication          = CFE_TBL_LoadCmd,
-            .NoopCmd_indication          = CFE_TBL_NoopCmd,
-            .ResetCountersCmd_indication = CFE_TBL_ResetCountersCmd,
-            .SendRegistryCmd_indication  = CFE_TBL_SendRegistryCmd,
-            .ValidateCmd_indication      = CFE_TBL_ValidateCmd},
-    .SEND_HK = {.indication = CFE_TBL_HousekeepingCmd}
-
+/* clang-format off */
+static const EdsDispatchTable_CFE_TBL_Application_CFE_SB_Telecommand_t CFE_TBL_TC_DISPATCH_TABLE =
+{
+    .CMD =
+    {
+        .AbortLoadCmd_indication     = CFE_TBL_AbortLoadCmd,
+        .ActivateCmd_indication      = CFE_TBL_ActivateCmd,
+        .DeleteCDSCmd_indication     = CFE_TBL_DeleteCDSCmd,
+        .DumpCmd_indication          = CFE_TBL_DumpCmd,
+        .DumpRegistryCmd_indication  = CFE_TBL_DumpRegistryCmd,
+        .LoadCmd_indication          = CFE_TBL_LoadCmd,
+        .NoopCmd_indication          = CFE_TBL_NoopCmd,
+        .ResetCountersCmd_indication = CFE_TBL_ResetCountersCmd,
+        .SendRegistryCmd_indication  = CFE_TBL_SendRegistryCmd,
+        .ValidateCmd_indication      = CFE_TBL_ValidateCmd
+    },
+    .SEND_HK = 
+    {
+        .indication = CFE_TBL_SendHkCmd
+    }
 };
+/* clang-format on */
 
 /*----------------------------------------------------------------
  *
@@ -54,8 +59,7 @@ void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
     CFE_MSG_Size_t    MsgSize;
     CFE_MSG_FcnCode_t MsgFc;
 
-    Status = CFE_TBL_Application_Component_Telecommand_Dispatch(CFE_SB_Telecommand_indication_Command_ID, SBBufPtr,
-                                                                &CFE_TBL_TC_DISPATCH_TABLE);
+    Status = EdsDispatch_CFE_TBL_Application_Telecommand(SBBufPtr, &CFE_TBL_TC_DISPATCH_TABLE);
 
     /* These specific status codes require sending an event with the details */
     if (Status == CFE_STATUS_BAD_COMMAND_CODE || Status == CFE_STATUS_WRONG_MSG_LENGTH ||
@@ -99,5 +103,4 @@ void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
          */
         CFE_TBL_Global.CommandErrorCounter++;
     }
-
 }
