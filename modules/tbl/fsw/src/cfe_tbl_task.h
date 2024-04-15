@@ -133,15 +133,19 @@ typedef struct
 */
 typedef struct
 {
-    void *      BufferPtr;             /**< \brief Pointer to Load Buffer */
-    uint32      FileCreateTimeSecs;    /**< \brief File creation time from last file loaded into table */
-    uint32      FileCreateTimeSubSecs; /**< \brief File creation time from last file loaded into table */
-    uint32      Crc;                   /**< \brief Last calculated CRC for this buffer's contents */
-    bool        Taken;                 /**< \brief Flag indicating whether buffer is in use */
-    bool        Validated;             /**< \brief Flag indicating whether the buffer has been successfully validated */
-    char        DataSource[OS_MAX_PATH_LEN]; /**< \brief Source of data put into buffer (filename or memory address) */
+    void *             BufferPtr;     /**< \brief Pointer to Load Buffer */
+    CFE_TIME_SysTime_t FileTime;      /**< \brief Time stamp from last file loaded into table */
+    uint32             Crc;           /**< \brief Last calculated CRC for this buffer's contents */
+    bool               Taken;         /**< \brief Flag indicating whether buffer is in use */
+    bool               Validated;     /**< \brief Flag indicating whether the buffer has been successfully validated */
+    char DataSource[OS_MAX_PATH_LEN]; /**< \brief Source of data put into buffer (filename or memory address) */
     EdsLib_Id_t EdsContentId;
 } CFE_TBL_LoadBuff_t;
+
+/**
+ * Reference to an entry in the Registry table
+ */
+typedef int16 CFE_TBL_RegId_t;
 
 /*******************************************************************************/
 /**   \brief Application to Table Access Descriptor
@@ -154,7 +158,7 @@ typedef struct
 typedef struct
 {
     CFE_ES_AppId_t   AppId;       /**< \brief Application ID to verify access */
-    int16            RegIndex;    /**< \brief Index into Table Registry (a.k.a. - Global Table #) */
+    CFE_TBL_RegId_t  RegIndex;    /**< \brief Index into Table Registry (a.k.a. - Global Table #) */
     CFE_TBL_Handle_t PrevLink;    /**< \brief Index of previous access descriptor in linked list */
     CFE_TBL_Handle_t NextLink;    /**< \brief Index of next access descriptor in linked list */
     bool             UsedFlag;    /**< \brief Indicates whether this descriptor is being used or not  */
@@ -206,10 +210,9 @@ typedef struct
 */
 typedef struct
 {
-    CFE_ES_CDSHandle_t CDSHandle;             /**< \brief Handle to Critical Data Store for Critical Tables */
-    uint32             FileCreateTimeSecs;    /**< \brief File creation time from last file loaded into table */
-    uint32             FileCreateTimeSubSecs; /**< \brief File creation time from last file loaded into table */
-    CFE_TIME_SysTime_t TimeOfLastUpdate;      /**< \brief Time when Table was last updated */
+    CFE_ES_CDSHandle_t CDSHandle;        /**< \brief Handle to Critical Data Store for Critical Tables */
+    CFE_TIME_SysTime_t FileTime;         /**< \brief File creation time from last file loaded into table */
+    CFE_TIME_SysTime_t TimeOfLastUpdate; /**< \brief Time when Table was last updated */
     char               LastFileLoaded[OS_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
     char               Name[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Processor specific table name */
     bool               TableLoadedOnce; /**< \brief Flag indicating whether table has been loaded once or not */
@@ -237,18 +240,17 @@ typedef struct
 */
 typedef struct
 {
-    CFE_ES_MemOffset_t Size;               /**< \brief Size, in bytes, of Table */
-    CFE_TIME_SysTime_t TimeOfLastUpdate;   /**< \brief Time when Table was last updated */
-    uint32             NumUsers;           /**< \brief Number of applications that are sharing the table */
-    int32              LoadInProgress;     /**< \brief Flag identifies inactive buffer and whether load in progress */
-    uint32             FileCreateTimeSecs; /**< \brief File creation time from last file loaded into table */
-    uint32             FileCreateTimeSubSecs; /**< \brief File creation time from last file loaded into table */
-    uint32             Crc;                   /**< \brief Most recent CRC computed by TBL Services on table contents */
-    bool               ValidationFunc;  /**< \brief Flag indicating whether table has an associated Validation func*/
-    bool               TableLoadedOnce; /**< \brief Flag indicating whether table has been loaded once or not */
-    bool               LoadPending;     /**< \brief Flag indicating an inactive buffer is ready to be copied */
-    bool               DumpOnly;        /**< \brief Flag indicating Table is NOT to be loaded */
-    bool               DoubleBuffered;  /**< \brief Flag indicating Table has a dedicated inactive buffer */
+    CFE_ES_MemOffset_t Size;             /**< \brief Size, in bytes, of Table */
+    CFE_TIME_SysTime_t TimeOfLastUpdate; /**< \brief Time when Table was last updated */
+    uint32             NumUsers;         /**< \brief Number of applications that are sharing the table */
+    int32              LoadInProgress;   /**< \brief Flag identifies inactive buffer and whether load in progress */
+    CFE_TIME_SysTime_t FileTime;         /**< \brief File creation time from last file loaded into table */
+    uint32             Crc;              /**< \brief Most recent CRC computed by TBL Services on table contents */
+    bool               ValidationFunc;   /**< \brief Flag indicating whether table has an associated Validation func*/
+    bool               TableLoadedOnce;  /**< \brief Flag indicating whether table has been loaded once or not */
+    bool               LoadPending;      /**< \brief Flag indicating an inactive buffer is ready to be copied */
+    bool               DumpOnly;         /**< \brief Flag indicating Table is NOT to be loaded */
+    bool               DoubleBuffered;   /**< \brief Flag indicating Table has a dedicated inactive buffer */
     char               Name[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Processor specific table name */
     char               LastFileLoaded[OS_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
     char               OwnerAppName[OS_MAX_API_NAME];   /**< \brief Application Name of App that Registered Table */

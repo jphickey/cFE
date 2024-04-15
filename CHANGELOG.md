@@ -1,5 +1,25 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev127
+- improve app dev guide
+- consistent TIME values for TBL structures
+- See <https://github.com/nasa/cFE/pull/2541> and <https://github.com/nasa/cFE/pull/2544>
+
+## Development Build: equuleus-rc1+dev120
+- Switch pc rtems toolchains to use osal generic-rtems bsp
+- table transaction initial implementation
+- See <https://github.com/nasa/cFE/pull/2535> and <https://github.com/nasa/cFE/pull/2539>
+
+## Development Build: equuleus-rc1+dev114
+- Split up and simplify control flow in CFE_TBL_Register()
+- naming convention for SendHkCmd
+- See <https://github.com/nasa/cFE/pull/2387> and <https://github.com/nasa/cFE/pull/2531>
+
+## Development Build: equuleus-rc1+dev107
+- propagate stack pointer for child tasks
+- add missing memset() for stack variables
+- See <https://github.com/nasa/cFE/pull/2517> and <https://github.com/nasa/cFE/pull/2527>
+
 ## Development Build: equuleus-rc1+dev100
 - Add runtime TopicId conversion routines to SB
 - See <https://github.com/nasa/cFE/pull/2520>
