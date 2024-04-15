@@ -542,7 +542,6 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
     int32                            i;
     int32                            OsStatus;
     CFE_TBL_DumpControl_t *          DumpCtrlPtr;
-    CFE_TIME_SysTime_t               DumpTime;
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(DumpFilename, (char *)CmdPtr->DumpFilename, NULL, sizeof(DumpFilename),
@@ -707,10 +706,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
     WorkingBufferPtr->EdsContentId = SrcBufferPtr->EdsContentId;
 
     /* Save the current time so that the header in the dump file can have the correct time */
-    DumpTime = CFE_TIME_GetTime();
-
-    DumpCtrlPtr->DumpBufferPtr->FileCreateTimeSecs    = DumpTime.Seconds;
-    DumpCtrlPtr->DumpBufferPtr->FileCreateTimeSubSecs = DumpTime.Subseconds;
+    DumpCtrlPtr->DumpBufferPtr->FileTime = CFE_TIME_GetTime();
 
     /*
      * Normal status / finish up -

@@ -65,7 +65,7 @@ static const EdsDispatchTable_CFE_ES_Application_CFE_SB_Telecommand_t CFE_ES_TC_
     },
     .SEND_HK =
     {
-        .indication = CFE_ES_HousekeepingCmd
+        .indication = CFE_ES_SendHkCmd
     }
 };
 /* clang-format on */

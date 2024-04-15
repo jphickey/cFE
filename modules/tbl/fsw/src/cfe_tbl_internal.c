@@ -746,8 +746,7 @@ int32 CFE_TBL_LoadFromFileAndDecode(const char *AppName, CFE_TBL_LoadBuff_t *Wor
         WorkingBufferPtr->DataSource[sizeof(WorkingBufferPtr->DataSource) - 1] = 0;
 
         /* Save file creation time for later storage into Registry */
-        WorkingBufferPtr->FileCreateTimeSecs    = ScratchBufferPtr->FileCreateTimeSecs;
-        WorkingBufferPtr->FileCreateTimeSubSecs = ScratchBufferPtr->FileCreateTimeSubSecs;
+        WorkingBufferPtr->FileTime    = ScratchBufferPtr->FileTime;
 
         /* Free the scratch buffer */
         ScratchBufferPtr->Taken = false;

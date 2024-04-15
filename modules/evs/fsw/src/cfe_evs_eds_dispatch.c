@@ -57,9 +57,9 @@ static const EdsDispatchTable_CFE_EVS_Application_CFE_SB_Telecommand_t CFE_EVS_T
         .SetFilterCmd_indication           = CFE_EVS_SetFilterCmd,
         .SetLogModeCmd_indication          = CFE_EVS_SetLogModeCmd
     },
-    .SEND_HK = 
+    .SEND_HK =
     {
-        .indication = CFE_EVS_ReportHousekeepingCmd
+        .indication = CFE_EVS_SendHkCmd
     }
 };
 /* clang-format on */
