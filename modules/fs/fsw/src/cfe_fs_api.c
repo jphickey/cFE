@@ -405,8 +405,17 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
     /* If input buffer is not empty, then use it, otherwise use DefaultInput */
     if (InputBuffer != NULL && InputBufSize > 0 && InputBuffer[0] != 0)
     {
+        InputPtr = memchr(InputBuffer, 0, InputBufSize);
+        if (InputPtr != NULL)
+        {
+            InputLen = InputPtr - InputBuffer;
+        }
+        else
+        {
+            InputLen = InputBufSize;
+        }
+
         InputPtr = InputBuffer;
-        InputLen = InputBufSize;
     }
     else if (DefaultInput != NULL)
     {
