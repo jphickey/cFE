@@ -3633,12 +3633,19 @@ static void SB_UT_PipeIdModifyHandler(void *UserObj, UT_EntryKey_t FuncKey, cons
     void *                  data        = UT_Hook_GetArgValueByName(Context, "data", void *);
     size_t *                size_copied = UT_Hook_GetArgValueByName(Context, "size_copied", size_t *);
     int32                   status;
-    static SB_UT_Test_Tlm_t FakeTlmPkt;
+    static struct
+    {
+        CFE_SB_BufferD_t Desc;
+        SB_UT_Test_Tlm_t content;
+    } FakeTlmPktD;
+
     SB_UT_Test_Tlm_t **     OutData;
     CFE_SB_PipeD_t *        PipeDscPtr = UserObj;
 
+    memset(&FakeTlmPktD, 0, sizeof(FakeTlmPktD));
+
     OutData      = data;
-    *OutData     = &FakeTlmPkt;
+    *OutData     = (void *)&FakeTlmPktD.Desc.Content;
     *size_copied = sizeof(*OutData);
     status       = OS_SUCCESS;
     UT_Stub_SetReturnValue(FuncKey, status);
