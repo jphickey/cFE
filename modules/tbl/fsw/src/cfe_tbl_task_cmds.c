@@ -34,7 +34,7 @@
 #include "cfe_version.h"
 #include "edslib_datatypedb.h"
 #include "cfe_mission_eds_parameters.h"
-#include "cfe_config.h"
+#include "cfe_config.h" /* For version string construction */
 
 #include <string.h>
 
@@ -88,10 +88,11 @@ int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
     /* Check to see if there are any dump-only table dumps pending */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
-        if (CFE_TBL_Global.DumpControlBlocks[i].State == CFE_TBL_DUMP_PERFORMED)
+        DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[i];
+
+        if (CFE_TBL_DumpCtrlBlockIsUsed(DumpCtrlPtr) && DumpCtrlPtr->State == CFE_TBL_DUMP_PERFORMED)
         {
-            DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[i];
-            Status      = CFE_TBL_DumpToFile(DumpCtrlPtr->DumpBufferPtr->DataSource, DumpCtrlPtr->TableName,
+            Status = CFE_TBL_DumpToFile(DumpCtrlPtr->DumpBufferPtr->DataSource, DumpCtrlPtr->TableName,
                                         DumpCtrlPtr->DumpBufferPtr);
 
             /* If dump file was successfully written, update the file header so that the timestamp */
@@ -127,7 +128,7 @@ int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
             DumpCtrlPtr->RegRecPtr->LoadInProgress                                 = CFE_TBL_NO_LOAD_IN_PROGRESS;
 
             /* Free the Dump Control Block for later use */
-            DumpCtrlPtr->State = CFE_TBL_DUMP_FREE;
+            CFE_TBL_DumpCtrlBlockSetFree(DumpCtrlPtr);
         }
     }
 
@@ -181,16 +182,21 @@ void CFE_TBL_GetHkData(void)
 
     /* Locate a completed, but unreported, validation request */
     i = 0;
-    while ((i < CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS) && (ValPtr == NULL))
+    while (true)
     {
-        if (CFE_TBL_Global.ValidationResults[i].State == CFE_TBL_VALIDATION_PERFORMED)
+        if (i >= CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS)
         {
-            ValPtr = &CFE_TBL_Global.ValidationResults[i];
+            ValPtr = NULL;
+            break;
         }
-        else
+
+        ValPtr = &CFE_TBL_Global.ValidationResults[i];
+        if (CFE_TBL_ValidationResultIsUsed(ValPtr) && ValPtr->State == CFE_TBL_VALIDATION_PERFORMED)
         {
-            i++;
+            break;
         }
+
+        ++i;
     }
 
     if (ValPtr != NULL)
@@ -218,7 +224,8 @@ void CFE_TBL_GetHkData(void)
         ValPtr->CrcOfTable   = 0;
         ValPtr->TableName[0] = '\0';
         ValPtr->ActiveBuffer = false;
-        ValPtr->State        = CFE_TBL_VALIDATION_FREE;
+
+        CFE_TBL_ValidationResultSetFree(ValPtr);
     }
 
     CFE_TBL_Global.HkPacket.Payload.ValidationCounter = CFE_TBL_Global.ValidationCounter;
@@ -532,16 +539,19 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
 int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t             ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
-    int16                            RegIndex;
+    CFE_TBL_TxnState_t               Txn;
     const CFE_TBL_DumpCmd_Payload_t *CmdPtr = &data->Payload;
     char                             DumpFilename[OS_MAX_PATH_LEN];
     char                             TableName[CFE_TBL_MAX_FULL_NAME_LEN];
     CFE_TBL_RegistryRec_t *          RegRecPtr;
-    CFE_TBL_LoadBuff_t *             SrcBufferPtr;
     CFE_TBL_LoadBuff_t *             WorkingBufferPtr;
-    int32                            i;
-    int32                            OsStatus;
+    CFE_TBL_LoadBuff_t *             SelectedBufferPtr;
+    CFE_ResourceId_t                 PendingDumpId;
+    CFE_Status_t                     Status;
     CFE_TBL_DumpControl_t *          DumpCtrlPtr;
+
+    SelectedBufferPtr = NULL;
+    WorkingBufferPtr  = NULL;
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(DumpFilename, (char *)CmdPtr->DumpFilename, NULL, sizeof(DumpFilename),
@@ -555,45 +565,84 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
     DumpCtrlPtr      = NULL;
 
     /* Before doing anything, lets make sure the table that is to be dumped exists */
-    RegIndex = CFE_TBL_FindTableInRegistry(TableName);
+    Status = CFE_TBL_TxnStartFromName(&Txn, TableName, CFE_TBL_TxnContext_UNDEFINED);
 
-    if (RegIndex != CFE_TBL_NOT_FOUND)
+    if (Status == CFE_SUCCESS)
     {
         /* Obtain a pointer to registry information about specified table */
-        RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
+        RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
 
         /* Determine what data is to be dumped */
-        if (CmdPtr->ActiveTableFlag == CFE_TBL_BufferSelect_ACTIVE)
-        {
-            SrcBufferPtr = &RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex];
-        }
-        else if (CmdPtr->ActiveTableFlag == CFE_TBL_BufferSelect_INACTIVE) /* Dumping Inactive Buffer */
-        {
-            /* If this is a double buffered table, locating the inactive buffer is trivial */
-            if (RegRecPtr->DoubleBuffered)
-            {
-                SrcBufferPtr = &RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)];
-            }
-            else
-            {
-                /* For single buffered tables, the index to the inactive buffer is kept in 'LoadInProgress' */
-                /* Unless this is a table whose address was defined by the owning Application.              */
-                if ((RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS) && (!RegRecPtr->UserDefAddr))
-                {
-                    SrcBufferPtr = &CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress];
-                }
-                else
-                {
-                    CFE_EVS_SendEvent(CFE_TBL_NO_INACTIVE_BUFFER_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "No Inactive Buffer for Table '%s' present", TableName);
-                }
-            }
-        }
-        else
+        SelectedBufferPtr = CFE_TBL_GetSelectedBuffer(RegRecPtr, CmdPtr->ActiveTableFlag);
+
+        CFE_TBL_TxnFinish(&Txn);
+
+        if (SelectedBufferPtr == NULL)
         {
             CFE_EVS_SendEvent(CFE_TBL_ILLEGAL_BUFF_PARAM_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Cmd for Table '%s' had illegal buffer parameter (0x%08X)", TableName,
                               (unsigned int)CmdPtr->ActiveTableFlag);
+        }
+        else
+        {
+            /* If we have located the data to be dumped, then proceed with creating the file and dumping the data */
+            /* If this is not a dump only table, then we can perform the dump immediately */
+            if (!RegRecPtr->DumpOnly)
+            {
+                ReturnCode = CFE_TBL_DumpToFile(DumpFilename, TableName, SelectedBufferPtr->BufferPtr, RegRecPtr->Size);
+            }
+            else /* Dump Only tables need to synchronize their dumps with the owner's execution */
+            {
+                /* Make sure a dump is not already in progress */
+                if (!CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->DumpControlId))
+                {
+                    /* Find a free Dump Control Block */
+                    PendingDumpId = CFE_TBL_GetNextDumpCtrlBlock();
+                    DumpCtrlPtr   = CFE_TBL_LocateDumpCtrlByID(CFE_TBL_DUMPCTRLID_C(PendingDumpId));
+                    if (DumpCtrlPtr != NULL)
+                    {
+                        /* Allocate a shared memory buffer for storing the data to be dumped */
+                        Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false);
+
+                        if (Status == CFE_SUCCESS)
+                        {
+                            DumpCtrlPtr->State     = CFE_TBL_DUMP_PENDING;
+                            DumpCtrlPtr->RegRecPtr = RegRecPtr;
+
+                            /* Save the name of the desired dump filename, table name and size for later */
+                            DumpCtrlPtr->DumpBufferPtr = WorkingBufferPtr;
+                            memcpy(DumpCtrlPtr->DumpBufferPtr->DataSource, DumpFilename, OS_MAX_PATH_LEN);
+                            memcpy(DumpCtrlPtr->TableName, TableName, CFE_TBL_MAX_FULL_NAME_LEN);
+                            DumpCtrlPtr->Size = RegRecPtr->Size;
+
+                            /* Notify the owning application that a dump is pending */
+                            CFE_TBL_DumpCtrlBlockSetUsed(DumpCtrlPtr, PendingDumpId);
+                            RegRecPtr->DumpControlId = CFE_TBL_DumpCtrlBlockGetId(DumpCtrlPtr);
+
+                            /* If application requested notification by message, then do so */
+                            CFE_TBL_SendNotificationMsg(RegRecPtr);
+
+                            /* Consider the command completed successfully */
+                            ReturnCode = CFE_TBL_INC_CMD_CTR;
+                        }
+                        else
+                        {
+                            CFE_EVS_SendEvent(CFE_TBL_NO_WORK_BUFFERS_ERR_EID, CFE_EVS_EventType_ERROR,
+                                              "No working buffers available for table '%s'", TableName);
+                        }
+                    }
+                    else
+                    {
+                        CFE_EVS_SendEvent(CFE_TBL_TOO_MANY_DUMPS_ERR_EID, CFE_EVS_EventType_ERROR,
+                                          "Too many Dump Only Table Dumps have been requested");
+                    }
+                }
+                else
+                {
+                    CFE_EVS_SendEvent(CFE_TBL_DUMP_PENDING_ERR_EID, CFE_EVS_EventType_ERROR,
+                                      "A dump for '%s' is already pending", TableName);
+                }
+            }
         }
     }
     else /* Table could not be found in Registry */
@@ -602,124 +651,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
                           "Unable to locate '%s' in Table Registry", TableName);
     }
 
-    /* If anything above failed or the table is not in an appropriate state to dump, return now */
-    if (SrcBufferPtr == NULL || RegRecPtr == NULL || SrcBufferPtr->BufferPtr == NULL)
-    {
-        return ReturnCode;
-    }
-
-    /*
-     * EDS Integration note:
-     * Previously this would dump the memory directly from memory to the file, but only for
-     * normal tables (i.e. not "dump only" tables).  For dump-only tables, it would defer the dump
-     * to a background task, using a temporary buffer.
-     *
-     * With EDS added, all dumps need to go through a translation from in-memory representation
-     * to the file representation.  As a side effect, this means now _all_ table dumps need to have
-     * a temporary buffer for holding the packed data, before it is written
-     *
-     * This fact can be leveraged to make everything more consistent - ALL dump operations need
-     * to obtain a scratch buffer, and all actual file writes can be done by the background task.
-     * While this pattern was previously only for "dump-only" tables, now this pattern can apply
-     * to all dump ops.
-     *
-     * There are actually two separate ephemeral objects to allocate for the procedure:
-     * 1. Temporary/scratch buffer from "LoadBuffs" (misnamed here, dump not load, but same purpose)
-     * 2. "DumpControlBlock" entry that will be picked up by background task
-     */
-    /* allocate a scratch buffer, which other tasks may also do, so needs a mutex */
-    OsStatus = OS_MutSemTake(CFE_TBL_Global.WorkBufMutex);
-    if (OsStatus != OS_SUCCESS)
-    {
-        CFE_ES_WriteToSysLog("%s: Internal error taking WorkBuf Mutex (Status=%ld)\n", __func__, (long)OsStatus);
-        return ReturnCode;
-    }
-
-    /* Determine if there are any common buffers available */
-    i = 0;
-    while ((i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS) && (CFE_TBL_Global.LoadBuffs[i].Taken == true))
-    {
-        i++;
-    }
-
-    /* If a free buffer was found, then return the address to the associated shared buffer */
-    if (i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS)
-    {
-        /* hang on to the LoadBuffs slot but do not reserve it yet */
-        WorkingBufferPtr = &CFE_TBL_Global.LoadBuffs[i];
-
-        /* Find a free Dump Control Block */
-        /* This is not done w/lock, but assumed that this is the only thread allocating these entries */
-        i = 0;
-        while ((i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS) &&
-               (CFE_TBL_Global.DumpControlBlocks[i].State != CFE_TBL_DUMP_FREE))
-        {
-            i++;
-        }
-
-        /* If a free buffer was found, then move forward */
-        if (i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS)
-        {
-            /* reserve the LoadBuffs slot found earlier */
-            WorkingBufferPtr->Taken = true;
-
-            /* also hang onto the dump control entry */
-            DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[i];
-        }
-        else
-        {
-            WorkingBufferPtr = NULL;
-        }
-    }
-
-    /* Allow others to obtain a shared working buffer */
-    OS_MutSemGive(CFE_TBL_Global.WorkBufMutex);
-
-    /* If successful, the code above should have set _both_ pointers non-null */
-    if (DumpCtrlPtr == NULL || WorkingBufferPtr == NULL)
-    {
-        CFE_EVS_SendEvent(CFE_TBL_TOO_MANY_DUMPS_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Too many table dumps are in progress");
-        return ReturnCode;
-    }
-
-    DumpCtrlPtr->RegRecPtr = RegRecPtr;
-
-    /* Save the name of the desired dump filename, table name and size for later */
-    DumpCtrlPtr->DumpBufferPtr = WorkingBufferPtr;
-    memcpy(DumpCtrlPtr->DumpBufferPtr->DataSource, DumpFilename, OS_MAX_PATH_LEN);
-    memcpy(DumpCtrlPtr->TableName, TableName, CFE_TBL_MAX_FULL_NAME_LEN);
-    DumpCtrlPtr->Size = RegRecPtr->Size;
-
-    ReturnCode = CFE_TBL_EncodeFromMemory(WorkingBufferPtr->BufferPtr, SrcBufferPtr, RegRecPtr);
-    if (ReturnCode != CFE_SUCCESS)
-    {
-        CFE_EVS_SendEvent(CFE_TBL_CODEC_ERROR_ERR_EID, CFE_EVS_EventType_ERROR, "Cannot encode table '%s'", TableName);
-
-        /* Free the working buffer + dump control buffer too */
-        WorkingBufferPtr->Taken = false;
-
-        return ReturnCode;
-    }
-
-    /* Save the Eds ID of the packed data */
-    WorkingBufferPtr->EdsContentId = SrcBufferPtr->EdsContentId;
-
-    /* Save the current time so that the header in the dump file can have the correct time */
-    DumpCtrlPtr->DumpBufferPtr->FileTime = CFE_TIME_GetTime();
-
-    /*
-     * Normal status / finish up -
-     * indicate to the background task that the dump was performed (i.e. packed data
-     * in working buffer is valid) so it can write to file.
-     */
-    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
-
-    /* If application requested notification by message, then do so */
-    CFE_TBL_SendNotificationMsg(RegRecPtr);
-
-    /* Consider the command completed successfully */
-    return CFE_TBL_INC_CMD_CTR;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -892,82 +824,60 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
 int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t                 ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
-    int16                                RegIndex;
+    CFE_TBL_TxnState_t                   Txn;
+    CFE_Status_t                         Status;
     const CFE_TBL_ValidateCmd_Payload_t *CmdPtr = &data->Payload;
     CFE_TBL_RegistryRec_t *              RegRecPtr;
-    void *                               ValidationDataPtr = NULL;
+    CFE_TBL_LoadBuff_t *                 SelectedBufferPtr;
     char                                 TableName[CFE_TBL_MAX_FULL_NAME_LEN];
     uint32                               CrcOfTable;
-    int32                                ValIndex;
+    CFE_ResourceId_t                     PendingValId;
+    CFE_TBL_ValidationResult_t *         ValResultPtr;
+
+    SelectedBufferPtr = NULL;
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL, sizeof(TableName), sizeof(CmdPtr->TableName));
 
     /* Before doing anything, lets make sure the table that is to be dumped exists */
-    RegIndex = CFE_TBL_FindTableInRegistry(TableName);
-
-    if (RegIndex != CFE_TBL_NOT_FOUND)
+    Status = CFE_TBL_TxnStartFromName(&Txn, TableName, CFE_TBL_TxnContext_UNDEFINED);
+    if (Status == CFE_SUCCESS)
     {
         /* Obtain a pointer to registry information about specified table */
-        RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
+        RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
+        CFE_TBL_TxnFinish(&Txn);
 
         /* Determine what data is to be validated */
-        if (CmdPtr->ActiveTableFlag == CFE_TBL_BufferSelect_ACTIVE)
+        SelectedBufferPtr = CFE_TBL_GetSelectedBuffer(RegRecPtr, CmdPtr->ActiveTableFlag);
+
+        if (SelectedBufferPtr == NULL)
         {
-            ValidationDataPtr = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].BufferPtr;
-        }
-        else if (CmdPtr->ActiveTableFlag == CFE_TBL_BufferSelect_INACTIVE) /* Validating Inactive Buffer */
-        {
-            /* If this is a double buffered table, locating the inactive buffer is trivial */
-            if (RegRecPtr->DoubleBuffered)
-            {
-                ValidationDataPtr = RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)].BufferPtr;
-            }
-            else
-            {
-                /* For single buffered tables, the index to the inactive buffer is kept in 'LoadInProgress' */
-                if (RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS)
-                {
-                    ValidationDataPtr = CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].BufferPtr;
-                }
-                else
-                {
-                    CFE_EVS_SendEvent(CFE_TBL_NO_INACTIVE_BUFFER_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "No Inactive Buffer for Table '%s' present", TableName);
-                }
-            }
+            CFE_EVS_SendEvent(CFE_TBL_NO_INACTIVE_BUFFER_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "No Buffer for Table '%s' present", TableName);
         }
         else
         {
-            CFE_EVS_SendEvent(CFE_TBL_ILLEGAL_BUFF_PARAM_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Cmd for Table '%s' had illegal buffer parameter (0x%08X)", TableName,
-                              (unsigned int)CmdPtr->ActiveTableFlag);
-        }
+            /* If we have located the data to be validated, then proceed with notifying the application, if */
+            /* necessary, and computing the CRC value for the block of memory                               */
 
-        /* If we have located the data to be validated, then proceed with notifying the application, if */
-        /* necessary, and computing the CRC value for the block of memory                               */
-        if (ValidationDataPtr != NULL)
-        {
             /* Find a free Validation Response Block */
-            ValIndex = 0;
-            while ((ValIndex < CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS) &&
-                   (CFE_TBL_Global.ValidationResults[ValIndex].State != CFE_TBL_VALIDATION_FREE))
-            {
-                ValIndex++;
-            }
-
-            if (ValIndex < CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS)
+            PendingValId = CFE_TBL_GetNextValResultBlock();
+            ValResultPtr = CFE_TBL_LocateValidationResultByID(CFE_TBL_VALRESULTID_C(PendingValId));
+            if (ValResultPtr != NULL)
             {
                 /* Allocate this Validation Response Block */
-                CFE_TBL_Global.ValidationResults[ValIndex].State  = CFE_TBL_VALIDATION_PENDING;
-                CFE_TBL_Global.ValidationResults[ValIndex].Result = 0;
-                memcpy(CFE_TBL_Global.ValidationResults[ValIndex].TableName, TableName, CFE_TBL_MAX_FULL_NAME_LEN);
+                ValResultPtr->State  = CFE_TBL_VALIDATION_PENDING;
+                ValResultPtr->Result = 0;
+                memcpy(ValResultPtr->TableName, TableName, CFE_TBL_MAX_FULL_NAME_LEN);
 
                 /* Compute the CRC on the specified table buffer */
-                CrcOfTable = CFE_ES_CalculateCRC(ValidationDataPtr, RegRecPtr->Size, 0, CFE_MISSION_ES_DEFAULT_CRC);
+                CrcOfTable =
+                    CFE_ES_CalculateCRC(SelectedBufferPtr->BufferPtr, RegRecPtr->Size, 0, CFE_MISSION_ES_DEFAULT_CRC);
 
-                CFE_TBL_Global.ValidationResults[ValIndex].CrcOfTable   = CrcOfTable;
-                CFE_TBL_Global.ValidationResults[ValIndex].ActiveBuffer = (CmdPtr->ActiveTableFlag != 0);
+                ValResultPtr->CrcOfTable   = CrcOfTable;
+                ValResultPtr->ActiveBuffer = (CmdPtr->ActiveTableFlag != 0);
+
+                CFE_TBL_ValidationResultSetUsed(ValResultPtr, PendingValId);
 
                 /* If owner has a validation function, then notify the  */
                 /* table owner that there is data to be validated       */
@@ -975,11 +885,11 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
                 {
                     if (CmdPtr->ActiveTableFlag)
                     {
-                        RegRecPtr->ValidateActiveIndex = ValIndex;
+                        RegRecPtr->ValidateActiveId = CFE_TBL_ValidationResultGetId(ValResultPtr);
                     }
                     else
                     {
-                        RegRecPtr->ValidateInactiveIndex = ValIndex;
+                        RegRecPtr->ValidateInactiveId = CFE_TBL_ValidationResultGetId(ValResultPtr);
                     }
 
                     /* If application requested notification by message, then do so */
@@ -998,7 +908,7 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
                     /* If there isn't a validation function pointer, then the process is complete  */
                     /* By setting this value, we are letting the Housekeeping process recognize it */
                     /* as data to be sent to the ground in telemetry.                              */
-                    CFE_TBL_Global.ValidationResults[ValIndex].State = CFE_TBL_VALIDATION_PERFORMED;
+                    ValResultPtr->State = CFE_TBL_VALIDATION_PERFORMED;
 
                     CFE_EVS_SendEvent(CFE_TBL_ASSUMED_VALID_INF_EID, CFE_EVS_EventType_INFORMATION,
                                       "Tbl Services assumes '%s' is valid. No Validation Function has been registered",

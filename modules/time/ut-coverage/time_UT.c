@@ -1101,7 +1101,7 @@ void Test_External(void)
     /* Test setting time data from MET (external source, state set) */
     UT_InitData();
     CFE_TIME_Global.ClockSource              = CFE_TIME_SourceSelect_EXTERNAL;
-    CFE_TIME_Global.ClockSetState            = CFE_TIME_SetState_WAS_SET;
+    CFE_TIME_Global.ClockSetState            = CFE_TIME_SetState_NOT_SET;
     settime.Seconds                          = 10;
     settime.Subseconds                       = 0;
     CFE_TIME_Global.ExternalCount            = 0;
@@ -1199,7 +1199,7 @@ void Test_External(void)
     /* Test setting time data from GPS (external source, state set) */
     UT_InitData();
     CFE_TIME_Global.ClockSource              = CFE_TIME_SourceSelect_EXTERNAL;
-    CFE_TIME_Global.ClockSetState            = CFE_TIME_SetState_WAS_SET;
+    CFE_TIME_Global.ClockSetState            = CFE_TIME_SetState_NOT_SET;
     settime.Seconds                          = 10;
     settime.Subseconds                       = 0;
     CFE_TIME_Global.ExternalCount            = 0;
@@ -1299,7 +1299,7 @@ void Test_External(void)
     /* Test setting time data from Time (external source, state set) */
     UT_InitData();
     CFE_TIME_Global.ClockSource                              = CFE_TIME_SourceSelect_EXTERNAL;
-    CFE_TIME_Global.ReferenceState[0].ClockSetState          = CFE_TIME_SetState_WAS_SET;
+    CFE_TIME_Global.ReferenceState[0].ClockSetState          = CFE_TIME_SetState_NOT_SET;
     settime.Seconds                                          = 10;
     settime.Subseconds                                       = 0;
     CFE_TIME_Global.ExternalCount                            = 0;
