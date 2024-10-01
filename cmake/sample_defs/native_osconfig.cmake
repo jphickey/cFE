@@ -56,3 +56,19 @@ set(OSAL_CONFIG_DEBUG_PERMISSIVE_MODE TRUE)
 # However for a flight deployment this may cause undesired delays.
 #
 set(OSAL_CONFIG_UTILITYTASK_PRIORITY 10)
+
+#
+# OSAL_CONFIG_INCLUDE_SHELL
+# --------------------------------
+#
+# Enable the shell functions in OSAL
+set(OSAL_CONFIG_INCLUDE_SHELL TRUE)
+
+#
+# OSAL_CONFIG_PRINTF_BUFFER_SIZE
+# --------------------------------
+#
+# Increase the OS_printf buffer size
+set(OSAL_CONFIG_PRINTF_BUFFER_SIZE 300)
+
+
