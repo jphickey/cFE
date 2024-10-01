@@ -559,7 +559,6 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
 
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL, sizeof(TableName), sizeof(CmdPtr->TableName));
 
-    SrcBufferPtr     = NULL;
     WorkingBufferPtr = NULL;
     RegRecPtr        = NULL;
     DumpCtrlPtr      = NULL;
@@ -589,7 +588,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
             /* If this is not a dump only table, then we can perform the dump immediately */
             if (!RegRecPtr->DumpOnly)
             {
-                ReturnCode = CFE_TBL_DumpToFile(DumpFilename, TableName, SelectedBufferPtr->BufferPtr, RegRecPtr->Size);
+                ReturnCode = CFE_TBL_DumpToFile(DumpFilename, TableName, SelectedBufferPtr->BufferPtr);
             }
             else /* Dump Only tables need to synchronize their dumps with the owner's execution */
             {

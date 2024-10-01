@@ -1029,16 +1029,14 @@ int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHead
 
     const EdsLib_DatabaseObject_t *EDS_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
 
-#if (CFE_PLATFORM_TBL_VALID_SCID_COUNT > 0)
-    static uint32 ListSC[2] = {CFE_PLATFORM_TBL_VALID_SCID_1, CFE_PLATFORM_TBL_VALID_SCID_2};
-    uint32        IndexSC;
-#endif
+    const uint32 *ListPtr;
+    uint32        Idx;
 
-#if (CFE_PLATFORM_TBL_VALID_PRID_COUNT > 0)
-    static uint32 ListPR[4] = {CFE_PLATFORM_TBL_VALID_PRID_1, CFE_PLATFORM_TBL_VALID_PRID_2,
-                               CFE_PLATFORM_TBL_VALID_PRID_3, CFE_PLATFORM_TBL_VALID_PRID_4};
-    uint32        IndexPR;
-#endif
+    CFE_Config_ArrayValue_t ListPR;
+    CFE_Config_ArrayValue_t ListSC;
+
+    ListSC = CFE_Config_GetArrayValue(CFE_CONFIGID_PLATFORM_TBL_VALID_SCID);
+    ListPR = CFE_Config_GetArrayValue(CFE_CONFIGID_PLATFORM_TBL_VALID_PRID);
 
     /* Once the file is open, read the headers to determine the target Table */
     Status = CFE_FS_ReadHeader(StdFileHeaderPtr, FileDescriptor);
@@ -1117,51 +1115,53 @@ int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHead
                      */
                     TblFileHeaderPtr->TableName[sizeof(TblFileHeaderPtr->TableName) - 1] = '\0';
 
-/* Verify Spacecraft ID contained in table file header [optional] */
-#if (CFE_PLATFORM_TBL_VALID_SCID_COUNT > 0)
-                    if (Status == CFE_SUCCESS)
+                    /* Verify Spacecraft ID contained in table file header [optional] */
+                    if (Status == CFE_SUCCESS && ListSC.NumElements != 0)
                     {
-                        Status = CFE_TBL_ERR_BAD_SPACECRAFT_ID;
-                        for (IndexSC = 0; IndexSC < CFE_PLATFORM_TBL_VALID_SCID_COUNT; IndexSC++)
+                        ListPtr = ListSC.ElementPtr;
+                        for (Idx = 0; Idx < ListSC.NumElements; ++Idx)
                         {
-                            if (StdFileHeaderPtr->SpacecraftID == ListSC[IndexSC])
+                            if (StdFileHeaderPtr->SpacecraftID == *ListPtr)
                             {
-                                Status = CFE_SUCCESS;
+                                break;
                             }
+
+                            ++ListPtr;
                         }
 
-                        if (Status == CFE_TBL_ERR_BAD_SPACECRAFT_ID)
+                        if (Idx == ListSC.NumElements)
                         {
+                            Status = CFE_TBL_ERR_BAD_SPACECRAFT_ID;
                             CFE_EVS_SendEventWithAppID(CFE_TBL_SPACECRAFT_ID_ERR_EID, CFE_EVS_EventType_ERROR,
                                                        CFE_TBL_Global.TableTaskAppId,
                                                        "Unable to verify Spacecraft ID for '%s', ID = 0x%08X",
                                                        LoadFilename, (unsigned int)StdFileHeaderPtr->SpacecraftID);
                         }
                     }
-#endif
 
-/* Verify Processor ID contained in table file header [optional] */
-#if (CFE_PLATFORM_TBL_VALID_PRID_COUNT > 0)
-                    if (Status == CFE_SUCCESS)
+                    /* Verify Processor ID contained in table file header [optional] */
+                    if (Status == CFE_SUCCESS && ListPR.NumElements != 0)
                     {
-                        Status = CFE_TBL_ERR_BAD_PROCESSOR_ID;
-                        for (IndexPR = 0; IndexPR < CFE_PLATFORM_TBL_VALID_PRID_COUNT; IndexPR++)
+                        ListPtr = ListPR.ElementPtr;
+                        for (Idx = 0; Idx < ListPR.NumElements; ++Idx)
                         {
-                            if (StdFileHeaderPtr->ProcessorID == ListPR[IndexPR])
+                            if (StdFileHeaderPtr->ProcessorID == *ListPtr)
                             {
-                                Status = CFE_SUCCESS;
+                                break;
                             }
+
+                            ++ListPtr;
                         }
 
-                        if (Status == CFE_TBL_ERR_BAD_PROCESSOR_ID)
+                        if (Idx == ListPR.NumElements)
                         {
+                            Status = CFE_TBL_ERR_BAD_PROCESSOR_ID;
                             CFE_EVS_SendEventWithAppID(CFE_TBL_PROCESSOR_ID_ERR_EID, CFE_EVS_EventType_ERROR,
                                                        CFE_TBL_Global.TableTaskAppId,
                                                        "Unable to verify Processor ID for '%s', ID = 0x%08X",
                                                        LoadFilename, (unsigned int)StdFileHeaderPtr->ProcessorID);
                         }
                     }
-#endif
                 }
             }
         }

@@ -1096,7 +1096,6 @@ CFE_Status_t CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
     int32                  Status;
     CFE_TBL_RegistryRec_t *RegRecPtr   = NULL;
     CFE_TBL_DumpControl_t *DumpCtrlPtr = NULL;
-    CFE_TBL_LoadBuff_t *   ActiveBufPtr;
 
     Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_ACCESSOR_APP);
 
@@ -1109,7 +1108,6 @@ CFE_Status_t CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
         {
             RegRecPtr    = CFE_TBL_TxnRegRec(&Txn);
             DumpCtrlPtr  = CFE_TBL_LocateDumpCtrlByID(RegRecPtr->DumpControlId);
-            ActiveBufPtr = CFE_TBL_GetActiveBuffer(RegRecPtr);
 
             /* Copy the contents of the active buffer to the assigned dump buffer */
             Status = CFE_TBL_EncodeFromMemory(DumpCtrlPtr->DumpBufferPtr->BufferPtr, &RegRecPtr->Buffers[0], RegRecPtr);
