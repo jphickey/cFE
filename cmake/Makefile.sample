@@ -101,7 +101,7 @@ endif
 # The "prep" step requires extra options that are specified via environment variables.
 # Certain special ones should be passed via cache (-D) options to CMake.
 # These are only needed for the "prep" target but they are computed globally anyway.
-PREP_OPTS :=
+PREP_OPTS := -DCFE_EDS_ENABLED_BUILD=TRUE
 
 ifneq ($(INSTALLPREFIX),)
 PREP_OPTS += -DCMAKE_INSTALL_PREFIX=$(INSTALLPREFIX)
