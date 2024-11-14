@@ -1,5 +1,14 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev209
+- Remove redundant status check in CFE_ES_RegisterCDSEx()
+- See <https://github.com/nasa/cFE/pull/2329>
+
+## Development Build: equuleus-rc1+dev205
+- fix sb coverage test failure
+- Pass the CMAKE_PREFIX_PATH to targets
+- See <https://github.com/nasa/cFE/pull/2602> and <https://github.com/nasa/cFE/pull/2606>
+
 ## Development Build: equuleus-rc1+dev199
 - Bump actions/download-artifact from 3 to 4.1.7 in /.github/workflows
 - See <https://github.com/nasa/cFE/pull/2599>
