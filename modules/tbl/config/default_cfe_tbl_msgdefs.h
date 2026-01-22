@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -19,12 +19,10 @@
 /**
  * @file
  *   Specification for the CFE Event Services (CFE_TBL) command and telemetry
- *   message constant definitions.
- *
- *  For CFE_TBL this is only the function/command code definitions
+ *   message payload and constant definitions.
  */
-#ifndef CFE_TBL_MSGDEFS_H
-#define CFE_TBL_MSGDEFS_H
+#ifndef DEFAULT_CFE_TBL_MSGDEFS_H
+#define DEFAULT_CFE_TBL_MSGDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"

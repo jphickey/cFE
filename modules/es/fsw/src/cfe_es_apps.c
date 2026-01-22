@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -594,7 +594,15 @@ void CFE_ES_TaskEntryPoint(void)
 {
     CFE_ES_TaskEntryFuncPtr_t RealEntryFunc;
 
-    if (CFE_ES_GetTaskFunction(&RealEntryFunc) == CFE_SUCCESS && RealEntryFunc != NULL)
+    /* When CFE_ES_GetTaskFunction returns CFE_SUCCESS, RealEntryFunc != NULL
+     * is implicit and therefore does not need to be checked here. This is 
+     * because in CFE_ES_GetTaskFunction, ReturnCode is set to CFE_SUCCESS only
+     * if EntryFunc != 0, and *FuncPtr which is RealEntryFunc is set to 
+     * EntryFunc. Since FuncPtr != NULL is also implicitly true since FuncPtr =
+     * &RealEntryFunc, FuncPtr != NULL will always evaluate to true. The 
+     * condition RealEntryFunc != NUL was therefore removed for coverage 
+     * purposes.*/
+    if (CFE_ES_GetTaskFunction(&RealEntryFunc) == CFE_SUCCESS)
     {
         /*
          * Set the default exception environment, which should

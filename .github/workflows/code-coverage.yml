@@ -2,7 +2,14 @@ name: "Code Coverage Analysis"
 
 on:
   push:
+    branches:
+      - dev
+      - main
   pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
   workflow_dispatch:
   schedule:
     # 11:00 PM UTC every Sunday
@@ -13,8 +20,8 @@ env:
   ENABLE_UNIT_TESTS: true
   OMIT_DEPRECATED: true
   BUILDTYPE: debug
-  ALLOWED_MISSED_BRANCHES: 39
-  ALLOWED_MISSED_LINES: 18
+  ALLOWED_MISSED_BRANCHES: 14
+  ALLOWED_MISSED_LINES: 8
   ALLOWED_MISSED_FUNCTIONS: 0
 jobs:
 
